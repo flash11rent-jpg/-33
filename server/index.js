@@ -1,0 +1,191 @@
+import express from "express";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
+import pg from "pg";
+import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
+import { z } from "zod";
+
+const { Pool } = pg;
+const app = express();
+const port = Number(process.env.PORT || 10000);
+const databaseUrl = process.env.DATABASE_URL;
+const adminApiKey = process.env.ADMIN_API_KEY;
+const allowedOrigins = (process.env.CORS_ORIGINS || "").split(",").map(v => v.trim()).filter(Boolean);
+
+if (!databaseUrl) {
+  console.error("DATABASE_URL is required. Configure a PostgreSQL database before starting the API.");
+  process.exit(1);
+}
+
+const pool = new Pool({
+  connectionString: databaseUrl,
+  ssl: process.env.PGSSL === "true" ? { rejectUnauthorized: true } : undefined,
+  max: Number(process.env.DB_POOL_MAX || 5),
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 5000
+});
+
+pool.on("error", err => console.error("Unexpected PostgreSQL pool error:", err.message));
+
+app.disable("x-powered-by");
+app.use(helmet());
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
+    if (origin) res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Vary", "Origin");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Admin-Key");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, OPTIONS");
+    if (req.method === "OPTIONS") return res.sendStatus(204);
+    return next();
+  }
+  return res.status(403).json({ error: "Origin is not allowed" });
+});
+app.use(express.json({ limit: "32kb" }));
+
+const orderLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 12, standardHeaders: "draft-8", legacyHeaders: false });
+const statusLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 60, standardHeaders: "draft-8", legacyHeaders: false });
+
+const createOrderSchema = z.object({
+  shopId: z.number().int().positive(),
+  items: z.array(z.object({
+    productId: z.number().int().positive(),
+    qty: z.number().int().min(1).max(50)
+  })).min(1).max(50),
+  phone: z.string().trim().min(7).max(30),
+  address: z.string().trim().min(5).max(300),
+  comment: z.string().trim().max(1000).optional().default("")
+}).strict();
+
+const validStatuses = ["Новый", "Подтверждён", "Собирается", "Готов", "В пути", "Доставлен", "Отменён"];
+const sha256 = value => createHash("sha256").update(value).digest("hex");
+const safeEqual = (a, b) => {
+  const left = Buffer.from(String(a));
+  const right = Buffer.from(String(b));
+  return left.length === right.length && timingSafeEqual(left, right);
+};
+
+function requireAdmin(req, res, next) {
+  if (!adminApiKey) return res.status(503).json({ error: "Operator access is not configured" });
+  const supplied = req.get("x-admin-key") || req.get("authorization")?.replace(/^Bearer\s+/i, "");
+  if (!supplied || !safeEqual(supplied, adminApiKey)) return res.status(401).json({ error: "Unauthorized" });
+  return next();
+}
+
+app.get("/health", (_req, res) => res.json({ ok: true, service: "tim-tim-api" }));
+app.get("/ready", async (_req, res) => {
+  try {
+    await pool.query("SELECT 1");
+    return res.json({ ok: true, database: "connected" });
+  } catch {
+    return res.status(503).json({ ok: false, database: "unavailable" });
+  }
+});
+
+app.post("/api/orders", orderLimiter, async (req, res, next) => {
+  try {
+    const parsed = createOrderSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: "Проверьте данные заказа", details: parsed.error.issues });
+    const { shopId, items, phone, address, comment } = parsed.data;
+    const quantities = new Map();
+    for (const item of items) quantities.set(item.productId, (quantities.get(item.productId) || 0) + item.qty);
+    if ([...quantities.values()].some(qty => qty > 50)) return res.status(400).json({ error: "Слишком большое количество товара" });
+    const ids = [...quantities.keys()];
+    const client = await pool.connect();
+    try {
+      await client.query("BEGIN");
+      const shopResult = await client.query("SELECT id, name FROM shops WHERE id = $1 AND is_active = TRUE", [shopId]);
+      if (!shopResult.rowCount) {
+        await client.query("ROLLBACK");
+        return res.status(400).json({ error: "Магазин временно недоступен" });
+      }
+      const productResult = await client.query(
+        "SELECT id, name, price_rub, unit FROM products WHERE shop_id = $1 AND id = ANY($2::int[]) AND is_active = TRUE FOR SHARE",
+        [shopId, ids]
+      );
+      if (productResult.rowCount !== ids.length) {
+        await client.query("ROLLBACK");
+        return res.status(400).json({ error: "Один или несколько товаров недоступны. Обновите корзину." });
+      }
+      const catalogue = new Map(productResult.rows.map(p => [p.id, p]));
+      const snapshot = ids.map(id => {
+        const p = catalogue.get(id);
+        const qty = quantities.get(id);
+        return { productId: p.id, name: p.name, unit: p.unit, price: p.price_rub, qty, lineTotal: p.price_rub * qty };
+      });
+      const itemsTotal = snapshot.reduce((sum, item) => sum + item.lineTotal, 0);
+      if (itemsTotal < 700) {
+        await client.query("ROLLBACK");
+        return res.status(400).json({ error: "Минимальная сумма товаров — 700 ₽" });
+      }
+      const trackingToken = randomBytes(32).toString("base64url");
+      const inserted = await client.query(
+        `INSERT INTO orders (tracking_token_hash, shop_id, shop_name, items, items_total_rub, total_rub, customer_phone, delivery_address, customer_comment)
+         VALUES ($1,$2,$3,$4,$5,$5,$6,$7,$8)
+         RETURNING id, order_number, status, total_rub, created_at`,
+        [sha256(trackingToken), shopId, shopResult.rows[0].name, JSON.stringify(snapshot), itemsTotal, phone, address, comment]
+      );
+      await client.query("COMMIT");
+      return res.status(201).json({ order: inserted.rows[0], trackingToken });
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
+    }
+  } catch (error) { return next(error); }
+});
+
+app.get("/api/orders/:id", statusLimiter, async (req, res, next) => {
+  try {
+    const token = req.get("x-order-token") || req.query.token;
+    if (typeof token !== "string" || token.length < 32) return res.status(404).json({ error: "Заказ не найден" });
+    const result = await pool.query(
+      "SELECT id, order_number, shop_name, items, items_total_rub, delivery_fee_rub, total_rub, status, created_at, updated_at FROM orders WHERE id = $1 AND tracking_token_hash = $2",
+      [req.params.id, sha256(token)]
+    );
+    if (!result.rowCount) return res.status(404).json({ error: "Заказ не найден" });
+    return res.json({ order: result.rows[0] });
+  } catch (error) { return next(error); }
+});
+
+app.get("/api/admin/orders", requireAdmin, async (req, res, next) => {
+  try {
+    const limit = Math.min(Math.max(Number(req.query.limit) || 50, 1), 100);
+    const result = await pool.query(
+      "SELECT id, order_number, shop_id, shop_name, items, items_total_rub, delivery_fee_rub, total_rub, customer_phone, delivery_address, customer_comment, status, created_at, updated_at FROM orders ORDER BY created_at DESC LIMIT $1",
+      [limit]
+    );
+    return res.json({ orders: result.rows });
+  } catch (error) { return next(error); }
+});
+
+app.patch("/api/admin/orders/:id/status", requireAdmin, async (req, res, next) => {
+  try {
+    const status = z.string().refine(value => validStatuses.includes(value)).safeParse(req.body?.status);
+    if (!status.success) return res.status(400).json({ error: "Недопустимый статус заказа" });
+    const result = await pool.query(
+      "UPDATE orders SET status = $1, updated_at = NOW() WHERE id = $2 RETURNING id, order_number, status, updated_at",
+      [status.data, req.params.id]
+    );
+    if (!result.rowCount) return res.status(404).json({ error: "Заказ не найден" });
+    return res.json({ order: result.rows[0] });
+  } catch (error) { return next(error); }
+});
+
+app.use((error, _req, res, _next) => {
+  console.error("API error:", error.message);
+  return res.status(500).json({ error: "Внутренняя ошибка сервера" });
+});
+
+const server = app.listen(port, "0.0.0.0", () => console.log(`Tim-Tim API listening on ${port}`));
+async function shutdown(signal) {
+  console.log(`${signal}: shutting down`);
+  server.close(async () => {
+    await pool.end();
+    process.exit(0);
+  });
+  setTimeout(() => process.exit(1), 10000).unref();
+}
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));
