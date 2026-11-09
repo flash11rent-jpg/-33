@@ -1,0 +1,27 @@
+databases:
+  - name: tim-tim-db
+    plan: free
+    region: frankfurt
+    postgresMajorVersion: 18
+
+services:
+  - type: web
+    name: tim-tim-api
+    runtime: node
+    region: frankfurt
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /ready
+    autoDeployTrigger: commit
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: tim-tim-db
+          property: connectionString
+      - key: ADMIN_API_KEY
+        generateValue: true
+      - key: CORS_ORIGINS
+        value: https://tim-tim.onrender.com
+      - key: PGSSL
+        value: "false"
