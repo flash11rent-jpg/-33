@@ -1,24 +1,27 @@
-# Тим-Тим — MVP-прототип
+# Тим-Тим — MVP доставки по Тимашевску
 
-Первая интерактивная версия PWA-интерфейса доставки по Тимашевску.
+Frontend: Vite + React PWA. API: Node.js + Express. Database: PostgreSQL.
 
-## Запуск
-1. Установите Node.js 20 или новее.
-2. В папке проекта выполните `npm install`.
-3. Запустите `npm run dev`.
-4. Откройте адрес, который покажет Vite.
+## Frontend
 
-Для production-сборки: `npm run build`.
+```bash
+npm install
+npm run dev
+npm run build
+```
 
-## Что уже работает в прототипе
-- Главная страница, категории, поиск магазинов.
-- Каталог товаров и добавление в корзину.
-- Ограничение корзины одним магазином.
-- Минимальная сумма товаров 700 ₽.
-- Оформление с адресом и телефоном.
-- Создание заказа и список заказов.
-- Демонстрационный режим оператора со сменой статусов.
-- Адаптивная вёрстка и PWA manifest.
+## API
 
-## Важно
-Это фронтенд-прототип. Данные хранятся в состоянии текущей вкладки и не синхронизируются между устройствами. Для реального запуска необходимо добавить сервер/API, базу данных, авторизацию и разграничение прав, уведомления, журнал действий, резервное копирование и юридически корректную обработку персональных данных. Цены и магазины — тестовые. Онлайн-оплата намеренно не реализована.
+The API starts with `npm start` and requires `DATABASE_URL` and `ADMIN_API_KEY`. Apply `server/schema.sql` to PostgreSQL before starting it. Full endpoint and deployment notes are in [server/README.md](server/README.md).
+
+## Current scope
+
+- Existing mobile-first storefront, demo shop catalogue, product selection and cart.
+- Server-side order API with database-backed product price checks.
+- Private order tracking token; operator endpoints protected by a server-side secret.
+- PostgreSQL schema for shops, products and orders.
+- Health/readiness endpoints, request validation, rate limiting and security headers.
+
+## Not yet production-ready
+
+The frontend still contains demo catalogue data and local-only order UI; it must be connected to the API before real customers can place orders. A PostgreSQL instance and API web service must be provisioned and configured in Render. Real shop partners, prices, stock, delivery fee, legal seller/agent model, privacy terms and fiscal receipt workflow must be confirmed. Online payment is intentionally not included. Never commit secrets or expose `ADMIN_API_KEY` to browser code.
