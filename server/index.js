@@ -1,4 +1,6 @@
 import express from "express";
+import { readFile } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import pg from "pg";
@@ -178,14 +180,24 @@ app.use((error, _req, res, _next) => {
   return res.status(500).json({ error: "Внутренняя ошибка сервера" });
 });
 
-const server = app.listen(port, "0.0.0.0", () => console.log(`Tim-Tim API listening on ${port}`));
-async function shutdown(signal) {
-  console.log(`${signal}: shutting down`);
-  server.close(async () => {
-    await pool.end();
-    process.exit(0);
-  });
-  setTimeout(() => process.exit(1), 10000).unref();
+async function start() {
+  const schemaPath = fileURLToPath(new URL("./schema.sql", import.meta.url));
+  const schema = await readFile(schemaPath, "utf8");
+  await pool.query(schema);
+  const server = app.listen(port, "0.0.0.0", () => console.log("Tim-Tim API listening on " + port));
+  async function shutdown(signal) {
+    console.log(signal + ": shutting down");
+    server.close(async () => {
+      await pool.end();
+      process.exit(0);
+    });
+    setTimeout(() => process.exit(1), 10000).unref();
+  }
+  process.on("SIGTERM", () => shutdown("SIGTERM"));
+  process.on("SIGINT", () => shutdown("SIGINT"));
 }
-process.on("SIGTERM", () => shutdown("SIGTERM"));
-process.on("SIGINT", () => shutdown("SIGINT"));
+
+start().catch(error => {
+  console.error("API startup failed:", error.message);
+  process.exit(1);
+});
