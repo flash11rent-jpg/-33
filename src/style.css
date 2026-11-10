@@ -249,3 +249,18 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 @media (prefers-reduced-motion: reduce) {
   *,*::before,*::after { scroll-behavior:auto !important; animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
 }
+
+/* Operator catalog manager */
+.operator-tabs{display:flex;gap:8px;overflow:auto;margin:14px 0 18px;padding:4px;background:#eef2ec;border-radius:14px}
+.operator-tabs button{border:0;background:transparent;border-radius:10px;padding:10px 16px;color:#536154;font:inherit;font-weight:700;white-space:nowrap}
+.operator-tabs button.active{background:#fff;color:#173f2b;box-shadow:0 2px 8px #183c2915}
+.operator-manager{display:grid;gap:12px;margin:12px 0 28px}
+.operator-manager h2{font-size:19px;margin:0 0 2px}
+.manager-create,.manager-row,.manager-product{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;align-items:center;padding:12px;background:#fff;border:1px solid #e6ebe5;border-radius:14px}
+.manager-create{background:#f6f8f4}
+.manager-create input,.manager-create select,.manager-row>input,.manager-product>input,.manager-product>select{min-width:0;width:100%;box-sizing:border-box;border:1px solid #dce4dc;border-radius:9px;padding:10px 11px;background:#fff;color:#24352a;font:inherit}
+.manager-active{display:flex;align-items:center;gap:7px;font-size:13px;color:#526255}
+.manager-active input{width:17px;height:17px;accent-color:#1f6a43}
+.manager-row .text-button,.manager-product .text-button{justify-self:start}
+.manager-product{grid-template-columns:1fr 1.4fr .7fr .8fr 1fr auto}
+@media(max-width:600px){.manager-create,.manager-row,.manager-product{grid-template-columns:1fr 1fr}.manager-create .primary-button,.manager-row .text-button,.manager-product .text-button{grid-column:1/-1;width:100%}.manager-product>input{min-width:0}}
