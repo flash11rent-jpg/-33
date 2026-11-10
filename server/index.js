@@ -9,6 +9,8 @@ import { z } from "zod";
 
 const { Pool } = pg;
 const app = express();
+// Render runs behind a trusted reverse proxy; required for rate-limit client IP detection.
+app.set("trust proxy", 1);
 const port = Number(process.env.PORT || 10000);
 const databaseUrl = process.env.DATABASE_URL;
 const adminApiKey = process.env.ADMIN_API_KEY;
@@ -176,23 +178,6 @@ app.get("/api/orders/:id", statusLimiter, async (req, res, next) => {
     if (!result.rowCount) return res.status(404).json({ error: "Заказ не найден" });
     return res.json({ order: result.rows[0] });
   } catch (error) { return next(error); }
-});
-
-app.post("/api/admin/login", loginLimiter, (req, res) => {
-  if (!adminPassword || !adminApiKey) return res.status(503).json({ error: "Вход оператора не настроен" });
-  const parsed = z.object({ password: z.string().min(1).max(200) }).strict().safeParse(req.body);
-  if (!parsed.success || !safeEqual(parsed.data.password, adminPassword)) {
-    return res.status(401).json({ error: "Неверный пароль" });
-  }
-  const payload = Buffer.from(JSON.stringify({ exp: Date.now() + 8 * 60 * 60 * 1000 })).toString("base64url");
-  const token = signSession(payload);
-  res.setHeader("Set-Cookie", "tt_admin=" + encodeURIComponent(token) + "; HttpOnly; Secure; SameSite=Lax; Path=/api/admin; Max-Age=28800");
-  return res.json({ ok: true });
-});
-
-app.post("/api/admin/logout", requireAdmin, (_req, res) => {
-  res.setHeader("Set-Cookie", "tt_admin=; HttpOnly; Secure; SameSite=Lax; Path=/api/admin; Max-Age=0");
-  return res.json({ ok: true });
 });
 
 app.post("/api/admin/login", loginLimiter, (req, res) => {
