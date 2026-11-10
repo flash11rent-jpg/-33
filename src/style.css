@@ -781,3 +781,13 @@ h1,h2,h3,.section-head h2,.page-title h1,.store-hero h1{
  .bakery-header-art .pastry-float{width:45px;right:0;bottom:0}
 }
 @media(prefers-reduced-motion:reduce){.bakery-food,.bakery-header-art .bakery-croissant{animation:none}}
+
+/* More bakery details: wheat, country loaf and baguette */
+.bakery-header-art .wheat-float{width:clamp(43px,10vw,65px);right:67px;top:16px;opacity:.76;animation-delay:-9s}
+.bakery-header-art .bread-float{width:clamp(54px,13vw,82px);right:42px;bottom:-8px;opacity:.9;animation-delay:-5s}
+.bakery-header-art .baguette-float{width:clamp(66px,16vw,100px);right:112px;top:78px;opacity:.68;animation-delay:-11s}
+@media(max-width:520px){
+ .bakery-header-art .wheat-float{width:43px;right:50px;top:13px}
+ .bakery-header-art .bread-float{width:58px;right:20px;bottom:-8px}
+ .bakery-header-art .baguette-float{width:67px;right:73px;top:83px}
+}
