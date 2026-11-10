@@ -16,7 +16,7 @@ const statuses=["Новый","Подтверждён","Собирается","Г
 const money=n=>new Intl.NumberFormat("ru-RU").format(n)+" ₽";
 const API_URL="https://tim-tim-api.onrender.com";
 function App(){
-const [page,setPage]=useState("home"),[category,setCategory]=useState("Все"),[query,setQuery]=useState(""),[activeShop,setActiveShop]=useState(null),[cart,setCart]=useState([]),[address,setAddress]=useState(""),[phone,setPhone]=useState(""),[comment,setComment]=useState(""),[notice,setNotice]=useState(""),[selectedOrder,setSelectedOrder]=useState(null),[isSubmitting,setIsSubmitting]=useState(false),[adminPassword,setAdminPassword]=useState(""),[adminAuthenticated,setAdminAuthenticated]=useState(false),[adminOrders,setAdminOrders]=useState([]),[adminError,setAdminError]=useState("");
+const [page,setPage]=useState("home"),[category,setCategory]=useState("Все"),[query,setQuery]=useState(""),[activeShop,setActiveShop]=useState(null),[cart,setCart]=useState([]),[address,setAddress]=useState(""),[phone,setPhone]=useState(""),[comment,setComment]=useState(""),[notice,setNotice]=useState(""),[selectedOrder,setSelectedOrder]=useState(null),[isSubmitting,setIsSubmitting]=useState(false),[adminPassword,setAdminPassword]=useState(""),[adminSession,setAdminSession]=useState(""),[adminAuthenticated,setAdminAuthenticated]=useState(false),[adminOrders,setAdminOrders]=useState([]),[adminError,setAdminError]=useState("");
 const [orders,setOrders]=useState(()=>{try{return JSON.parse(localStorage.getItem("timtim-orders")||"[]")}catch{return[]}});
 useEffect(()=>{localStorage.setItem("timtim-orders",JSON.stringify(orders))},[orders]);
 useEffect(()=>{
@@ -57,9 +57,9 @@ async function submitOrder(){
  }catch(error){setNotice(error.message||"Ошибка соединения с сервером")}
  finally{setIsSubmitting(false)}
 }
-async function loadOperatorOrders(){
+async function loadOperatorOrders(session=adminSession){
  try{
-  const response=await fetch(API_URL+"/api/admin/orders",{credentials:"include"});
+  const response=await fetch(API_URL+"/api/admin/orders",{credentials:"include",headers:session?{Authorization:"Bearer "+session}:{}});
   const data=await response.json().catch(()=>({}));
   if(!response.ok)throw new Error(data.error||"Не удалось загрузить заказы");
   setAdminOrders(data.orders||[]);setAdminAuthenticated(true);setAdminError("");
@@ -71,12 +71,12 @@ async function loginOperator(event){
   const response=await fetch(API_URL+"/api/admin/login",{method:"POST",credentials:"include",headers:{"Content-Type":"application/json"},body:JSON.stringify({password:adminPassword})});
   const data=await response.json().catch(()=>({}));
   if(!response.ok)throw new Error(data.error||"Не удалось войти");
-  setAdminPassword("");await loadOperatorOrders();
+  setAdminPassword("");setAdminSession(data.sessionToken||"");await loadOperatorOrders(data.sessionToken||"");
  }catch(error){setAdminError(error.message||"Ошибка входа")}
 }
 async function changeOperatorStatus(id,status){
  try{
-  const response=await fetch(API_URL+"/api/admin/orders/"+encodeURIComponent(id)+"/status",{method:"PATCH",credentials:"include",headers:{"Content-Type":"application/json"},body:JSON.stringify({status})});
+  const response=await fetch(API_URL+"/api/admin/orders/"+encodeURIComponent(id)+"/status",{method:"PATCH",credentials:"include",headers:{"Content-Type":"application/json",...(adminSession?{Authorization:"Bearer "+adminSession}:{})},body:JSON.stringify({status})});
   const data=await response.json().catch(()=>({}));
   if(!response.ok)throw new Error(data.error||"Не удалось обновить статус");
   setAdminOrders(old=>old.map(o=>o.id===id?{...o,status:data.order.status}:o));
@@ -84,7 +84,7 @@ async function changeOperatorStatus(id,status){
 }
 async function saveDeliveryFee(id,deliveryFeeRub){
  try{
-  const response=await fetch(API_URL+"/api/admin/orders/"+encodeURIComponent(id)+"/delivery-fee",{method:"PATCH",credentials:"include",headers:{"Content-Type":"application/json"},body:JSON.stringify({deliveryFeeRub:Number(deliveryFeeRub)})});
+  const response=await fetch(API_URL+"/api/admin/orders/"+encodeURIComponent(id)+"/delivery-fee",{method:"PATCH",credentials:"include",headers:{"Content-Type":"application/json",...(adminSession?{Authorization:"Bearer "+adminSession}:{})},body:JSON.stringify({deliveryFeeRub:Number(deliveryFeeRub)})});
   const data=await response.json().catch(()=>({}));
   if(!response.ok)throw new Error(data.error||"Не удалось сохранить доставку");
   setAdminOrders(old=>old.map(o=>o.id===id?{...o,...data.order}:o));
@@ -92,8 +92,8 @@ async function saveDeliveryFee(id,deliveryFeeRub){
  }catch(error){setAdminError(error.message||"Ошибка сохранения доставки")}
 }
 async function logoutOperator(){
- try{await fetch(API_URL+"/api/admin/logout",{method:"POST",credentials:"include"})}catch{}
- setAdminAuthenticated(false);setAdminOrders([]);setPage("profile");
+ try{await fetch(API_URL+"/api/admin/logout",{method:"POST",credentials:"include",headers:adminSession?{Authorization:"Bearer "+adminSession}:{}})}catch{}
+ setAdminSession("");setAdminAuthenticated(false);setAdminOrders([]);setPage("profile");
 }
 return <div className="app-shell">
 <header className="topbar"><button className="brand" onClick={()=>{setPage("home");setActiveShop(null)}}><span className="brand-mark">тт</span><span><b>Тим-Тим</b><small>Доставка из магазинов</small></span></button><button className="icon-button cart-top" onClick={()=>setPage("cart")} aria-label="Корзина"><ShoppingBag size={21}/>{count>0&&<i>{count}</i>}</button></header>
