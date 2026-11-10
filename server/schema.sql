@@ -194,6 +194,75 @@ INSERT INTO products (id, shop_id, name, price_rub, unit, category, description,
 (120,5,'Пельмени',300,'кг','Замороженная продукция','','https://static.tildacdn.com/stor6332-3335-4439-b438-336563336333/a2a9341eacd0c23e38b98f2088963fa6.webp','https://khlebnyi-dvorik.ru/catalog/tproduct/627998812632-pelmeni')
 ON CONFLICT (id) DO UPDATE SET shop_id=EXCLUDED.shop_id, name=EXCLUDED.name, price_rub=EXCLUDED.price_rub, unit=EXCLUDED.unit, category=EXCLUDED.category, description=EXCLUDED.description, image_url=EXCLUDED.image_url, source_url=EXCLUDED.source_url;
 
+
+-- Replace placeholder/fabricated image paths with original image URLs from official product page metadata.
+UPDATE products SET image_url = CASE id
+WHEN 20 THEN 'https://static.tildacdn.com/stor6662-3238-4062-b838-313430323033/782618be9668b430d8b9e661daf7793e.webp'
+WHEN 21 THEN 'https://static.tildacdn.com/stor3139-6463-4363-a436-633937623961/376c2508eaa22ee4474b2d2a4753a68e.webp'
+WHEN 22 THEN 'https://static.tildacdn.com/stor3565-3565-4630-b330-346632356566/687731169dc884d5b34ea68efa1c07fa.webp'
+WHEN 23 THEN 'https://static.tildacdn.com/stor3137-6436-4938-a335-303762623661/e83cd909325a8225c39b8205ff04315b.webp'
+WHEN 24 THEN 'https://static.tildacdn.com/stor6433-6665-4137-a539-396230386163/3ee95011ff4683da8df20a8ac4365040.webp'
+WHEN 25 THEN 'https://static.tildacdn.com/stor6135-3862-4761-b531-656238633036/9f90d8401795eae87ca08d3d9693d57b.webp'
+WHEN 26 THEN 'https://static.tildacdn.com/stor3636-3362-4566-b231-636633393839/67d897a9c634f92bc2f9a0b48c2ceb1a.webp'
+WHEN 27 THEN 'https://static.tildacdn.com/stor6332-6362-4166-a130-643836383739/a23eb424fe981cbf3b96fd552ed766a9.webp'
+WHEN 28 THEN 'https://static.tildacdn.com/stor3862-3761-4138-a635-366161303862/21275ec6c5e193ba1283d07dc5d9ad8e.webp'
+WHEN 29 THEN 'https://static.tildacdn.com/stor3063-3561-4665-a265-353737343832/5ee71f77a930b94dd0d5b9c62c155533.webp'
+WHEN 30 THEN 'https://static.tildacdn.com/stor3532-6265-4339-b461-306335343031/8720671c2fbdb6ec488b1808657af851.webp'
+WHEN 31 THEN 'https://static.tildacdn.com/stor6465-3065-4665-a235-353034326235/55f6bc19f24b93f450bfab94293a9a35.webp'
+WHEN 32 THEN 'https://static.tildacdn.com/stor3437-3062-4339-a434-356334326230/84c8a41fa0ef225b4b9d130eb70ef28b.webp'
+WHEN 33 THEN 'https://static.tildacdn.com/stor3463-3365-4533-b064-323330316161/9441ebcb9b2474e19ac9fc71ce2b5453.webp'
+WHEN 34 THEN 'https://static.tildacdn.com/stor3964-3966-4164-b230-303861643731/495d1604870a4d198865ac5f56a20760.webp'
+WHEN 35 THEN 'https://static.tildacdn.com/stor6266-3331-4264-a634-613434386131/17d128dc41c1f9215d7d54b664c5f0e9.webp'
+WHEN 36 THEN 'https://static.tildacdn.com/stor3665-3937-4462-b638-633934373763/135da69d9146041652d0c774bb510f7b.webp'
+WHEN 37 THEN 'https://static.tildacdn.com/stor6232-3234-4233-b233-353033646339/ceabdacce25ed2780c4cf4aba3dd3ec5.webp'
+WHEN 38 THEN 'https://static.tildacdn.com/stor6433-6364-4633-b561-306536353930/f86cfeb3acde4acda649778833c202fb.webp'
+WHEN 39 THEN NULL
+WHEN 40 THEN 'https://static.tildacdn.com/stor3439-6361-4336-a161-336532383462/19800d92d04a2844bf0754e9028f554d.webp'
+WHEN 41 THEN 'https://static.tildacdn.com/stor6330-6335-4566-b532-316439646466/c3e3dc3208f65d4ca9d561843d58425b.webp'
+WHEN 42 THEN 'https://static.tildacdn.com/stor3930-3033-4431-b962-303432656239/1ae2d9388d7e21e3fda434f24767ff60.webp'
+WHEN 43 THEN 'https://static.tildacdn.com/stor6531-6432-4331-a334-613037316561/1c20f82fe594983842d0f542db503876.webp'
+WHEN 44 THEN 'https://static.tildacdn.com/stor6531-3166-4262-b665-643062336135/7963bc3243a64df2633bf1f642a897f5.webp'
+WHEN 45 THEN 'https://static.tildacdn.com/stor3161-3430-4737-a534-376232396333/38b15f0a9578c77e5450a8db5da94f74.webp'
+WHEN 46 THEN NULL
+WHEN 47 THEN 'https://static.tildacdn.com/stor3337-3962-4562-a466-636362613439/44fb2d0bc13746a0fae19442ff4edc4d.webp'
+WHEN 48 THEN 'https://static.tildacdn.com/stor6236-3736-4261-b536-646534326539/17ac0d386e2d6c315f467c4008bc121d.webp'
+WHEN 49 THEN 'https://static.tildacdn.com/stor6230-3666-4435-b933-383763616138/c8b8934fa597c3ecd73cca9d2f3c7dc9.webp'
+WHEN 50 THEN 'https://static.tildacdn.com/stor6338-6239-4236-b839-363034356563/fa8f1ca3a866625968012c47f048e109.webp'
+WHEN 51 THEN 'https://static.tildacdn.com/stor3634-3633-4963-b434-636562343130/1a39339b15b50c97386c533c657bb4eb.webp'
+WHEN 52 THEN 'https://static.tildacdn.com/stor3234-3135-4735-b665-333439616433/4d410221389a1e0527d80aac20c92567.webp'
+WHEN 53 THEN 'https://static.tildacdn.com/stor6439-3933-4632-b762-386331393933/4a59cb6564290ebb0cc6841b305c76bc.webp'
+WHEN 54 THEN 'https://static.tildacdn.com/stor6435-3131-4130-a637-356333643235/f021e249a40f4933378d9e72f89d9eb9.webp'
+WHEN 55 THEN 'https://static.tildacdn.com/stor6538-6431-4235-b064-356433633936/b948f1f290b9fe2ddb6bda396bb0ac1d.webp'
+WHEN 56 THEN 'https://static.tildacdn.com/stor3835-3935-4139-a462-376366343231/24a3320366c0b9afe9a3112c32fedb09.webp'
+WHEN 57 THEN 'https://static.tildacdn.com/stor6566-3933-4266-b261-653334623730/602cbb86f95e5b467b2e873d986915ba.webp'
+WHEN 58 THEN 'https://static.tildacdn.com/stor3639-3339-4036-b461-663539316536/750f814920dd5117c3b6afef02f79f30.webp'
+WHEN 59 THEN 'https://static.tildacdn.com/stor3738-3565-4565-a138-633436646135/d1b3de94e9530b9a6178dd8564d2206e.webp'
+WHEN 60 THEN 'https://static.tildacdn.com/stor3630-6137-4633-b034-383337643331/c393975ba61f6c31468f02c0b00d11a4.webp'
+WHEN 61 THEN NULL
+WHEN 62 THEN 'https://static.tildacdn.com/stor3438-3038-4463-b938-343866626562/787d53fb735f88d10a7dcf85a2917a87.webp'
+WHEN 63 THEN 'https://static.tildacdn.com/stor3631-3564-4636-b531-306430656636/993f4327862e096aed76fd03409ed83c.webp'
+WHEN 64 THEN 'https://static.tildacdn.com/stor6663-3036-4438-b561-633033363138/244ede7c066bd991241b3fc32e2224cc.webp'
+WHEN 65 THEN 'https://static.tildacdn.com/stor3564-6663-4563-b564-623136373131/5de052c7cb68cc0fdbfd40bd251506fa.webp'
+WHEN 66 THEN 'https://static.tildacdn.com/stor6133-3431-4038-b561-643831313835/e6a8350f7d6f3195fe5cf6e792ca5f2b.webp'
+WHEN 67 THEN 'https://static.tildacdn.com/stor3933-6165-4535-b466-336632623333/3df5f6111169b2b6ce1bebe2ee07d390.webp'
+WHEN 68 THEN 'https://static.tildacdn.com/stor3065-3261-4562-b530-353266376135/bab59d2abbd540fc94407087c0700fe6.webp'
+WHEN 84 THEN 'https://static.tildacdn.com/stor6162-3762-4738-a536-653064653532/056f437277214ef158d7f5a19fb13fa0.webp'
+WHEN 85 THEN NULL
+WHEN 86 THEN NULL
+WHEN 87 THEN NULL
+WHEN 88 THEN NULL
+WHEN 97 THEN NULL
+WHEN 100 THEN NULL
+WHEN 101 THEN NULL
+WHEN 103 THEN NULL
+WHEN 105 THEN NULL
+WHEN 109 THEN NULL
+WHEN 110 THEN NULL
+WHEN 111 THEN NULL
+WHEN 114 THEN NULL
+ELSE image_url END
+WHERE id IN (20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,84,85,86,87,88,97,100,101,103,105,109,110,111,114);
+
 -- Pharmacy delivery remains disabled until legal and partner checks are completed.
 UPDATE shops SET is_active = FALSE WHERE id = 3;
 UPDATE products SET is_active = FALSE WHERE shop_id = 3;
