@@ -70,11 +70,30 @@ const safeEqual = (a, b) => {
   return left.length === right.length && timingSafeEqual(left, right);
 };
 
+function cookieValue(req, name) {
+  const cookies = (req.headers.cookie || "").split(";");
+  const entry = cookies.map(v => v.trim()).find(v => v.startsWith(name + "="));
+  return entry ? decodeURIComponent(entry.slice(name.length + 1)) : "";
+}
+function signSession(payload) {
+  return payload + "." + createHmac("sha256", adminApiKey).update(payload).digest("base64url");
+}
+function validSession(token) {
+  if (!adminApiKey || typeof token !== "string") return false;
+  const parts = token.split(".");
+  if (parts.length !== 2) return false;
+  const expected = createHmac("sha256", adminApiKey).update(parts[0]).digest("base64url");
+  if (!safeEqual(parts[1], expected)) return false;
+  try {
+    const data = JSON.parse(Buffer.from(parts[0], "base64url").toString("utf8"));
+    return Number.isFinite(data.exp) && data.exp > Date.now();
+  } catch { return false; }
+}
 function requireAdmin(req, res, next) {
-  if (!adminApiKey) return res.status(503).json({ error: "Operator access is not configured" });
-  const supplied = req.get("x-admin-key") || req.get("authorization")?.replace(/^Bearer\s+/i, "");
-  if (!supplied || !safeEqual(supplied, adminApiKey)) return res.status(401).json({ error: "Unauthorized" });
-  return next();
+  const supplied = req.get("x-admin-key") || req.get("authorization")?.replace(/^Bearer\\s+/i, "");
+  if (adminApiKey && supplied && safeEqual(supplied, adminApiKey)) return next();
+  if (validSession(cookieValue(req, "tt_admin"))) return next();
+  return res.status(401).json({ error: "Требуется вход оператора" });
 }
 
 app.get("/health", (_req, res) => res.json({ ok: true, service: "tim-tim-api" }));
@@ -152,6 +171,23 @@ app.get("/api/orders/:id", statusLimiter, async (req, res, next) => {
     if (!result.rowCount) return res.status(404).json({ error: "Заказ не найден" });
     return res.json({ order: result.rows[0] });
   } catch (error) { return next(error); }
+});
+
+app.post("/api/admin/login", loginLimiter, (req, res) => {
+  if (!adminPassword || !adminApiKey) return res.status(503).json({ error: "Вход оператора не настроен" });
+  const parsed = z.object({ password: z.string().min(1).max(200) }).strict().safeParse(req.body);
+  if (!parsed.success || !safeEqual(parsed.data.password, adminPassword)) {
+    return res.status(401).json({ error: "Неверный пароль" });
+  }
+  const payload = Buffer.from(JSON.stringify({ exp: Date.now() + 8 * 60 * 60 * 1000 })).toString("base64url");
+  const token = signSession(payload);
+  res.setHeader("Set-Cookie", "tt_admin=" + encodeURIComponent(token) + "; HttpOnly; Secure; SameSite=Lax; Path=/api/admin; Max-Age=28800");
+  return res.json({ ok: true });
+});
+
+app.post("/api/admin/logout", requireAdmin, (_req, res) => {
+  res.setHeader("Set-Cookie", "tt_admin=; HttpOnly; Secure; SameSite=Lax; Path=/api/admin; Max-Age=0");
+  return res.json({ ok: true });
 });
 
 app.post("/api/admin/login", loginLimiter, (req, res) => {
