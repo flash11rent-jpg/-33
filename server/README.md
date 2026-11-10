@@ -8,8 +8,11 @@ Node.js 20+ / Express / PostgreSQL API for persistent orders.
 - `GET /ready` — database readiness
 - `POST /api/orders` — create an order; prices are recalculated from PostgreSQL, not trusted from the browser
 - `GET /api/orders/:id` — read one order using its private tracking token (`x-order-token` header or `token` query)
-- `GET /api/admin/orders` — operator order list; requires `Authorization: Bearer <ADMIN_API_KEY>`
-- `PATCH /api/admin/orders/:id/status` — change status; same operator authentication
+- `POST /api/admin/login` — operator password login; sets an HttpOnly session cookie
+- `POST /api/admin/logout` — end the operator session
+- `GET /api/admin/orders` — operator order list; requires a session cookie or `ADMIN_API_KEY`
+- `PATCH /api/admin/orders/:id/status` — change order status
+- `PATCH /api/admin/orders/:id/delivery-fee` — set delivery fee and final total
 
 ## Database
 
@@ -18,7 +21,8 @@ Apply `server/schema.sql` once to the PostgreSQL database. It creates the initia
 ## Required environment
 
 - `DATABASE_URL`: Render internal PostgreSQL URL when API and database share a region/workspace
-- `ADMIN_API_KEY`: unique secret, at least 32 random characters
+- `ADMIN_API_KEY`: unique secret, at least 32 random characters (also signs operator sessions)
+- `ADMIN_PASSWORD`: operator's login password; set it in Render environment variables, never in source code
 - `CORS_ORIGINS`: comma-separated trusted frontend origins
 - `PGSSL`: normally false for Render internal networking; true only when required by the chosen database endpoint
 
