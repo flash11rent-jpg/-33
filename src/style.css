@@ -628,3 +628,89 @@ h1,h2,h3,.section-head h2,.page-title h1,.store-hero h1{
  .section-head h2,.page-title h1{font-size:22px}
  .total-row b{font-size:26px}
 }
+
+
+/* Product cards refinement: compact rhythm, readable type, balanced price/action row */
+.product-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+  align-items:stretch;
+}
+.product-card{
+  padding:9px;
+  border:1px solid #e8eee7;
+  border-radius:18px;
+  background:#fff;
+  box-shadow:0 4px 14px #17392e0b;
+}
+.product-picture{
+  aspect-ratio:1/1;
+  height:auto!important;
+  border-radius:13px;
+  background:#f5f7f2;
+}
+.product-picture>img{object-fit:cover!important}
+.product-details{
+  gap:4px;
+  padding:11px 2px 0;
+}
+.product-details b{
+  min-height:0;
+  font-size:15px;
+  line-height:1.32;
+  letter-spacing:-.3px;
+  font-weight:750;
+  color:#26392e;
+}
+.product-details small{
+  font-size:12px;
+  line-height:1.35;
+  color:#77877c;
+  font-weight:600;
+}
+.product-details .product-description{
+  margin-top:1px;
+  font-size:11px!important;
+  line-height:1.4;
+  color:#89958c!important;
+}
+.product-details strong{
+  display:flex;
+  align-items:center;
+  min-height:42px;
+  box-sizing:border-box;
+  margin-top:3px;
+  padding-right:48px;
+  font-family:'Lora',Georgia,serif;
+  font-size:23px;
+  line-height:1.05;
+  font-weight:700;
+  letter-spacing:-.45px;
+  color:#174b39;
+}
+.add-button{
+  right:12px;
+  bottom:12px;
+  width:39px;
+  height:39px;
+  border-radius:13px;
+}
+.store-category-tabs{gap:7px;padding-bottom:9px;margin-bottom:12px}
+.store-category-tabs button{
+  padding:9px 13px;
+  font-size:12px;
+  line-height:1.1;
+  border-radius:11px;
+}
+.store-category-tabs button small{min-width:18px;height:18px;font-size:10px}
+@media(max-width:520px){
+  .product-grid{gap:10px}
+  .product-card{padding:8px;border-radius:16px}
+  .product-picture{border-radius:11px}
+  .product-details{gap:4px;padding:9px 1px 0}
+  .product-details b{font-size:14px;line-height:1.32}
+  .product-details small{font-size:11px}
+  .product-details .product-description{font-size:10.5px!important;line-height:1.35}
+  .product-details strong{min-height:39px;font-size:21px;padding-right:44px}
+  .add-button{width:36px;height:36px;right:10px;bottom:10px;border-radius:12px}
+}
