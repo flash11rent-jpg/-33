@@ -263,6 +263,11 @@ WHEN 114 THEN NULL
 ELSE image_url END
 WHERE id IN (20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,84,85,86,87,88,97,100,101,103,105,109,110,111,114);
 
+-- One verified real photo found in the merchant's gallery for ham pastry.
+UPDATE products
+SET image_url = 'https://images.delivery-club.com/ol-images/1280x960/621b538227393a981d5c0381.jpg'
+WHERE id = 86 AND shop_id = 5;
+
 -- Pharmacy delivery remains disabled until legal and partner checks are completed.
 UPDATE shops SET is_active = FALSE WHERE id = 3;
 UPDATE products SET is_active = FALSE WHERE shop_id = 3;
