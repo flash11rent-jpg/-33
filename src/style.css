@@ -326,22 +326,64 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 }
 
 
-/* Product photos: wide editorial thumbnails, not square tiles */
-.product-picture{
-  height:auto!important;
-  aspect-ratio:1.8 / 1;
-  min-height:0;
-  padding:4px!important;
-  border-radius:15px;
+
+
+/* Khlebnyi Dvorik-inspired product catalogue */
+.product-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:16px;
+}
+.product-card{
+  padding:10px;
+  border:1px solid #eee9df;
+  border-radius:16px;
+  background:#f7f4ed;
+  box-shadow:none;
   overflow:hidden;
-  background:#f7f9f5;
+}
+.product-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px #443b2b12}
+.product-picture{
+  width:100%;
+  height:auto!important;
+  aspect-ratio:1 / 1;
+  padding:0!important;
+  border-radius:11px;
+  overflow:hidden;
+  background:#eee9df;
 }
 .product-picture>img{
+  display:block;
   width:100%;
   height:100%;
-  object-fit:contain!important;
+  object-fit:cover!important;
   object-position:center;
 }
+.product-picture>span{font-size:46px}
+.product-details{padding:13px 3px 42px;gap:6px}
+.product-details b{font-size:13px;line-height:1.4;min-height:36px;font-weight:600;color:#302f2b}
+.product-details small{font-size:10px;color:#817b70}
+.product-details strong{font-size:16px;color:#292820;margin-top:3px}
+.add-button{
+  right:13px;bottom:13px;
+  width:37px;height:37px;border-radius:10px;
+  background:#243e30;box-shadow:none;
+}
+.store-category-tabs button{
+  border-radius:7px;
+  background:#f5f1e8;
+  border-color:#e9e2d5;
+  color:#5b554b;
+}
+.store-category-tabs button.active{
+  background:#283f31;border-color:#283f31;
+  box-shadow:none;
+}
 @media(max-width:520px){
-  .product-picture{height:auto!important;aspect-ratio:1.8 / 1;padding:3px!important}
+  .product-grid{gap:11px}
+  .product-card{padding:8px;border-radius:14px}
+  .product-picture{aspect-ratio:1 / 1;height:auto!important}
+  .product-details{padding:10px 2px 40px}
+  .product-details b{font-size:11px;min-height:34px}
+  .product-details strong{font-size:14px}
 }
