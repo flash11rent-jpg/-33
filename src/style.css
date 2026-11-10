@@ -92,7 +92,7 @@ main{padding:24px 25px}
 body{background:radial-gradient(ellipse at 50% -12%,#d8e8d9 0,transparent 48%),#eef3ed}
 .app-shell{max-width:820px;background:#fbfcf9;box-shadow:0 28px 100px #17392e16}
 .topbar{height:82px;padding:0 30px;background:#fbfcf9ed;border-bottom-color:#e6ede5}
-.brand{gap:13px}.brand-mark{width:47px;height:47px;border-radius:16px;background:linear-gradient(145deg,#1e6145,#103b2d);box-shadow:0 8px 18px #174b3930;font-size:20px}
+.brand{gap:13px}.brand-mark{width:58px;height:48px;border-radius:14px;background:linear-gradient(145deg,#1e6145,#103b2d);box-shadow:0 8px 18px #174b3930;font-size:12px;letter-spacing:-.45px;line-height:1.02;text-align:center;font-weight:850;padding-bottom:5px}.brand-mark:after{width:27px;height:6px;left:15px;bottom:5px;border-bottom:2px solid #f28b35}.brand-tagline small{display:block;color:#718579;font-size:11px;letter-spacing:.1px}
 .brand b{font-size:21px;letter-spacing:-1.1px}.brand small{font-size:10px;letter-spacing:.15px}
 .icon-button{width:48px;height:48px;border-radius:16px;background:#f1f6ef;border-color:#e2ebe1}
 main{padding:28px 30px}
