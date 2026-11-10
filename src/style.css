@@ -324,3 +324,24 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
  .product-picture{height:146px!important;padding:8px}
  .product-picture>span{font-size:42px}
 }
+
+
+/* Product photos: wide editorial thumbnails, not square tiles */
+.product-picture{
+  height:auto!important;
+  aspect-ratio:1.8 / 1;
+  min-height:0;
+  padding:4px!important;
+  border-radius:15px;
+  overflow:hidden;
+  background:#f7f9f5;
+}
+.product-picture>img{
+  width:100%;
+  height:100%;
+  object-fit:contain!important;
+  object-position:center;
+}
+@media(max-width:520px){
+  .product-picture{height:auto!important;aspect-ratio:1.8 / 1;padding:3px!important}
+}
