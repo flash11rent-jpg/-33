@@ -5,13 +5,13 @@ import "./style.css";
 const shops=[
 {id:1,name:"Продукты у дома",category:"Продукты",icon:"🛒",time:"30–45 мин",description:"Всё необходимое на каждый день"},
 {id:2,name:"Цветочный мир",category:"Цветы",icon:"💐",time:"40–60 мин",description:"Букеты и цветы для близких"},
-{id:3,name:"Аптека рядом",category:"Аптеки",icon:"💊",time:"30–60 мин",description:"Товары аптечного ассортимента"},
+
 {id:4,name:"Дом и уют",category:"Для дома",icon:"🏡",time:"40–60 мин",description:"Полезные мелочи для дома"}];
 const products=[
 {id:1,name:"Молоко 3,2%",price:95,shop:1,unit:"1 л",icon:"🥛"},{id:2,name:"Хлеб белый",price:45,shop:1,unit:"шт.",icon:"🍞"},{id:3,name:"Яйца С1",price:110,shop:1,unit:"10 шт.",icon:"🥚"},{id:4,name:"Бананы",price:130,shop:1,unit:"1 кг",icon:"🍌"},{id:5,name:"Сыр",price:220,shop:1,unit:"300 г",icon:"🧀"},
 {id:6,name:"Букет цветов",price:1800,shop:2,unit:"букет",icon:"💐"},{id:7,name:"Ромашки",price:900,shop:2,unit:"букет",icon:"🌼"},{id:8,name:"Тюльпаны",price:1200,shop:2,unit:"букет",icon:"🌷"},
-{id:9,name:"Витамины (пример)",price:250,shop:3,unit:"упаковка",icon:"🧴"},{id:10,name:"Средство для посуды",price:160,shop:4,unit:"шт.",icon:"🧽"},{id:11,name:"Бумажные полотенца",price:190,shop:4,unit:"упаковка",icon:"🧻"}];
-const categories=["Все","Продукты","Цветы","Аптеки","Для дома"];
+{id:10,name:"Средство для посуды",price:160,shop:4,unit:"шт.",icon:"🧽"},{id:11,name:"Бумажные полотенца",price:190,shop:4,unit:"упаковка",icon:"🧻"}];
+const categories=["Все","Продукты","Цветы","Для дома"];
 const statuses=["Новый","Подтверждён","Собирается","Готов","В пути","Доставлен","Отменён"];
 const money=n=>new Intl.NumberFormat("ru-RU").format(n)+" ₽";
 const API_URL="https://tim-tim-api.onrender.com";
