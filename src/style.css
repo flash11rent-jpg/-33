@@ -794,7 +794,7 @@ h1,h2,h3,.section-head h2,.page-title h1,.store-hero h1{
 
 
 /* Bakery product details modal and persistent cart shortcut */
-.product-card[role="button]{cursor:pointer}
+.product-card[role="button"]{cursor:pointer}
 .product-card[role="button"]:focus-visible{outline:3px solid #b87943;outline-offset:3px}
 .bakery-cart-bar{
  position:sticky;bottom:12px;z-index:8;width:100%;margin:18px 0 8px;
