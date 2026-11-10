@@ -36,7 +36,7 @@ app.use((req, res, next) => {
   if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
     if (origin) res.setHeader("Access-Control-Allow-Origin", origin);
     res.setHeader("Vary", "Origin");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Admin-Key");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Admin-Key, X-Order-Token");
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, OPTIONS");
     if (req.method === "OPTIONS") return res.sendStatus(204);
     return next();
