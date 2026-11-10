@@ -264,3 +264,22 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .manager-row .text-button,.manager-product .text-button{justify-self:start}
 .manager-product{grid-template-columns:1fr 1.4fr .7fr .8fr 1fr auto}
 @media(max-width:600px){.manager-create,.manager-row,.manager-product{grid-template-columns:1fr 1fr}.manager-create .primary-button,.manager-row .text-button,.manager-product .text-button{grid-column:1/-1;width:100%}.manager-product>input{min-width:0}}
+
+
+/* Real merchant imagery and catalogue cards */
+.category-tiles{grid-template-columns:repeat(5,minmax(0,1fr))}
+.category-tile.orange>span{background:#fff0df}
+.shop-visual>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.shop-visual:has(>img)::before{display:none}
+.store-hero{display:flex;align-items:center;gap:17px}
+.store-hero>span{display:grid;place-items:center;overflow:hidden;flex-shrink:0}
+.store-hero>span img{width:100%;height:100%;object-fit:cover}
+.store-hero>div{min-width:0}
+.store-hero>div>p{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.store-hero a{display:inline-block;margin-top:7px;color:#276344;font-size:11px;font-weight:800;text-decoration:none}
+.product-picture{overflow:hidden;position:relative}
+.product-picture>img{width:100%;height:100%;object-fit:cover;display:block}
+.product-picture>span{display:grid;place-items:center;width:100%;height:100%}
+.product-description{font-size:9px!important;line-height:1.35;color:#7c8b80;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:24px}
+.product-details{min-width:0}
+@media(max-width:520px){.category-tiles{grid-template-columns:repeat(5,minmax(0,1fr))}.store-hero{align-items:flex-start;padding:18px;gap:12px}.store-hero>span{width:62px;height:62px;min-width:62px}.product-picture{height:112px}}
