@@ -18,6 +18,10 @@ const API_URL="https://tim-tim-api.onrender.com";
 function App(){
 const [page,setPage]=useState("home"),[category,setCategory]=useState("Все"),[query,setQuery]=useState(""),[activeShop,setActiveShop]=useState(null),[cart,setCart]=useState([]),[address,setAddress]=useState(""),[phone,setPhone]=useState(""),[comment,setComment]=useState(""),[notice,setNotice]=useState(""),[selectedOrder,setSelectedOrder]=useState(null),[isSubmitting,setIsSubmitting]=useState(false),[adminPassword,setAdminPassword]=useState(""),[adminSession,setAdminSession]=useState(""),[adminAuthenticated,setAdminAuthenticated]=useState(false),[adminOrders,setAdminOrders]=useState([]),[adminError,setAdminError]=useState("");
 const [shopData,setShopData]=useState(shops),[productData,setProductData]=useState(products),[catalogLoading,setCatalogLoading]=useState(true);
+const [operatorTab,setOperatorTab]=useState("orders"),[adminShops,setAdminShops]=useState([]),[adminProducts,setAdminProducts]=useState([]);
+const [newShopName,setNewShopName]=useState(""),[newShopCategory,setNewShopCategory]=useState("Продукты");
+const [newProductShop,setNewProductShop]=useState(""),[newProductName,setNewProductName]=useState(""),[newProductPrice,setNewProductPrice]=useState(""),[newProductUnit,setNewProductUnit]=useState("шт.");
+
 useEffect(()=>{
  let cancelled=false;
  fetch(API_URL+"/api/catalog")
@@ -73,12 +77,48 @@ async function submitOrder(){
  }catch(error){setNotice(error.message||"Ошибка соединения с сервером")}
  finally{setIsSubmitting(false)}
 }
+async function loadAdminCatalog(session=adminSession){
+ try{
+  const response=await fetch(API_URL+"/api/admin/catalog",{credentials:"include",headers:session?{Authorization:"Bearer "+session}:{}});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)throw new Error(data.error||"Не удалось загрузить каталог");
+  setAdminShops(data.shops||[]);setAdminProducts(data.products||[]);
+ }catch(error){setAdminError(error.message||"Ошибка загрузки каталога")}
+}
+async function createAdminShop(){
+ try{
+  const response=await fetch(API_URL+"/api/admin/shops",{method:"POST",headers:{"Content-Type":"application/json",...(adminSession?{Authorization:"Bearer "+adminSession}:{})},body:JSON.stringify({name:newShopName,category:newShopCategory})});
+  const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||"Не удалось добавить магазин");
+  setNewShopName("");await loadAdminCatalog();setAdminError("");
+ }catch(error){setAdminError(error.message)}
+}
+async function saveAdminShop(shop){
+ try{
+  const response=await fetch(API_URL+"/api/admin/shops/"+shop.id,{method:"PATCH",headers:{"Content-Type":"application/json",...(adminSession?{Authorization:"Bearer "+adminSession}:{})},body:JSON.stringify({name:shop.name,category:shop.category,isActive:shop.is_active})});
+  const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||"Не удалось сохранить магазин");
+  await loadAdminCatalog();setAdminError("");
+ }catch(error){setAdminError(error.message)}
+}
+async function createAdminProduct(){
+ try{
+  const response=await fetch(API_URL+"/api/admin/products",{method:"POST",headers:{"Content-Type":"application/json",...(adminSession?{Authorization:"Bearer "+adminSession}:{})},body:JSON.stringify({shopId:Number(newProductShop),name:newProductName,priceRub:Number(newProductPrice),unit:newProductUnit})});
+  const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||"Не удалось добавить товар");
+  setNewProductName("");setNewProductPrice("");await loadAdminCatalog();setAdminError("");
+ }catch(error){setAdminError(error.message)}
+}
+async function saveAdminProduct(product){
+ try{
+  const response=await fetch(API_URL+"/api/admin/products/"+product.id,{method:"PATCH",headers:{"Content-Type":"application/json",...(adminSession?{Authorization:"Bearer "+adminSession}:{})},body:JSON.stringify({shopId:Number(product.shop_id),name:product.name,priceRub:Number(product.price_rub),unit:product.unit,isActive:product.is_active})});
+  const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||"Не удалось сохранить товар");
+  await loadAdminCatalog();setAdminError("");
+ }catch(error){setAdminError(error.message)}
+}
 async function loadOperatorOrders(session=adminSession){
  try{
   const response=await fetch(API_URL+"/api/admin/orders",{credentials:"include",headers:session?{Authorization:"Bearer "+session}:{}});
   const data=await response.json().catch(()=>({}));
   if(!response.ok)throw new Error(data.error||"Не удалось загрузить заказы");
-  setAdminOrders(data.orders||[]);setAdminAuthenticated(true);setAdminError("");
+  setAdminOrders(data.orders||[]);setAdminAuthenticated(true);setAdminError("");await loadAdminCatalog(session);
  }catch(error){setAdminAuthenticated(false);setAdminError(error.message||"Ошибка загрузки")}
 }
 async function loginOperator(event){
@@ -129,7 +169,19 @@ return <div className="app-shell">
 {page==="success"&&<div className="success-state"><span><Check size={35}/></span><h1>Заказ принят!</h1><p>Заявка №{orders.find(o=>o.id===selectedOrder)?.orderNumber||"—"} отправлена оператору. Он уточнит наличие товаров и стоимость доставки, после чего подтвердит итоговую сумму.</p><button className="primary-button" onClick={()=>setPage("orders")}>Посмотреть заказы</button></div>}
 {page==="orders"&&<><div className="page-title"><span className="eyebrow dark">ИСТОРИЯ ПОКУПОК</span><h1>Мои заказы</h1></div>{!orders.length?<div className="empty-state"><span>📦</span><h2>Заказов пока нет</h2><p>Оформленные заказы появятся здесь.</p></div>:orders.map(o=><article className="order-card" key={o.id}><div className="order-top"><b>Заказ №{o.orderNumber||String(o.id).slice(-6)}</b><span className="status-pill">{o.status}</span></div><small>{o.created} · {o.shopName}</small><div className="order-bottom"><b>{money(o.total)}</b><button onClick={()=>setSelectedOrder(selectedOrder===o.id?null:o.id)}>{selectedOrder===o.id?"Скрыть":"Подробнее"}</button></div>{selectedOrder===o.id&&<div className="order-details">{o.items.map(i=><p key={i.id}>{i.name} × {i.qty}</p>)}<p><MapPin size={13}/> {o.address}</p></div>}</article>)}</>}
 {page==="profile"&&<><div className="page-title"><span className="eyebrow dark">ТИМ-ТИМ</span><h1>Профиль</h1></div><div className="profile-card"><span><UserRound size={28}/></span><div><b>Покупатель</b><small>Гость · демонстрационный режим</small></div></div><div className="profile-info"><p><MapPin size={17}/> Доставка по Тимашевску</p><p><Truck size={17}/> Ориентир по времени: 30–60 минут</p><p><ShoppingBag size={17}/> Минимальный заказ: 700 ₽</p></div><button className="text-button" onClick={()=>{setAdminError("");setPage("operator");if(adminAuthenticated)loadOperatorOrders()}}>Вход для оператора</button><p className="demo-note">Для реального запуска потребуются регистрация, сервер и подключение уведомлений.</p></>}
-{page==="operator"&&<><div className="page-title"><span className="eyebrow dark">ЗАЩИЩЁННЫЙ ДОСТУП</span><h1>Панель оператора</h1></div>{!adminAuthenticated?<div className="form-card"><form onSubmit={loginOperator}><label>Пароль оператора<input type="password" value={adminPassword} onChange={e=>setAdminPassword(e.target.value)} placeholder="Введите пароль" autoComplete="current-password"/></label><button className="primary-button full" type="submit" disabled={!adminPassword}>Войти</button></form>{adminError&&<p className="operator-warning">{adminError}</p>}</div>:<><div className="operator-topbar"><b>Заказы с сервера · {adminOrders.length}</b><div><button className="text-button" onClick={loadOperatorOrders}>Обновить</button><button className="text-button" onClick={logoutOperator}>Выйти</button></div></div>{adminError&&<p className="operator-warning">{adminError}</p>}{!adminOrders.length?<div className="empty-state"><span>📋</span><h2>Заказов пока нет</h2></div>:adminOrders.map(o=><article className="order-card" key={o.id}><div className="order-top"><b>№{o.order_number} · {o.shop_name}</b><span className="status-pill">{o.status}</span></div><small>{new Date(o.created_at).toLocaleString("ru-RU")}</small><p>{o.customer_phone} · {o.delivery_address}</p>{o.items.map((item,i)=><p key={i}>{item.name} × {item.qty} · {money(item.lineTotal)}</p>)}{o.customer_comment&&<p>Комментарий: {o.customer_comment}</p>}<div className="fee-editor"><label>Доставка, ₽<input type="number" min="0" max="10000" value={o.delivery_fee_rub??0} onChange={e=>setAdminOrders(old=>old.map(item=>item.id===o.id?{...item,delivery_fee_rub:Number(e.target.value)}:item))}/></label><button className="text-button" onClick={()=>saveDeliveryFee(o.id,o.delivery_fee_rub??0)}>Сохранить доставку</button></div><b>Итого: {money(o.items_total_rub+(o.delivery_fee_rub??0))}</b><select value={o.status} onChange={e=>changeOperatorStatus(o.id,e.target.value)}>{statuses.map(s=><option key={s}>{s}</option>)}</select></article>)}</>}</>}
+{page==="operator"&&<><div className="page-title"><span className="eyebrow dark">ЗАЩИЩЁННЫЙ ДОСТУП</span><h1>Панель оператора</h1></div>{!adminAuthenticated?<div className="form-card"><form onSubmit={loginOperator}><label>Пароль оператора<input type="password" value={adminPassword} onChange={e=>setAdminPassword(e.target.value)} placeholder="Введите пароль" autoComplete="current-password"/></label><button className="primary-button full" type="submit" disabled={!adminPassword}>Войти</button></form>{adminError&&<p className="operator-warning">{adminError}</p>}</div>:<><div className="operator-topbar"><b>Заказы с сервера · {adminOrders.length}</b><div><button className="text-button" onClick={loadOperatorOrders}>Обновить</button><button className="text-button" onClick={logoutOperator}>Выйти</button></div></div>{adminError&&<p className="operator-warning">{adminError}</p>}
+<div className="operator-tabs"><button className={operatorTab==="orders"?"active":""} onClick={()=>setOperatorTab("orders")}>Заказы</button><button className={operatorTab==="shops"?"active":""} onClick={()=>{setOperatorTab("shops");loadAdminCatalog()}}>Магазины</button><button className={operatorTab==="products"?"active":""} onClick={()=>{setOperatorTab("products");loadAdminCatalog()}}>Товары</button></div>
+{operatorTab==="shops"&&<section className="operator-manager">
+<h2>Магазины</h2>
+<div className="manager-create"><input value={newShopName} onChange={e=>setNewShopName(e.target.value)} placeholder="Название магазина"/><select value={newShopCategory} onChange={e=>setNewShopCategory(e.target.value)}>{["Продукты","Цветы","Для дома","Зоотовары","Выпечка","Другое"].map(v=><option key={v}>{v}</option>)}</select><button className="primary-button" disabled={newShopName.trim().length<2} onClick={createAdminShop}>Добавить магазин</button></div>
+{adminShops.map(shop=><div className="manager-row" key={shop.id}><input value={shop.name} onChange={e=>setAdminShops(old=>old.map(x=>x.id===shop.id?{...x,name:e.target.value}:x))}/><input value={shop.category} onChange={e=>setAdminShops(old=>old.map(x=>x.id===shop.id?{...x,category:e.target.value}:x))}/><label className="manager-active"><input type="checkbox" checked={shop.is_active} onChange={e=>setAdminShops(old=>old.map(x=>x.id===shop.id?{...x,is_active:e.target.checked}:x))}/> Активен</label><button className="text-button" onClick={()=>saveAdminShop(shop)}>Сохранить</button></div>)}
+</section>}
+{operatorTab==="products"&&<section className="operator-manager">
+<h2>Товары</h2>
+<div className="manager-create"><select value={newProductShop} onChange={e=>setNewProductShop(e.target.value)}><option value="">Выберите магазин</option>{adminShops.map(shop=><option key={shop.id} value={shop.id}>{shop.name}</option>)}</select><input value={newProductName} onChange={e=>setNewProductName(e.target.value)} placeholder="Название товара"/><input type="number" min="0" value={newProductPrice} onChange={e=>setNewProductPrice(e.target.value)} placeholder="Цена, ₽"/><input value={newProductUnit} onChange={e=>setNewProductUnit(e.target.value)} placeholder="Единица"/><button className="primary-button" disabled={!newProductShop||newProductName.trim().length<2||newProductPrice===""||!newProductUnit.trim()} onClick={createAdminProduct}>Добавить товар</button></div>
+{adminProducts.map(product=><div className="manager-product" key={product.id}><select value={product.shop_id} onChange={e=>setAdminProducts(old=>old.map(x=>x.id===product.id?{...x,shop_id:Number(e.target.value)}:x))}>{adminShops.map(shop=><option key={shop.id} value={shop.id}>{shop.name}</option>)}</select><input value={product.name} onChange={e=>setAdminProducts(old=>old.map(x=>x.id===product.id?{...x,name:e.target.value}:x))}/><input type="number" min="0" value={product.price_rub} onChange={e=>setAdminProducts(old=>old.map(x=>x.id===product.id?{...x,price_rub:Number(e.target.value)}:x))}/><input value={product.unit} onChange={e=>setAdminProducts(old=>old.map(x=>x.id===product.id?{...x,unit:e.target.value}:x))}/><label className="manager-active"><input type="checkbox" checked={product.is_active} onChange={e=>setAdminProducts(old=>old.map(x=>x.id===product.id?{...x,is_active:e.target.checked}:x))}/> В каталоге</label><button className="text-button" onClick={()=>saveAdminProduct(product)}>Сохранить</button></div>)}
+</section>}
+{operatorTab==="orders"&&<>{!adminOrders.length?<div className="empty-state"><span>📋</span><h2>Заказов пока нет</h2></div>:adminOrders.map(o=><article className="order-card" key={o.id}><div className="order-top"><b>№{o.order_number} · {o.shop_name}</b><span className="status-pill">{o.status}</span></div><small>{new Date(o.created_at).toLocaleString("ru-RU")}</small><p>{o.customer_phone} · {o.delivery_address}</p>{o.items.map((item,i)=><p key={i}>{item.name} × {item.qty} · {money(item.lineTotal)}</p>)}{o.customer_comment&&<p>Комментарий: {o.customer_comment}</p>}<div className="fee-editor"><label>Доставка, ₽<input type="number" min="0" max="10000" value={o.delivery_fee_rub??0} onChange={e=>setAdminOrders(old=>old.map(item=>item.id===o.id?{...item,delivery_fee_rub:Number(e.target.value)}:item))}/></label><button className="text-button" onClick={()=>saveDeliveryFee(o.id,o.delivery_fee_rub??0)}>Сохранить доставку</button></div><b>Итого: {money(o.items_total_rub+(o.delivery_fee_rub??0))}</b><select value={o.status} onChange={e=>changeOperatorStatus(o.id,e.target.value)}>{statuses.map(s=><option key={s}>{s}</option>)}</select></article>)}</>}</>}</>}
 </main>
 <nav className="bottom-nav"><button className={["home","shop"].includes(page)?"selected":""} onClick={()=>{setPage("home");setActiveShop(null)}}><Store/><small>Главная</small></button><button className={page==="orders"?"selected":""} onClick={()=>setPage("orders")}><Clock3/><small>Заказы</small></button><button className={page==="cart"||page==="checkout"?"selected":""} onClick={()=>setPage("cart")}><ShoppingBag/><small>Корзина{count?" · "+count:""}</small></button><button className={page==="profile"?"selected":""} onClick={()=>setPage("profile")}><UserRound/><small>Профиль</small></button></nav>
 {notice&&<div className="toast">{notice}<button onClick={()=>setNotice("")}><X size={15}/></button></div>}
