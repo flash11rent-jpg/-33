@@ -30,8 +30,9 @@ useEffect(()=>{
    if(cancelled)return;
    const nextShops=(data.shops||[]).map(s=>({...s,icon:shops.find(x=>x.id===s.id)?.icon||"🛍️",time:shops.find(x=>x.id===s.id)?.time||"30–60 мин",description:shops.find(x=>x.id===s.id)?.description||"Товары с доставкой по Тимашевску"}));
    const nextProducts=(data.products||[]).map(p=>({...p,shop:p.shop_id,price:p.price_rub,icon:products.find(x=>x.id===p.id)?.icon||"🛒"}));
-   setShopData(nextShops);setProductData(nextProducts);
-   setActiveShop(current=>current?nextShops.find(s=>s.id===current.id)||current:current);
+   // Do not replace the usable starter catalogue with empty arrays if a new database is not seeded yet.
+   if(nextShops.length&&nextProducts.length){setShopData(nextShops);setProductData(nextProducts);setActiveShop(current=>current?nextShops.find(s=>s.id===current.id)||current:current)}
+   else setNotice("Пока показываем стартовый каталог");
   })
   .catch(()=>{if(!cancelled)setNotice("Показываем сохранённый каталог")})
   .finally(()=>{if(!cancelled)setCatalogLoading(false)});
