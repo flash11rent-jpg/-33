@@ -103,6 +103,19 @@ function requireAdmin(req, res, next) {
   return res.status(401).json({ error: "Требуется вход оператора" });
 }
 
+app.get("/api/catalog", async (_req, res, next) => {
+  try {
+    const [shopsResult, productsResult] = await Promise.all([
+      pool.query("SELECT id, name, category FROM shops WHERE is_active = TRUE ORDER BY id"),
+      pool.query("SELECT id, shop_id, name, price_rub, unit FROM products WHERE is_active = TRUE ORDER BY shop_id, id")
+    ]);
+    return res.set("Cache-Control", "public, max-age=30, stale-while-revalidate=120").json({
+      shops: shopsResult.rows,
+      products: productsResult.rows
+    });
+  } catch (error) { return next(error); }
+});
+
 app.get("/health", (_req, res) => res.json({ ok: true, service: "tim-tim-api" }));
 app.get("/ready", async (_req, res) => {
   try {
