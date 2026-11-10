@@ -714,3 +714,43 @@ h1,h2,h3,.section-head h2,.page-title h1,.store-hero h1{
   .product-details strong{min-height:39px;font-size:21px;padding-right:44px}
   .add-button{width:36px;height:36px;right:10px;bottom:10px;border-radius:12px}
 }
+
+
+/* Individual merchant identity: Khlebnyi Dvorik bakery atmosphere */
+.bakery-storefront{
+  --bakery-ink:#443326;--bakery-muted:#927b67;--bakery-cream:#fbf5e9;
+  --bakery-caramel:#b86d36;--bakery-green:#496448;
+  position:relative;isolation:isolate;overflow:hidden;
+  margin:0 -18px;padding:0 18px 28px;
+  background:radial-gradient(ellipse at 88% 12%,#f4dfc5 0,transparent 28%),radial-gradient(ellipse at 0 48%,#f4e8d5 0,transparent 30%),linear-gradient(180deg,#fbf5e9 0%,#fffdf8 55%,#f8f1e5 100%);
+  border-radius:0 0 26px 26px;
+}
+.bakery-atmosphere{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.bakery-atmosphere span{position:absolute;display:block;opacity:.19;filter:saturate(.78);font-size:clamp(22px,5vw,42px);animation:bakery-drift 13s ease-in-out infinite}
+.bakery-atmosphere span:nth-child(1){top:120px;right:5%;animation-delay:-2s;font-size:38px}
+.bakery-atmosphere span:nth-child(2){top:300px;left:3%;font-size:25px;animation-delay:-5s;color:#c18b54}
+.bakery-atmosphere span:nth-child(3){top:590px;right:2%;font-size:32px;animation-delay:-8s}
+.bakery-atmosphere span:nth-child(4){top:880px;left:5%;font-size:23px;animation-delay:-3s;color:#c18b54}
+.bakery-atmosphere span:nth-child(5){top:1160px;right:7%;font-size:34px;animation-delay:-10s}
+.bakery-storefront>:not(.bakery-atmosphere){position:relative;z-index:1}
+.bakery-storefront .back-link{color:#8b684c}
+.bakery-storefront .store-hero{position:relative;overflow:hidden;background:linear-gradient(125deg,#f2dfc7,#fff8ed 62%,#ead2b4);border:1px solid #ead8c1;border-radius:23px;box-shadow:0 12px 30px #79563812}
+.bakery-storefront .store-hero:after{content:"";position:absolute;width:145px;height:145px;right:-34px;bottom:-62px;border:1px solid #c58b5838;border-radius:50%;box-shadow:0 0 0 15px #c58b5810,0 0 0 31px #c58b5809;pointer-events:none}
+.bakery-storefront .store-hero h1{color:var(--bakery-ink);font-family:'Lora',Georgia,serif;font-weight:700;letter-spacing:-.8px}
+.bakery-storefront .store-hero>div>small{display:inline-block;padding:5px 9px;border-radius:20px;background:#fff8ed;color:#9a693e;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.bakery-storefront .store-hero p{color:#826e5a}
+.bakery-storefront .store-hero a{color:#8b552c}
+.bakery-storefront .section-head h2{color:var(--bakery-ink);font-family:'Lora',Georgia,serif;font-weight:700}
+.bakery-storefront .store-category-tabs button{background:#f5ead9;border-color:#ead9c3;color:#76583e}
+.bakery-storefront .store-category-tabs button.active{background:#805438;border-color:#805438;color:#fff;box-shadow:0 6px 15px #80543825}
+.bakery-storefront .store-category-tabs button small{background:#fff9f0;color:#94704e}
+.bakery-storefront .product-card{background:#fffdf9;border-color:#efe4d6;border-radius:19px;box-shadow:0 6px 18px #7654380c;transition:transform .28s ease,box-shadow .28s ease}
+.bakery-storefront .product-card:hover{transform:translateY(-4px);box-shadow:0 13px 25px #76543818}
+.bakery-storefront .product-picture{background:#f5eee4;border-radius:14px}
+.bakery-storefront .product-details b{color:#49382b}
+.bakery-storefront .product-details small{color:#a08b77}
+.bakery-storefront .product-details strong{color:#925b32;font-family:'Lora',Georgia,serif}
+.bakery-storefront .add-button{background:#805438;box-shadow:0 5px 12px #80543826}
+@keyframes bakery-drift{0%,100%{transform:translate3d(0,0,0) rotate(-8deg)}50%{transform:translate3d(8px,-15px,0) rotate(7deg)}}
+@media(max-width:520px){.bakery-storefront{margin:0 -14px;padding:0 14px 24px}.bakery-storefront .store-hero{border-radius:19px}}
+@media(prefers-reduced-motion:reduce){.bakery-atmosphere span{animation:none}}
