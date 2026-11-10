@@ -90,7 +90,7 @@ function validSession(token) {
   } catch { return false; }
 }
 function requireAdmin(req, res, next) {
-  const supplied = req.get("x-admin-key") || req.get("authorization")?.replace(/^Bearer\\s+/i, "");
+  const supplied = req.get("x-admin-key") || req.get("authorization")?.replace(/^Bearer\s+/i, "");
   if (adminApiKey && supplied && safeEqual(supplied, adminApiKey)) return next();
   if (validSession(cookieValue(req, "tt_admin"))) {
     if (!req.headers.origin || !allowedOrigins.includes(req.headers.origin)) {
