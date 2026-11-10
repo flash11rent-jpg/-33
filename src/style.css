@@ -726,11 +726,11 @@ h1,h2,h3,.section-head h2,.page-title h1,.store-hero h1{
   border-radius:0 0 26px 26px;
 }
 .bakery-atmosphere{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
-.bakery-croissant{position:absolute;display:block;width:clamp(76px,18vw,142px);height:auto;opacity:.24;filter:drop-shadow(0 9px 8px #80502b24);animation:bakery-sail 19s ease-in-out infinite;will-change:transform}
+.bakery-croissant{position:absolute;display:block;width:clamp(76px,18vw,142px);height:auto;opacity:.78;filter:drop-shadow(0 9px 8px #80502b24);animation:bakery-sail 19s ease-in-out infinite;will-change:transform}
 .bakery-croissant svg{display:block;width:100%;height:auto;overflow:visible}
 .bakery-croissant.croissant-one{top:115px;right:2%;animation-delay:-3s}
-.bakery-croissant.croissant-two{top:520px;left:-22px;width:clamp(66px,15vw,112px);opacity:.18;animation-delay:-10s}
-.bakery-croissant.croissant-three{top:1020px;right:4%;width:clamp(84px,20vw,154px);opacity:.2;animation-delay:-15s}
+.bakery-croissant.croissant-two{top:520px;left:-22px;width:clamp(66px,15vw,112px);opacity:.62;animation-delay:-10s}
+.bakery-croissant.croissant-three{top:1020px;right:4%;width:clamp(84px,20vw,154px);opacity:.68;animation-delay:-15s}
 .bakery-spark{position:absolute;color:#c18b54;opacity:.25;font-size:22px;animation:bakery-drift 11s ease-in-out infinite}
 .bakery-spark.spark-a{top:340px;left:9%}.bakery-spark.spark-b{top:790px;right:12%;animation-delay:-6s}
 .bakery-storefront>:not(.bakery-atmosphere){position:relative;z-index:1}
@@ -752,6 +752,7 @@ h1,h2,h3,.section-head h2,.page-title h1,.store-hero h1{
 .bakery-storefront .product-details small{color:#a08b77}
 .bakery-storefront .product-details strong{color:#925b32;font-family:'Lora',Georgia,serif}
 .bakery-storefront .add-button{background:#805438;box-shadow:0 5px 12px #80543826}
+@keyframes bakery-sail{0%,100%{translate:0 0;rotate:-7deg}50%{translate:0 -24px;rotate:8deg}}
 @keyframes bakery-drift{0%,100%{transform:translate3d(0,0,0) rotate(-8deg)}50%{transform:translate3d(8px,-15px,0) rotate(7deg)}}
 @media(max-width:520px){.bakery-storefront{margin:0 -14px;padding:0 14px 24px}.bakery-storefront .store-hero{border-radius:19px}}
 @media(prefers-reduced-motion:reduce){.bakery-atmosphere span{animation:none}}
