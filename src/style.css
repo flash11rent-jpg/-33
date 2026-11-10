@@ -563,3 +563,68 @@ body,button,input,textarea,select{font-family:'Onest',Manrope,system-ui,sans-ser
   .product-details .product-description{font-size:9.5px!important}
   .total-row b{font-size:22px}
 }
+
+
+/* Typography refresh: larger, warmer and more distinctive */
+:root{font-family:'Manrope',sans-serif;color:#29382f}
+body,button,input,textarea,select{font-family:'Manrope',sans-serif}
+h1,h2,h3,.section-head h2,.page-title h1,.store-hero h1{
+ font-family:'Manrope',sans-serif;
+ font-weight:800;
+ letter-spacing:-.7px;
+}
+.product-details{gap:7px}
+.product-details b{
+ font-size:15px;
+ line-height:1.38;
+ font-weight:700;
+ letter-spacing:-.25px;
+ min-height:42px;
+}
+.product-details small{font-size:11px;line-height:1.45;font-weight:600}
+.product-details .product-description{
+ font-size:11px!important;
+ line-height:1.5;
+ font-weight:500;
+}
+.product-details strong{
+ font-family:'Lora',Georgia,serif;
+ font-size:24px;
+ line-height:1.05;
+ font-weight:700;
+ letter-spacing:-.45px;
+ margin-top:7px;
+ color:#174b39;
+}
+.store-category-tabs button{font-size:12px;font-weight:700;padding:11px 16px}
+.store-category-tabs button small{font-size:10px}
+.store-hero h1{font-size:28px;letter-spacing:-1px}
+.store-hero p{font-size:13px;line-height:1.6}
+.section-head h2,.page-title h1{font-size:25px}
+.muted,.demo-note,.minimum-hint{font-size:12px;line-height:1.6}
+.cart-info b{font-size:14px}
+.cart-info small{font-size:11px}
+.cart-line>strong{font-family:'Lora',Georgia,serif;font-size:17px}
+.total-row{font-size:14px}
+.total-row b{font-family:'Lora',Georgia,serif;font-size:28px}
+.checkout-summary div{font-size:13px}
+.checkout-summary p{font-size:12px}
+.form-card label{font-size:13px}
+.form-card input,.form-card textarea{font-size:14px}
+.order-top b{font-size:14px}
+.order-card>small{font-size:11px}
+.order-card p,.order-details{font-size:12px}
+.order-bottom>b{font-family:'Lora',Georgia,serif;font-size:20px}
+.status-pill{font-size:11px}
+.operator-tabs button{font-size:13px}
+.operator-manager h2{font-size:22px}
+.manager-active,.fee-editor label{font-size:12px}
+@media(max-width:520px){
+ .product-details b{font-size:13px;line-height:1.4;min-height:39px}
+ .product-details small{font-size:10px}
+ .product-details .product-description{font-size:10px!important}
+ .product-details strong{font-size:21px}
+ .store-hero h1{font-size:25px}
+ .section-head h2,.page-title h1{font-size:22px}
+ .total-row b{font-size:26px}
+}
