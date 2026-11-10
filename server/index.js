@@ -223,6 +223,84 @@ app.get("/api/admin/orders", requireAdmin, async (req, res, next) => {
   } catch (error) { return next(error); }
 });
 
+app.get("/api/admin/catalog", requireAdmin, async (_req, res, next) => {
+  try {
+    const [shops, products] = await Promise.all([
+      pool.query("SELECT id, name, category, is_active, created_at FROM shops ORDER BY id"),
+      pool.query("SELECT id, shop_id, name, price_rub, unit, is_active, updated_at FROM products ORDER BY shop_id, id")
+    ]);
+    return res.json({ shops: shops.rows, products: products.rows });
+  } catch (error) { return next(error); }
+});
+
+app.post("/api/admin/shops", requireAdmin, async (req, res, next) => {
+  try {
+    const parsed = z.object({
+      name: z.string().trim().min(2).max(100),
+      category: z.string().trim().min(2).max(60)
+    }).strict().safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: "Укажите название и категорию магазина" });
+    const result = await pool.query(
+      "INSERT INTO shops (id, name, category) VALUES ((SELECT COALESCE(MAX(id), 0) + 1 FROM shops), $1, $2) RETURNING id, name, category, is_active",
+      [parsed.data.name, parsed.data.category]
+    );
+    return res.status(201).json({ shop: result.rows[0] });
+  } catch (error) { return next(error); }
+});
+
+app.patch("/api/admin/shops/:id", requireAdmin, async (req, res, next) => {
+  try {
+    const parsed = z.object({
+      name: z.string().trim().min(2).max(100),
+      category: z.string().trim().min(2).max(60),
+      isActive: z.boolean()
+    }).strict().safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: "Проверьте название, категорию и статус магазина" });
+    const result = await pool.query(
+      "UPDATE shops SET name = $1, category = $2, is_active = $3 WHERE id = $4 RETURNING id, name, category, is_active",
+      [parsed.data.name, parsed.data.category, parsed.data.isActive, req.params.id]
+    );
+    if (!result.rowCount) return res.status(404).json({ error: "Магазин не найден" });
+    return res.json({ shop: result.rows[0] });
+  } catch (error) { return next(error); }
+});
+
+app.post("/api/admin/products", requireAdmin, async (req, res, next) => {
+  try {
+    const parsed = z.object({
+      shopId: z.number().int().positive(),
+      name: z.string().trim().min(2).max(140),
+      priceRub: z.number().int().min(0).max(10000000),
+      unit: z.string().trim().min(1).max(40)
+    }).strict().safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: "Проверьте магазин, название, цену и единицу товара" });
+    const result = await pool.query(
+      "INSERT INTO products (id, shop_id, name, price_rub, unit) SELECT COALESCE(MAX(id), 0) + 1, $1, $2, $3, $4 FROM products RETURNING id, shop_id, name, price_rub, unit, is_active",
+      [parsed.data.shopId, parsed.data.name, parsed.data.priceRub, parsed.data.unit]
+    );
+    return res.status(201).json({ product: result.rows[0] });
+  } catch (error) { return next(error); }
+});
+
+app.patch("/api/admin/products/:id", requireAdmin, async (req, res, next) => {
+  try {
+    const parsed = z.object({
+      shopId: z.number().int().positive(),
+      name: z.string().trim().min(2).max(140),
+      priceRub: z.number().int().min(0).max(10000000),
+      unit: z.string().trim().min(1).max(40),
+      isActive: z.boolean()
+    }).strict().safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: "Проверьте данные товара" });
+    const result = await pool.query(
+      "UPDATE products SET shop_id = $1, name = $2, price_rub = $3, unit = $4, is_active = $5, updated_at = NOW() WHERE id = $6 RETURNING id, shop_id, name, price_rub, unit, is_active",
+      [parsed.data.shopId, parsed.data.name, parsed.data.priceRub, parsed.data.unit, parsed.data.isActive, req.params.id]
+    );
+    if (!result.rowCount) return res.status(404).json({ error: "Товар не найден" });
+    return res.json({ product: result.rows[0] });
+  } catch (error) { return next(error); }
+});
+
 app.patch("/api/admin/orders/:id/status", requireAdmin, async (req, res, next) => {
   try {
     const status = z.string().refine(value => validStatuses.includes(value)).safeParse(req.body?.status);
