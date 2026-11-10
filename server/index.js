@@ -94,7 +94,7 @@ function validSession(token) {
 function requireAdmin(req, res, next) {
   const supplied = req.get("x-admin-key") || req.get("authorization")?.replace(/^Bearer\s+/i, "");
   if (adminApiKey && supplied && safeEqual(supplied, adminApiKey)) return next();
-  if (validSession(cookieValue(req, "tt_admin"))) {
+  if (validSession(supplied) || validSession(cookieValue(req, "tt_admin"))) {
     if (!req.headers.origin || !allowedOrigins.includes(req.headers.origin)) {
       return res.status(403).json({ error: "Недопустимый источник запроса" });
     }
@@ -188,8 +188,10 @@ app.post("/api/admin/login", loginLimiter, (req, res) => {
   }
   const payload = Buffer.from(JSON.stringify({ exp: Date.now() + 8 * 60 * 60 * 1000 })).toString("base64url");
   const token = signSession(payload);
+  // Return the short-lived signed session token so the cross-origin PWA can
+  // authenticate subsequent API calls without relying on browser cookie policies.
   res.setHeader("Set-Cookie", "tt_admin=" + encodeURIComponent(token) + "; HttpOnly; Secure; SameSite=Lax; Path=/api/admin; Max-Age=28800");
-  return res.json({ ok: true });
+  return res.json({ ok: true, sessionToken: token });
 });
 
 app.post("/api/admin/logout", requireAdmin, (_req, res) => {
