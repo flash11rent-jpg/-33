@@ -46,7 +46,7 @@ INSERT INTO shops (id, name, category) VALUES
   (2, 'Цветочный мир', 'Цветы'),
   (3, 'Аптека рядом', 'Аптеки'),
   (4, 'Дом и уют', 'Для дома')
-ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, category = EXCLUDED.category;
+ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO products (id, shop_id, name, price_rub, unit) VALUES
   (1,1,'Молоко 3,2%',95,'1 л'),
@@ -60,7 +60,4 @@ INSERT INTO products (id, shop_id, name, price_rub, unit) VALUES
   (9,3,'Витамины (пример)',250,'упаковка'),
   (10,4,'Средство для посуды',160,'шт.'),
   (11,4,'Бумажные полотенца',190,'упаковка')
-ON CONFLICT (id) DO UPDATE SET
-  shop_id = EXCLUDED.shop_id, name = EXCLUDED.name,
-  price_rub = EXCLUDED.price_rub, unit = EXCLUDED.unit,
-  updated_at = NOW();
+ON CONFLICT (id) DO NOTHING;
