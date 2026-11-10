@@ -387,3 +387,179 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
   .product-details b{font-size:11px;min-height:34px}
   .product-details strong{font-size:14px}
 }
+
+
+/* Elegant typography, prices and information panels */
+@import url('https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap');
+:root{
+  font-family:'Onest',Manrope,system-ui,sans-serif;
+  font-feature-settings:"ss01" on;
+  color:#26382e;
+}
+body,button,input,textarea,select{font-family:'Onest',Manrope,system-ui,sans-serif}
+.product-card{
+  background:#fff;
+  border:1px solid #e9eee6;
+  border-radius:18px;
+  box-shadow:0 5px 18px #1e3b2c0a;
+}
+.product-details{gap:6px;padding:12px 3px 43px}
+.product-details b{
+  color:#29372f;
+  font-size:13px;
+  line-height:1.42;
+  letter-spacing:-.18px;
+  font-weight:650;
+  min-height:36px;
+}
+.product-details small{
+  color:#849087;
+  font-size:10px;
+  line-height:1.45;
+  font-weight:500;
+}
+.product-details .product-description{
+  color:#7c887f!important;
+  font-size:10px!important;
+  line-height:1.5;
+  letter-spacing:.02px;
+  min-height:0;
+  margin-top:1px;
+}
+.product-details strong{
+  display:block;
+  margin-top:5px;
+  color:#194b36;
+  font-size:19px;
+  line-height:1.1;
+  letter-spacing:-.65px;
+  font-weight:800;
+  font-variant-numeric:tabular-nums;
+}
+.product-details strong .currency,
+.cart-line>strong .currency{font-size:.72em;font-weight:650;letter-spacing:0}
+.add-button{
+  width:38px;height:38px;
+  right:12px;bottom:12px;
+  border-radius:13px;
+  background:#1c563d;
+  box-shadow:0 5px 13px #174b3922;
+}
+.store-category-tabs button{
+  font-family:inherit;
+  font-size:11px;
+  font-weight:650;
+  letter-spacing:.05px;
+  padding:10px 15px;
+  border-radius:12px;
+}
+.section-head h2,.page-title h1,.store-hero h1{
+  font-family:'Onest',Manrope,system-ui,sans-serif;
+  letter-spacing:-.8px;
+}
+.muted,.demo-note,.minimum-hint{
+  font-size:11px;
+  line-height:1.55;
+  color:#849188;
+}
+.store-hero{
+  background:linear-gradient(125deg,#edf4eb,#f8faf6);
+  border:1px solid #e4ece1;
+}
+.store-hero h1{font-size:24px;font-weight:750}
+.store-hero p{font-size:11px;line-height:1.55;color:#74847a}
+.cart-store,.checkout-summary,.profile-info,.operator-warning{
+  font-family:inherit;
+  font-size:12px;
+  line-height:1.55;
+}
+.cart-store{
+  border:1px solid #e2ebdf;
+  background:#f1f6ef;
+  color:#315640;
+  padding:15px 16px;
+}
+.cart-line{padding:16px 2px;border-bottom-color:#edf1eb}
+.cart-info b{font-size:12px;font-weight:650;color:#304137;line-height:1.4}
+.cart-info small{font-size:10px;color:#89968d}
+.cart-line>strong{
+  color:#194b36;
+  font-size:14px;
+  font-weight:750;
+  font-variant-numeric:tabular-nums;
+}
+.stepper{padding:3px;border-radius:12px;background:#f1f5ef;gap:8px}
+.stepper button{width:28px;height:28px;border-radius:9px;background:#fff}
+.stepper b{font-size:11px;font-variant-numeric:tabular-nums}
+.total-row{
+  align-items:center;
+  padding-top:16px;
+  border-top:1px solid #e8eee6;
+  color:#66756b;
+  font-size:13px;
+}
+.total-row b{
+  color:#174b39;
+  font-size:23px;
+  line-height:1;
+  letter-spacing:-.8px;
+  font-weight:800;
+  font-variant-numeric:tabular-nums;
+}
+.checkout-summary{
+  background:#f3f7f1;
+  border:1px solid #e5ece2;
+  color:#33483a;
+}
+.checkout-summary div{font-size:12px;line-height:1.5;gap:14px}
+.checkout-summary div b{font-weight:700;text-align:right}
+.checkout-summary span{color:#819087}
+.checkout-summary p{font-size:11px;line-height:1.6;color:#7d8c81}
+.form-card{
+  border-color:#e7ede5;
+  background:#fff;
+  box-shadow:0 8px 24px #17392e08;
+}
+.form-card label{color:#435449;font-size:12px;font-weight:650;letter-spacing:.02px}
+.form-card input,.form-card textarea{
+  border-color:#e6ece4;
+  background:#fbfcfa;
+  color:#2e4035;
+  font-size:13px;
+  line-height:1.5;
+}
+.order-card{
+  border-color:#e7ede5;
+  box-shadow:0 6px 20px #17392e08;
+}
+.order-top b{font-size:13px;font-weight:700;color:#304338}
+.order-card>small{font-size:10px;color:#87948b;line-height:1.5}
+.order-card p,.order-details{font-size:11px;line-height:1.6;color:#68796e}
+.order-bottom>b{font-size:17px;color:#194b36;font-weight:800;font-variant-numeric:tabular-nums}
+.status-pill{font-size:10px;font-weight:700;letter-spacing:.05px;padding:7px 11px}
+.operator-tabs button{font-family:inherit;font-size:12px;font-weight:650}
+.operator-manager h2{font-size:20px;font-weight:750;letter-spacing:-.5px;color:#294234}
+.manager-create,.manager-row,.manager-product{
+  border-color:#e5ebe3;
+  border-radius:15px;
+  box-shadow:0 4px 14px #17392e06;
+}
+.manager-create input,.manager-create select,.manager-row>input,.manager-product>input,.manager-product>select{
+  min-height:42px;
+  border-color:#e4eae2;
+  border-radius:11px;
+  font-size:12px;
+  font-family:inherit;
+  color:#35473b;
+}
+.manager-active{font-size:11px;font-weight:600;color:#66766b}
+.fee-editor{padding:12px;border-radius:13px;background:#f4f7f2;border:1px solid #e8eee5}
+.fee-editor label{font-size:11px;font-weight:650;color:#66766b}
+.fee-editor input{border:1px solid #e0e8de;border-radius:9px;padding:9px;font:inherit}
+@media(max-width:520px){
+  .product-details{padding:10px 2px 42px}
+  .product-details b{font-size:12px;min-height:35px}
+  .product-details strong{font-size:18px}
+  .product-details .product-description{font-size:9.5px!important}
+  .total-row b{font-size:22px}
+}
