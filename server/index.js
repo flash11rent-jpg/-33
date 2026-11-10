@@ -236,6 +236,19 @@ app.patch("/api/admin/orders/:id/status", requireAdmin, async (req, res, next) =
   } catch (error) { return next(error); }
 });
 
+app.patch("/api/admin/orders/:id/delivery-fee", requireAdmin, async (req, res, next) => {
+  try {
+    const fee = z.number().int().min(0).max(10000).safeParse(req.body?.deliveryFeeRub);
+    if (!fee.success) return res.status(400).json({ error: "Стоимость доставки должна быть от 0 до 10 000 ₽" });
+    const result = await pool.query(
+      "UPDATE orders SET delivery_fee_rub = $1, total_rub = items_total_rub + $1, updated_at = NOW() WHERE id = $2 RETURNING id, items_total_rub, delivery_fee_rub, total_rub, updated_at",
+      [fee.data, req.params.id]
+    );
+    if (!result.rowCount) return res.status(404).json({ error: "Заказ не найден" });
+    return res.json({ order: result.rows[0] });
+  } catch (error) { return next(error); }
+});
+
 app.use((error, _req, res, _next) => {
   console.error("API error:", error.message);
   return res.status(500).json({ error: "Внутренняя ошибка сервера" });
