@@ -726,12 +726,13 @@ h1,h2,h3,.section-head h2,.page-title h1,.store-hero h1{
   border-radius:0 0 26px 26px;
 }
 .bakery-atmosphere{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
-.bakery-atmosphere span{position:absolute;display:block;opacity:.19;filter:saturate(.78);font-size:clamp(22px,5vw,42px);animation:bakery-drift 13s ease-in-out infinite}
-.bakery-atmosphere span:nth-child(1){top:120px;right:5%;animation-delay:-2s;font-size:38px}
-.bakery-atmosphere span:nth-child(2){top:300px;left:3%;font-size:25px;animation-delay:-5s;color:#c18b54}
-.bakery-atmosphere span:nth-child(3){top:590px;right:2%;font-size:32px;animation-delay:-8s}
-.bakery-atmosphere span:nth-child(4){top:880px;left:5%;font-size:23px;animation-delay:-3s;color:#c18b54}
-.bakery-atmosphere span:nth-child(5){top:1160px;right:7%;font-size:34px;animation-delay:-10s}
+.bakery-croissant{position:absolute;display:block;width:clamp(76px,18vw,142px);height:auto;opacity:.24;filter:drop-shadow(0 9px 8px #80502b24);animation:bakery-sail 19s ease-in-out infinite;will-change:transform}
+.bakery-croissant svg{display:block;width:100%;height:auto;overflow:visible}
+.bakery-croissant.croissant-one{top:115px;right:2%;animation-delay:-3s}
+.bakery-croissant.croissant-two{top:520px;left:-22px;width:clamp(66px,15vw,112px);opacity:.18;animation-delay:-10s}
+.bakery-croissant.croissant-three{top:1020px;right:4%;width:clamp(84px,20vw,154px);opacity:.2;animation-delay:-15s}
+.bakery-spark{position:absolute;color:#c18b54;opacity:.25;font-size:22px;animation:bakery-drift 11s ease-in-out infinite}
+.bakery-spark.spark-a{top:340px;left:9%}.bakery-spark.spark-b{top:790px;right:12%;animation-delay:-6s}
 .bakery-storefront>:not(.bakery-atmosphere){position:relative;z-index:1}
 .bakery-storefront .back-link{color:#8b684c}
 .bakery-storefront .store-hero{position:relative;overflow:hidden;background:linear-gradient(125deg,#f2dfc7,#fff8ed 62%,#ead2b4);border:1px solid #ead8c1;border-radius:23px;box-shadow:0 12px 30px #79563812}
