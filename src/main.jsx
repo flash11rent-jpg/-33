@@ -17,6 +17,22 @@ const money=n=>new Intl.NumberFormat("ru-RU").format(n)+" ₽";
 const API_URL="https://tim-tim-api.onrender.com";
 function App(){
 const [page,setPage]=useState("home"),[category,setCategory]=useState("Все"),[query,setQuery]=useState(""),[activeShop,setActiveShop]=useState(null),[cart,setCart]=useState([]),[address,setAddress]=useState(""),[phone,setPhone]=useState(""),[comment,setComment]=useState(""),[notice,setNotice]=useState(""),[selectedOrder,setSelectedOrder]=useState(null),[isSubmitting,setIsSubmitting]=useState(false),[adminPassword,setAdminPassword]=useState(""),[adminSession,setAdminSession]=useState(""),[adminAuthenticated,setAdminAuthenticated]=useState(false),[adminOrders,setAdminOrders]=useState([]),[adminError,setAdminError]=useState("");
+const [shopData,setShopData]=useState(shops),[productData,setProductData]=useState(products),[catalogLoading,setCatalogLoading]=useState(true);
+useEffect(()=>{
+ let cancelled=false;
+ fetch(API_URL+"/api/catalog")
+  .then(response=>{if(!response.ok)throw new Error("Каталог временно недоступен");return response.json()})
+  .then(data=>{
+   if(cancelled)return;
+   const nextShops=(data.shops||[]).map(s=>({...s,icon:shops.find(x=>x.id===s.id)?.icon||"🛍️",time:shops.find(x=>x.id===s.id)?.time||"30–60 мин",description:shops.find(x=>x.id===s.id)?.description||"Товары с доставкой по Тимашевску"}));
+   const nextProducts=(data.products||[]).map(p=>({...p,shop:p.shop_id,price:p.price_rub,icon:products.find(x=>x.id===p.id)?.icon||"🛒"}));
+   setShopData(nextShops);setProductData(nextProducts);
+   setActiveShop(current=>current?nextShops.find(s=>s.id===current.id)||current:current);
+  })
+  .catch(()=>{if(!cancelled)setNotice("Показываем сохранённый каталог")})
+  .finally(()=>{if(!cancelled)setCatalogLoading(false)});
+ return()=>{cancelled=true};
+},[]);
 const [orders,setOrders]=useState(()=>{try{return JSON.parse(localStorage.getItem("timtim-orders")||"[]")}catch{return[]}});
 useEffect(()=>{localStorage.setItem("timtim-orders",JSON.stringify(orders))},[orders]);
 useEffect(()=>{
@@ -36,9 +52,9 @@ useEffect(()=>{
  return()=>clearInterval(timer);
 },[orders.filter(o=>o.trackingToken).map(o=>o.id+":"+o.status).join("|")]);
 useEffect(()=>{if(!notice)return;const id=setTimeout(()=>setNotice(""),2300);return()=>clearTimeout(id)},[notice]);
-const total=cart.reduce((s,p)=>s+p.price*p.qty,0),count=cart.reduce((s,p)=>s+p.qty,0),cartShop=cart.length?shops.find(s=>s.id===cart[0].shop):null;
-const visibleShops=shops.filter(s=>(category==="Все"||s.category===category)&&s.name.toLowerCase().includes(query.toLowerCase()));
-const visibleProducts=useMemo(()=>activeShop?products.filter(p=>p.shop===activeShop.id&&p.name.toLowerCase().includes(query.toLowerCase())):[],[activeShop,query]);
+const total=cart.reduce((s,p)=>s+p.price*p.qty,0),count=cart.reduce((s,p)=>s+p.qty,0),cartShop=cart.length?shopData.find(s=>s.id===cart[0].shop):null;
+const visibleShops=shopData.filter(s=>(category==="Все"||s.category===category)&&s.name.toLowerCase().includes(query.toLowerCase()));
+const visibleProducts=useMemo(()=>activeShop?productData.filter(p=>p.shop===activeShop.id&&p.name.toLowerCase().includes(query.toLowerCase())):[],[activeShop,query,productData]);
 function addProduct(p){if(cart.length&&cart[0].shop!==p.shop){setNotice("В корзине товары другого магазина. Сначала очистите корзину.");return}setCart(old=>{const f=old.find(x=>x.id===p.id);return f?old.map(x=>x.id===p.id?{...x,qty:x.qty+1}:x):[...old,{...p,qty:1}]});setNotice("Добавлено в корзину")}
 function changeQty(id,d){setCart(old=>old.map(p=>p.id===id?{...p,qty:p.qty+d}:p).filter(p=>p.qty>0))}
 async function submitOrder(){
@@ -106,7 +122,7 @@ return <div className="app-shell">
 <section className="delivery-promo"><div className="promo-icon">🚗</div><div><b>Доставим до двери</b><span>Минимальный заказ — 700 ₽ · Работаем с 09:00 до 21:00</span></div><ArrowRight size={17}/></section>
 <div className="section-head shops-heading" id="shops"><div><span className="eyebrow dark">ВЫБИРАЙТЕ МЕСТО</span><h2>Магазины рядом</h2></div><span className="muted">{visibleShops.length} места</span></div>
 <div className="shop-grid">{visibleShops.map((s,i)=><button className={`shop-card shop-card-v2 shop-tone-${i%3}`} key={s.id} onClick={()=>{setActiveShop(s);setPage("shop");setQuery("")}}><div className="shop-visual"><span>{s.icon}</span><small>{s.time}</small></div><div className="shop-card-copy"><span className="shop-category">{s.category}</span><b>{s.name}</b><small>{s.description}</small><span className="shop-foot">Открыть магазин <ArrowRight size={15}/></span></div></button>)}</div>
-<p className="demo-note">Каталог демонстрационный. Актуальные цены и наличие подтвердит оператор перед сборкой заказа.</p>
+<p className="demo-note">Каталог загружается из базы сервиса. Актуальные цены и наличие оператор подтвердит перед сборкой заказа.</p>
 </div>}{page==="shop"&&activeShop&&<><button className="back-link" onClick={()=>{setPage("home");setQuery("")}}><ArrowLeft size={17}/> Все магазины</button><section className="store-hero"><span>{activeShop.icon}</span><div><small>{activeShop.category}</small><h1>{activeShop.name}</h1><p><Clock3 size={14}/> {activeShop.time} · Тимашевск</p></div></section><div className="section-head compact"><h2>Каталог</h2><span className="muted">{visibleProducts.length} товара</span></div><div className="product-grid">{visibleProducts.map(p=><article className="product-card" key={p.id}><div className="product-picture">{p.icon}</div><div className="product-details"><b>{p.name}</b><small>{p.unit}</small><strong>{money(p.price)}</strong></div><button className="add-button" onClick={()=>addProduct(p)}><Plus size={19}/></button></article>)}</div></>}
 {page==="cart"&&<><button className="back-link" onClick={()=>setPage("home")}><ArrowLeft size={17}/> Продолжить покупки</button><div className="page-title"><span className="eyebrow dark">ВАШ ЗАКАЗ</span><h1>Корзина</h1></div>{!cart.length?<div className="empty-state"><span>🛍️</span><h2>Пока здесь пусто</h2><p>Добавьте товары из любого магазина Тимашевска.</p><button className="primary-button" onClick={()=>setPage("home")}>Выбрать товары</button></div>:<><div className="cart-store"><Store size={17}/><b>{cartShop?.name}</b><span>{count} шт.</span></div>{cart.map(p=><div className="cart-line" key={p.id}><span className="cart-emoji">{p.icon}</span><div className="cart-info"><b>{p.name}</b><small>{money(p.price)} / {p.unit}</small></div><div className="stepper"><button onClick={()=>changeQty(p.id,-1)}><Minus size={14}/></button><b>{p.qty}</b><button onClick={()=>changeQty(p.id,1)}><Plus size={14}/></button></div><strong>{money(p.price*p.qty)}</strong></div>)}<div className="total-row"><span>Товары</span><b>{money(total)}</b></div><div className="minimum-hint">{total<700?"До минимального заказа осталось "+money(700-total):"Минимальная сумма заказа выполнена"}</div><button className="primary-button full" disabled={total<700} onClick={()=>setPage("checkout")}>Перейти к оформлению <ArrowRight size={17}/></button><button className="text-button" onClick={()=>setCart([])}>Очистить корзину</button></>}</>}
 {page==="checkout"&&<><button className="back-link" onClick={()=>setPage("cart")}><ArrowLeft size={17}/> Корзина</button><div className="page-title"><span className="eyebrow dark">ПОСЛЕДНИЙ ШАГ</span><h1>Куда доставить?</h1></div><div className="form-card"><label>Адрес доставки<input value={address} onChange={e=>setAddress(e.target.value)} placeholder="Улица, дом, квартира"/></label><label>Номер телефона<input value={phone} onChange={e=>setPhone(e.target.value)} placeholder="+7 900 000-00-00" inputMode="tel"/></label><label>Комментарий курьеру<textarea value={comment} onChange={e=>setComment(e.target.value)} placeholder="Подъезд, этаж, домофон — по желанию" rows="3"/></label></div><div className="checkout-summary"><div><span>Магазин</span><b>{cartShop?.name}</b></div><div><span>Товары</span><b>{money(total)}</b></div><p>Стоимость и время доставки подтвердим перед отправкой заказа.</p></div><button className="primary-button full" disabled={isSubmitting} onClick={submitOrder}>{isSubmitting?"Отправляем заказ…":<>Подтвердить заказ · {money(total)}</>}</button></>}
