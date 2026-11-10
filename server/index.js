@@ -92,7 +92,12 @@ function validSession(token) {
 function requireAdmin(req, res, next) {
   const supplied = req.get("x-admin-key") || req.get("authorization")?.replace(/^Bearer\\s+/i, "");
   if (adminApiKey && supplied && safeEqual(supplied, adminApiKey)) return next();
-  if (validSession(cookieValue(req, "tt_admin"))) return next();
+  if (validSession(cookieValue(req, "tt_admin"))) {
+    if (!req.headers.origin || !allowedOrigins.includes(req.headers.origin)) {
+      return res.status(403).json({ error: "Недопустимый источник запроса" });
+    }
+    return next();
+  }
   return res.status(401).json({ error: "Требуется вход оператора" });
 }
 
