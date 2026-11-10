@@ -61,3 +61,7 @@ INSERT INTO products (id, shop_id, name, price_rub, unit) VALUES
   (10,4,'Средство для посуды',160,'шт.'),
   (11,4,'Бумажные полотенца',190,'упаковка')
 ON CONFLICT (id) DO NOTHING;
+
+-- Pharmacy delivery remains disabled until legal and partner checks are completed.
+UPDATE shops SET is_active = FALSE WHERE id = 3;
+UPDATE products SET is_active = FALSE WHERE shop_id = 3;
