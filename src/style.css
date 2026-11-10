@@ -283,3 +283,44 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .product-description{font-size:9px!important;line-height:1.35;color:#7c8b80;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:24px}
 .product-details{min-width:0}
 @media(max-width:520px){.category-tiles{grid-template-columns:repeat(5,minmax(0,1fr))}.store-hero{align-items:flex-start;padding:18px;gap:12px}.store-hero>span{width:62px;height:62px;min-width:62px}.product-picture{height:112px}}
+
+
+/* Store catalogue: complete product photos and clear category navigation */
+.store-category-tabs{
+ display:flex;gap:8px;overflow-x:auto;overscroll-behavior-x:contain;
+ padding:3px 1px 12px;margin:-2px 0 15px;
+ scrollbar-width:thin;scrollbar-color:#cbd9ca transparent;
+}
+.store-category-tabs button{
+ flex:0 0 auto;display:flex;align-items:center;gap:7px;
+ border:1px solid #e3ebe1;border-radius:999px;padding:10px 14px;
+ background:#fff;color:#496052;font:inherit;font-size:11px;font-weight:800;
+ transition:background .18s,border-color .18s,transform .18s;
+}
+.store-category-tabs button small{
+ min-width:19px;height:19px;padding:0 5px;border-radius:20px;
+ display:grid;place-items:center;background:#edf3eb;color:#718276;
+ font-size:9px;font-weight:800;
+}
+.store-category-tabs button.active{
+ background:#174b39;border-color:#174b39;color:#fff;
+ box-shadow:0 6px 14px #174b3928;
+}
+.store-category-tabs button.active small{background:#ffffff25;color:#fff}
+.product-picture{
+ height:174px!important;display:flex;align-items:center;justify-content:center;
+ padding:10px;box-sizing:border-box;
+ background:linear-gradient(145deg,#fff 0%,#f7f9f5 100%);
+}
+.product-picture>img{
+ width:100%;height:100%;object-fit:contain!important;
+ object-position:center;display:block;
+}
+.product-picture>span{font-size:48px}
+.product-card{min-width:0}
+.product-details b{min-height:34px}
+@media(max-width:520px){
+ .store-category-tabs{margin-right:-18px;padding-right:18px}
+ .product-picture{height:146px!important;padding:8px}
+ .product-picture>span{font-size:42px}
+}
