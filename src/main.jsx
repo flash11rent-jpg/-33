@@ -14,6 +14,12 @@ const products=[
 const categories=["Все","Продукты","Цветы","Для дома","Выпечка","Стройматериалы","Рестораны","Косметика"];
 const statuses=["Новый","Подтверждён","Собирается","Готов","В пути","Доставлен","Отменён"];
 const money=n=>new Intl.NumberFormat("ru-RU").format(n)+" ₽";
+function ShopBrandMark({shop}){
+ const id=Number(shop.id), name=shop.name||"Магазин";
+ const labels={5:"ХЛЕБНЫЙ\\nДВОРИК",6:"МАСТЕР",7:"ROSTIC'S",8:"PERLIN'S\\nPITA",9:"ПЯТЁРОЧКА",10:"МАГНИТ",11:"ПОВОРОТ",12:"ЁБИДОЁБИ",13:"ШУСТРЫЙ\\nКРАБ",14:"М.КОСМЕТИК",15:"ДОДО\\nПИЦЦА",1:"У ДОМА",2:"ЦВЕТОЧНЫЙ\\nМИР",4:"ДОМ И УЮТ"};
+ const marks={5:"ХД",6:"М",7:"R",8:"P",9:"5",10:"М",11:"П",12:"Ё",13:"К",14:"М",15:"Д",1:"У",2:"Ц",4:"Д"};
+ return <span className={"shop-brand-mark shop-brand-"+id}><i>{marks[id]||name.slice(0,1)}</i><b>{(labels[id]||name).split("\\n").map((line,index)=><React.Fragment key={index}>{index>0&&<br/>}{line}</React.Fragment>)}</b></span>;
+}
 function productSection(p){
  const n=(p.name||"").toLowerCase(), c=(p.category||"").toLowerCase();
  if(n.includes("пицц"))return "Пицца";
@@ -74,7 +80,7 @@ useEffect(()=>{
   .then(response=>{if(!response.ok)throw new Error("Каталог временно недоступен");return response.json()})
   .then(data=>{
    if(cancelled)return;
-   const nextShops=(data.shops||[]).map(s=>({...s,icon:shops.find(x=>x.id===s.id)?.icon||({5:"🥐",6:"🛠️",7:"🍗",8:"🥙",9:"🛒",10:"🛍️",11:"🔩",12:"🍣",13:"🦀",14:"💄",15:"🍕"}[s.id]||"🏬"),time:shops.find(x=>x.id===s.id)?.time||"30–60 мин",description:s.description||shops.find(x=>x.id===s.id)?.description||"Товары с доставкой по Тимашевску",imageUrl:s.id===11?"https://avatars.mds.yandex.net/get-altay/1032555/2a000001875b4bebc888bf01582ec26d106e/XXL_height":s.id===12?"https://storage.yandexcloud.net/yobiweb-storage-prod/42e3e1d5-084d-4f04-baf2-ff7f695f0ae0/e9bf70c9-f9b4-4a03-9cdc-7e03bb03dcec/web/logo_y.svg":s.id===6?"https://stroy.cataloged.ru/pics/pp/pics/logo/master_210730_20260508.webp":s.image_url,website:s.website,phone:s.phone,address:s.address,mapsUrl:s.maps_url}));
+   const nextShops=(data.shops||[]).map(s=>({...s,icon:shops.find(x=>x.id===s.id)?.icon||({5:"🥐",6:"🛠️",7:"🍗",8:"🥙",9:"🛒",10:"🛍️",11:"🔩",12:"🍣",13:"🦀",14:"💄",15:"🍕"}[s.id]||"🏬"),time:shops.find(x=>x.id===s.id)?.time||"30–60 мин",description:s.description||shops.find(x=>x.id===s.id)?.description||"Товары с доставкой по Тимашевску",imageUrl:s.id===12?"https://storage.yandexcloud.net/yobiweb-storage-prod/42e3e1d5-084d-4f04-baf2-ff7f695f0ae0/e9bf70c9-f9b4-4a03-9cdc-7e03bb03dcec/web/logo_y.svg":s.id===6?"https://stroy.cataloged.ru/pics/pp/pics/logo/master_210730_20260508.webp":s.image_url,website:s.website,phone:s.phone,address:s.address,mapsUrl:s.maps_url}));
    const nextProducts=(data.products||[]).map(p=>({...p,shop:p.shop_id,price:p.price_rub,icon:products.find(x=>x.id===p.id)?.icon||(p.name?.toLowerCase().includes("кола")?"🥤":"🛒"),imageUrl:p.image_url,category:p.category,description:p.description,sourceUrl:p.source_url}));
    // Do not replace the usable starter catalogue with empty arrays if a new database is not seeded yet.
    if(nextShops.length&&nextProducts.length){setShopData(nextShops);setProductData(nextProducts);setActiveShop(current=>current?nextShops.find(s=>s.id===current.id)||current:current)}
@@ -228,7 +234,7 @@ return <div className="app-shell">
 <section className="delivery-promo"><div className="promo-icon">🚗</div><div><b>Доставим до двери</b><span>Минимальный заказ — 700 ₽ · Работаем с 09:00 до 21:00</span></div><ArrowRight size={17}/></section>
 <button className="individual-order-promo" onClick={()=>setPage("individual-order")}><span className="individual-order-icon">✦</span><span><b>Не нашли нужный магазин?</b><small>Закажите из любого магазина Тимашевска — просто напишите список покупок</small><strong>Оформить индивидуальный заказ <ArrowRight size={15}/></strong></span></button>
 <div className="section-head shops-heading" id="shops"><div><span className="eyebrow dark">ВЫБИРАЙТЕ МЕСТО</span><h2>Магазины рядом</h2></div><span className="muted">{visibleShops.length} места</span></div>
-<div className="shop-grid">{visibleShops.map((s,i)=><button className={`shop-card shop-card-v2 shop-tone-${i%3} ${Number(s.id)===12?"shop-card-yobidoyobi":""} ${Number(s.id)===11?"shop-card-povorot":""}`} key={s.id} onClick={()=>{setActiveShop(s);setProductSectionFilter("Все");setPage("shop");setQuery("")}}><div className="shop-visual">{s.imageUrl?<img src={s.imageUrl} alt="" loading="lazy"/>:<span>{s.icon}</span>}<small>{s.time}</small></div><div className="shop-card-copy"><span className="shop-category">{s.category}</span><b>{s.name}</b><small>{s.description}</small><span className="shop-foot">Открыть магазин <ArrowRight size={15}/></span></div></button>)}</div>
+<div className="shop-grid">{visibleShops.map((s,i)=><button className={`shop-card shop-card-v2 shop-tone-${i%3} ${Number(s.id)===12?"shop-card-yobidoyobi":""} ${Number(s.id)===11?"shop-card-povorot":""}`} key={s.id} onClick={()=>{setActiveShop(s);setProductSectionFilter("Все");setPage("shop");setQuery("")}}><div className="shop-visual"><ShopBrandMark shop={s}/><small>{s.time}</small></div><div className="shop-card-copy"><span className="shop-category">{s.category}</span><b>{s.name}</b><small>{s.description}</small><span className="shop-foot">Открыть магазин <ArrowRight size={15}/></span></div></button>)}</div>
 <p className="demo-note">Каталог загружается из базы сервиса. Актуальные цены и наличие оператор подтвердит перед сборкой заказа.</p>
 </div>}{page==="shop"&&activeShop&&<div className={`storefront ${(Number(activeShop.id)===5||activeShop.name==="Хлебный дворик")?"bakery-storefront":Number(activeShop.id)===6||activeShop.name==="Мастер"?"construction-storefront":Number(activeShop.id)===12||activeShop.name==="Ёбидоёби"?"yobidoyobi-storefront":Number(activeShop.id)===11||activeShop.name==="Поворот"?"povorot-storefront":""}`}>
 
