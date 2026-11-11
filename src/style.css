@@ -1169,3 +1169,7 @@ h1,h2,h3,.section-head h2,.page-title h1,.store-hero h1{
 .shop-card .shop-mini-brand-13 .shop-mini-brand-fallback{display:grid;color:#8b432b;background:linear-gradient(145deg,#fff6e8,#f6dfc6)}
 .shop-card .shop-visual .shop-card-photo.shop-card-logo{object-fit:contain!important;padding:18px 24px!important;background:#fff!important}
 .shop-card .shop-card-photo-fallback{display:grid}
+
+.shop-title-row{width:100%}
+.shop-title-row>b{font-size:12px;line-height:1.3}
+.shop-card-povorot .shop-card-copy .shop-title-row>b{letter-spacing:-.4px}
