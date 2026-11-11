@@ -19,7 +19,9 @@ function productSection(p){
  if(n.includes("пицц"))return "Пицца";
  if(n.includes("пирог")||n.includes("штрудель"))return "Пироги";
  if(c.includes("торт")||n.startsWith("торт"))return "Торты";
- if(c.includes("десерт")||n.includes("пирожн")||n.includes("эклер")||n.includes("чизкейк")||n.includes("моти")||n.includes("зефир")||n.includes("трайфл")||n.includes("тарт")||n.includes("круассан")||n.includes("павлов")||n.includes("трубоч")||n.includes("корзинк")||n.includes("кольцо с белковым")||n.includes("чиа"))return "Сладкое";
+ if(n.includes("пирожн")||n.includes("эклер")||n.includes("чизкейк")||n.includes("моти")||n.includes("зефир")||n.includes("трайфл")||n.includes("тарт")||n.includes("круассан")||n.includes("павлов")||n.includes("трубоч")||n.includes("корзинк")||n.includes("кольцо с белковым")||n.includes("чиа"))return "Сладкое";
+ if(c.includes("напит"))return "Напитки и десерты";
+ if(c.includes("десерт"))return "Сладкое";
  if(c.includes("хлеб")||n.includes("хлеб"))return "Хлеб";
  if(c.includes("завтрак")||n.includes("панини"))return "Завтраки";
  if(c.includes("кулинар")||n.includes("котлет")||n.includes("голубц"))return "Кулинария";
