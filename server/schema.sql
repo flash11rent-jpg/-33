@@ -29,6 +29,19 @@ ALTER TABLE products ADD COLUMN IF NOT EXISTS description TEXT NOT NULL DEFAULT 
 ALTER TABLE products ADD COLUMN IF NOT EXISTS image_url TEXT;
 ALTER TABLE products ADD COLUMN IF NOT EXISTS source_url TEXT;
 
+CREATE TABLE IF NOT EXISTS individual_requests (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  request_number BIGINT GENERATED ALWAYS AS IDENTITY UNIQUE,
+  store_name TEXT NOT NULL,
+  store_address TEXT NOT NULL,
+  items_text TEXT NOT NULL,
+  delivery_address TEXT NOT NULL,
+  customer_phone TEXT NOT NULL,
+  customer_comment TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'Новая заявка',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 CREATE TABLE IF NOT EXISTS orders (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   order_number BIGINT GENERATED ALWAYS AS IDENTITY UNIQUE,
