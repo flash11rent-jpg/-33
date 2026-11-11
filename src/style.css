@@ -1344,3 +1344,95 @@ h1,h2,h3,.section-head h2,.page-title h1,.store-hero h1{
  .pyaterochka-storefront,.magnit-storefront{margin:0 -14px;padding:0 14px 24px}
  .pyaterochka-storefront .store-hero,.magnit-storefront .store-hero{min-height:150px;border-radius:19px}
 }
+
+
+/* Restaurant identities: distinct palettes for every partner, same Tim-Tim checkout flow. */
+.shop-card-7 .shop-card-copy .shop-category,.shop-card-7 .shop-card-copy .shop-foot{color:#bf2834}
+.shop-card-7 .shop-visual{background:linear-gradient(145deg,#f9e8e8,#f1d8d9)}
+.shop-card-8 .shop-card-copy .shop-category,.shop-card-8 .shop-card-copy .shop-foot{color:#9b6b29}
+.shop-card-8 .shop-visual{background:linear-gradient(145deg,#f8f0df,#eee3ca)}
+.shop-card-13 .shop-card-copy .shop-category,.shop-card-13 .shop-card-copy .shop-foot{color:#16778a}
+.shop-card-13 .shop-visual{background:linear-gradient(145deg,#e5f3f3,#d1e9eb)}
+.shop-card-15 .shop-card-copy .shop-category,.shop-card-15 .shop-card-copy .shop-foot{color:#e65c2b}
+.shop-card-15 .shop-visual{background:linear-gradient(145deg,#fff0e5,#f9dfcc)}
+
+.rostics-storefront,.perlins-storefront,.crab-storefront,.dodo-storefront{
+ position:relative;isolation:isolate;overflow:hidden;margin:0 -18px;padding:0 18px 30px;border-radius:0 0 26px 26px;
+}
+.rostics-storefront{background:radial-gradient(ellipse at 100% 0%,#f7dddd 0,transparent 34%),linear-gradient(180deg,#fff3f2,#fff 48%,#fff8f6)}
+.rostics-storefront .store-hero{background:linear-gradient(115deg,#261f20,#8e202b 65%,#c52b37);border:1px solid #a52832;border-radius:23px;box-shadow:0 14px 30px #5a141b28;position:relative;overflow:hidden;isolation:isolate;min-height:166px}
+.rostics-storefront .store-hero:after{content:"";position:absolute;right:-60px;bottom:-140px;width:280px;height:280px;border:2px solid #fff2;border-radius:50%;box-shadow:0 0 0 18px #fff1,0 0 0 38px #fff1}
+.rostics-storefront .store-hero>span{position:relative;z-index:2;background:#fff;border-radius:18px;padding:5px}
+.rostics-storefront .store-hero>span img{width:100%;height:100%;object-fit:contain}
+.rostics-storefront .store-hero>div{position:relative;z-index:2}
+.rostics-storefront .store-hero small{color:#ffd9d8;font-weight:950;letter-spacing:1.5px;text-transform:uppercase}
+.rostics-storefront .store-hero h1{color:#fff;font-weight:950;letter-spacing:-1px}
+.rostics-storefront .store-hero p{color:#f4e5e4}
+.rostics-storefront .store-hero a{color:#ffd2a9;font-weight:850}
+.rostics-storefront .store-category-tabs button.active{background:#bd2935;border-color:#bd2935}
+.rostics-storefront .product-card{border-color:#f0dddd;box-shadow:0 6px 18px #8f202b12}
+.rostics-storefront .product-details strong{color:#b82834}
+.rostics-storefront .add-button{background:linear-gradient(135deg,#d13b45,#96202b);box-shadow:0 6px 14px #96202b30}
+.rostics-storefront .master-catalog-empty>span{background:#fae6e6;color:#b82834}
+.rostics-storefront .master-catalog-empty .primary-button{background:#b82834}
+
+.perlins-storefront{background:radial-gradient(ellipse at 95% 0%,#efe7cc 0,transparent 36%),linear-gradient(180deg,#fbf6e8,#fff 48%,#faf8f0)}
+.perlins-storefront .store-hero{background:linear-gradient(115deg,#4d542e,#777b3d 60%,#a88b4c);border:1px solid #8e8950;border-radius:23px;box-shadow:0 14px 30px #4d542e26;position:relative;overflow:hidden;isolation:isolate;min-height:166px}
+.perlins-storefront .store-hero:after{content:"";position:absolute;right:-52px;top:-128px;width:270px;height:270px;border:1px solid #fff8db80;border-radius:50%;box-shadow:0 0 0 18px #fff8db18,0 0 0 38px #fff8db0d}
+.perlins-storefront .store-hero>span{position:relative;z-index:2;background:#fff;border-radius:19px;padding:5px}
+.perlins-storefront .store-hero>span img{width:100%;height:100%;object-fit:cover;border-radius:14px}
+.perlins-storefront .store-hero>div{position:relative;z-index:2}
+.perlins-storefront .store-hero small{color:#f7edca;font-weight:950;letter-spacing:1.5px;text-transform:uppercase}
+.perlins-storefront .store-hero h1{color:#fff;font-weight:950;letter-spacing:-1px}
+.perlins-storefront .store-hero p{color:#f2ecd8}
+.perlins-storefront .store-hero a{color:#ffe2a4;font-weight:850}
+.perlins-storefront .store-category-tabs button.active{background:#72763b;border-color:#72763b}
+.perlins-storefront .product-card{border-color:#eee5cf;box-shadow:0 6px 18px #6e67320d}
+.perlins-storefront .product-details strong{color:#8a6b32}
+.perlins-storefront .add-button{background:linear-gradient(135deg,#9d7c3d,#6b6735);box-shadow:0 6px 14px #6b673530}
+.perlins-storefront .master-catalog-empty>span{background:#f4edd9;color:#83713a}
+.perlins-storefront .master-catalog-empty .primary-button{background:#77783c}
+
+.crab-storefront{background:radial-gradient(ellipse at 100% 0%,#d8eff0 0,transparent 35%),linear-gradient(180deg,#eff8f8,#fff 48%,#f3fafa)}
+.crab-storefront .store-hero{background:linear-gradient(115deg,#123d4b,#126a7b 62%,#2396a4);border:1px solid #1e7887;border-radius:23px;box-shadow:0 14px 30px #123d4b28;position:relative;overflow:hidden;isolation:isolate;min-height:166px}
+.crab-storefront .store-hero:after{content:"";position:absolute;right:-45px;bottom:-138px;width:270px;height:270px;border:1px solid #d8f8f880;border-radius:50%;box-shadow:0 0 0 18px #d8f8f818,0 0 0 38px #d8f8f80d}
+.crab-storefront .store-hero>span{position:relative;z-index:2;background:#fff;border:2px solid #e7f7f8;border-radius:20px;padding:5px}
+.crab-storefront .store-hero>span img{width:100%;height:100%;object-fit:cover;border-radius:15px}
+.crab-storefront .store-hero>div{position:relative;z-index:2}
+.crab-storefront .store-hero small{color:#c9f0f2;font-weight:950;letter-spacing:1.5px;text-transform:uppercase}
+.crab-storefront .store-hero h1{color:#fff;font-weight:950;letter-spacing:-1px}
+.crab-storefront .store-hero p{color:#e1f4f5}
+.crab-storefront .store-hero a{color:#a9f0f2;font-weight:850}
+.crab-storefront .store-category-tabs button.active{background:#16778a;border-color:#16778a}
+.crab-storefront .product-card{border-color:#dceced;box-shadow:0 6px 18px #126a7b10}
+.crab-storefront .product-details strong{color:#16778a}
+.crab-storefront .add-button{background:linear-gradient(135deg,#218e9c,#125d70);box-shadow:0 6px 14px #125d7030}
+.crab-storefront .master-catalog-empty>span{background:#e1f2f3;color:#16778a}
+.crab-storefront .master-catalog-empty .primary-button{background:#16778a}
+
+.dodo-storefront{background:radial-gradient(ellipse at 95% 0%,#ffe5d4 0,transparent 34%),linear-gradient(180deg,#fff4ec,#fff 48%,#fff8f3)}
+.dodo-storefront .store-hero{background:linear-gradient(115deg,#8e2d1d,#d84b23 62%,#f18438);border:1px solid #dd5b2d;border-radius:23px;box-shadow:0 14px 30px #8e2d1d26;position:relative;overflow:hidden;isolation:isolate;min-height:166px}
+.dodo-storefront .store-hero:after{content:"";position:absolute;right:-58px;top:-130px;width:270px;height:270px;border:1px solid #fff0df80;border-radius:50%;box-shadow:0 0 0 18px #fff0df18,0 0 0 38px #fff0df0d}
+.dodo-storefront .store-hero>span{position:relative;z-index:2;background:#fff;border:2px solid #fff0e4;border-radius:20px;padding:5px}
+.dodo-storefront .store-hero>span img{width:100%;height:100%;object-fit:contain;border-radius:15px}
+.dodo-storefront .store-hero>div{position:relative;z-index:2}
+.dodo-storefront .store-hero small{color:#ffe7d6;font-weight:950;letter-spacing:1.5px;text-transform:uppercase}
+.dodo-storefront .store-hero h1{color:#fff;font-weight:950;letter-spacing:-1px}
+.dodo-storefront .store-hero p{color:#fff0e8}
+.dodo-storefront .store-hero a{color:#fff3d7;font-weight:850}
+.dodo-storefront .store-category-tabs button.active{background:#e7632d;border-color:#e7632d}
+.dodo-storefront .product-card{border-color:#f2dfd2;box-shadow:0 6px 18px #d9502210}
+.dodo-storefront .product-details strong{color:#df5929}
+.dodo-storefront .add-button{background:linear-gradient(135deg,#f17a39,#c8441d);box-shadow:0 6px 14px #c8441d30}
+.dodo-storefront .master-catalog-empty>span{background:#fff0e4;color:#d95a2a}
+.dodo-storefront .master-catalog-empty .primary-button{background:#df5929}
+
+.storefront-search{margin:0 0 16px;min-height:54px}
+.master-catalog-empty{padding:38px 14px}
+.master-catalog-empty .primary-button{min-width:190px}
+.request-status-select{display:block;width:100%;margin:12px 0 16px;padding:11px 12px;border:1px solid #e4ece5;border-radius:12px;background:#fbfcfa;color:#385444;font-size:11px;font-weight:800}
+@media(max-width:520px){
+ .rostics-storefront,.perlins-storefront,.crab-storefront,.dodo-storefront{margin:0 -14px;padding:0 14px 24px}
+ .rostics-storefront .store-hero,.perlins-storefront .store-hero,.crab-storefront .store-hero,.dodo-storefront .store-hero{min-height:150px;border-radius:19px}
+ .storefront-search{margin-bottom:13px}
+}
