@@ -1,12 +1,19 @@
 {
-"name":"Тим-Тим — доставка из магазинов",
-"short_name":"Тим-Тим",
-"description":"Доставка из магазинов Тимашевска",
-"lang":"ru",
-"start_url":"/",
-"scope":"/",
-"display":"standalone",
-"background_color":"#f8faf7",
-"theme_color":"#174b39",
-"icons":[]
+  "name": "Тим-Тим — доставка из магазинов",
+  "short_name": "Тим-Тим",
+  "description": "Доставка из магазинов Тимашевска",
+  "lang": "ru",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f8faf7",
+  "theme_color": "#174b39",
+  "icons": [
+    {
+      "src": "/timtim-logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
 }
