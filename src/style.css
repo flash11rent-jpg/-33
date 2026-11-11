@@ -1018,3 +1018,59 @@ h1,h2,h3,.section-head h2,.page-title h1,.store-hero h1{
 .brand-mark{display:block;width:56px;height:56px;flex:0 0 56px;max-width:none;object-fit:contain;object-position:center;border-radius:12px;background:transparent;box-shadow:0 4px 12px #174b3920;padding:0}
 @media(max-width:520px){.topbar{height:74px;padding:0 17px}.brand-mark{width:54px;height:54px;flex-basis:54px}}
 @media(max-width:360px){.brand-mark{width:52px;height:52px;flex-basis:52px}}
+
+
+/* Ёбидоёби: bold Japanese street-food storefront, isolated from other shop themes. */
+.yobidoyobi-storefront{
+ --yobi-ink:#231b2c;--yobi-purple:#5c2c78;--yobi-pink:#f04c83;--yobi-orange:#ff9a45;
+ position:relative;isolation:isolate;overflow:hidden;margin:0 -18px;padding:0 18px 30px;
+ background:radial-gradient(ellipse at 92% 8%,#f8c5d8 0,transparent 27%),radial-gradient(ellipse at 0 44%,#e8d4f4 0,transparent 32%),linear-gradient(180deg,#fff0f5 0%,#fffafd 52%,#f7effb 100%);
+ border-radius:0 0 26px 26px;
+}
+.yobidoyobi-storefront .back-link{color:#71365f}
+.yobidoyobi-storefront .store-hero{
+ position:relative;isolation:isolate;overflow:hidden;min-height:166px;
+ background:linear-gradient(118deg,#271d32 0%,#49264f 58%,#74345c 100%);
+ border:1px solid #68405f;border-radius:24px;box-shadow:0 14px 32px #49264f26;
+}
+.yobidoyobi-storefront .store-hero:after{
+ content:"";position:absolute;width:180px;height:180px;right:-48px;bottom:-100px;border:1px solid #ff9a4580;border-radius:50%;
+ box-shadow:0 0 0 15px #ff9a4518,0 0 0 34px #ff9a450d;pointer-events:none
+}
+.yobidoyobi-storefront .store-hero>span:not(.store-hero-master-mark){
+ position:relative;z-index:2;flex:0 0 76px;width:76px;height:76px;padding:8px;
+ display:grid;place-items:center;background:#fff;border:2px solid #ffb1cb;border-radius:20px;
+ box-shadow:0 8px 22px #130d1b55
+}
+.yobidoyobi-storefront .store-hero>span img{width:100%;height:100%;object-fit:contain}
+.yobidoyobi-storefront .store-hero>div:not(.yobi-header-art){position:relative;z-index:2;max-width:calc(100% - 90px)}
+.yobidoyobi-storefront .store-hero small{
+ display:inline-block;padding:5px 9px;border-radius:20px;background:#f04c8330;color:#ffb4d0;
+ font-size:10px;font-weight:900;letter-spacing:.12em;text-transform:uppercase
+}
+.yobidoyobi-storefront .store-hero h1{color:#fff;font-weight:900;letter-spacing:-.8px}
+.yobidoyobi-storefront .store-hero p{color:#eadbe9}
+.yobidoyobi-storefront .store-hero a{position:relative;z-index:3;color:#ffb2cb;font-size:10px;font-weight:800;margin-right:10px}
+.yobi-header-art{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1}
+.yobi-orbit{position:absolute;width:190px;height:190px;right:-30px;top:-105px;border:1px solid #ff9a4560;border-radius:50%;box-shadow:0 0 0 18px #ff9a4510,0 0 0 38px #ff9a450a}
+.yobi-float{position:absolute;filter:drop-shadow(0 7px 8px #120a1c55);opacity:.78;animation:yobi-drift 8s ease-in-out infinite}
+.yobi-sushi-one{right:16%;top:16px;font-size:40px;transform:rotate(-13deg)}
+.yobi-sushi-two{right:5%;bottom:9px;font-size:34px;animation-delay:-3s}
+.yobi-sushi-three{right:33%;bottom:8px;font-size:30px;animation-delay:-5s}
+@keyframes yobi-drift{0%,100%{translate:0 0;rotate:-5deg}50%{translate:0 -9px;rotate:5deg}}
+.yobidoyobi-storefront .section-head h2{color:#38223e}
+.yobidoyobi-storefront .store-category-tabs button{border-color:#ead8e8;background:#fff8fc;color:#694c69}
+.yobidoyobi-storefront .store-category-tabs button.active{background:#51265f;border-color:#51265f;color:#fff;box-shadow:0 5px 14px #51265f30}
+.yobidoyobi-storefront .product-card{border-color:#f0dce8;background:linear-gradient(160deg,#fff 0%,#fff9fc 100%);box-shadow:0 6px 18px #71365f10}
+.yobidoyobi-storefront .product-picture{background:linear-gradient(145deg,#fae5ee,#f1e4f7);border:1px solid #f5d8e6}
+.yobidoyobi-storefront .product-details strong{color:#9b315d}
+.yobidoyobi-storefront .add-button{background:linear-gradient(135deg,#ef4d83,#b72f69);box-shadow:0 6px 14px #b72f6938}
+.yobidoyobi-storefront .add-button:hover{background:#9d285e}
+.yobidoyobi-storefront .bakery-cart-bar{background:linear-gradient(110deg,#51265f,#8b315f);box-shadow:0 9px 24px #51265f30}
+.shop-card-yobidoyobi .shop-visual{background:radial-gradient(circle at 78% 25%,#ffffffb0 0 12%,transparent 13%),linear-gradient(135deg,#f7dce9,#e9d8f3 60%,#f9e3cf)}
+.shop-card-yobidoyobi .shop-visual:after{content:"🍣";position:absolute;right:13px;bottom:2px;font-size:38px;opacity:.8;filter:drop-shadow(0 5px 5px #5a315022)}
+.shop-card-yobidoyobi .shop-visual img{position:relative;z-index:1;max-width:78%;max-height:76%;object-fit:contain;padding:8px;background:#fff;border:1px solid #f3c9dc;border-radius:16px;box-shadow:0 7px 18px #5a315022}
+.shop-card-yobidoyobi .shop-visual>small{background:#51265f;color:#fff}
+.shop-card-yobidoyobi .shop-card-copy .shop-category{color:#b34272}
+.shop-card-yobidoyobi .shop-card-copy .shop-foot{color:#82345e}
+@media(prefers-reduced-motion:reduce){.yobi-float{animation:none}}
