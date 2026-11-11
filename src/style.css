@@ -1011,3 +1011,10 @@ h1,h2,h3,.section-head h2,.page-title h1,.store-hero h1{
 .brand-mark{display:block;width:230px;height:68px;flex:0 1 230px;max-width:100%;object-fit:contain;object-position:left center;border-radius:0;background:transparent;box-shadow:none;padding:0}
 @media(max-width:520px){.topbar{height:78px;padding:0 17px}.brand-mark{width:205px;height:62px;flex-basis:205px}}
 @media(max-width:360px){.brand-mark{width:185px;height:56px;flex-basis:185px}}
+
+/* Final header logo: original uploaded square artwork, fully contained with no crop. */
+.topbar{height:78px;padding:0 25px}
+.brand{gap:0;min-width:0}
+.brand-mark{display:block;width:56px;height:56px;flex:0 0 56px;max-width:none;object-fit:contain;object-position:center;border-radius:12px;background:transparent;box-shadow:0 4px 12px #174b3920;padding:0}
+@media(max-width:520px){.topbar{height:74px;padding:0 17px}.brand-mark{width:54px;height:54px;flex-basis:54px}}
+@media(max-width:360px){.brand-mark{width:52px;height:52px;flex-basis:52px}}
