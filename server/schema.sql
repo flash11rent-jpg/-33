@@ -295,3 +295,21 @@ CREATE TABLE IF NOT EXISTS app_settings (
   value TEXT NOT NULL,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+
+-- Tim-Tim partner/store directory imported from the owner's Yandex Maps links.
+-- Prices and product catalogues are intentionally not fabricated; each new store
+-- is listed with a clear "catalogue and prices are being confirmed" description.
+INSERT INTO shops (id, name, category, description, address, website) VALUES
+  (7, 'Rostic''s', 'Рестораны', 'Меню и цены уточняются у магазина.', 'г. Тимашевск, ул. Пролетарская, 156', 'https://rostics.ru/'),
+  (8, 'Perlin''s Pita', 'Рестораны', 'Меню и цены уточняются у магазина.', 'г. Тимашевск, ул. Интернациональная, 18', 'http://pita23.ru/'),
+  (9, 'Пятёрочка', 'Продукты', 'Ассортимент и цены уточняются у магазина.', 'г. Тимашевск, ул. 50 лет Октября, 115', 'https://5ka.ru/'),
+  (10, 'Магнит', 'Продукты', 'Ассортимент и цены уточняются у магазина.', 'г. Тимашевск, ул. Котляра, 195', 'https://www.magnit.com/'),
+  (11, 'Поворот', 'Стройматериалы', 'Ассортимент и цены уточняются у магазина.', 'г. Тимашевск, ул. Пролетарская, 180А', NULL),
+  (12, 'Ёбидоёби', 'Рестораны', 'Меню и цены уточняются у магазина.', 'г. Тимашевск, Советский пер., 18', 'https://yobidoyobi.ru/'),
+  (13, 'Шустрый Краб', 'Рестораны', 'Меню и цены уточняются у магазина.', 'г. Тимашевск, ул. Пролетарская, 114', NULL),
+  (14, 'М.Косметик', 'Косметика', 'Ассортимент и цены уточняются у магазина.', 'г. Тимашевск, ул. Ленина, 128', 'https://cosmetic.magnit.ru/'),
+  (15, 'Додо Пицца', 'Рестораны', 'Меню и цены уточняются у магазина.', 'г. Тимашевск, ул. Красная, 104', 'https://dodopizza.ru/')
+ON CONFLICT (id) DO UPDATE SET
+  name=EXCLUDED.name, category=EXCLUDED.category, description=EXCLUDED.description,
+  address=EXCLUDED.address, website=EXCLUDED.website;
