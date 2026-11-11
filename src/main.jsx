@@ -34,21 +34,10 @@ function BreadFloat(){return <span className="bakery-food bread-float"><svg view
 function BaguetteFloat(){return <span className="bakery-food baguette-float"><svg viewBox="0 0 150 65" aria-hidden="true"><path d="M10 43Q16 17 45 14L123 8Q144 8 141 28Q137 48 111 51L30 58Q8 59 10 43Z" fill="#d99a4d" stroke="#a96330" strokeWidth="3"/><path d="M39 19L29 42M68 15L58 40M98 12L88 37" stroke="#f8d99e" strokeWidth="7" strokeLinecap="round"/><path d="M15 45Q25 53 43 49" fill="none" stroke="#f4c77f" strokeWidth="3"/></svg></span>}
 function PastryFloat(){return <span className="bakery-food pastry-float"><svg viewBox="0 0 120 110" aria-hidden="true"><path d="M20 83Q10 67 26 50L47 22Q60 7 74 22L96 50Q111 69 96 83Z" fill="#d98d43" stroke="#99552d" strokeWidth="4"/><path d="M28 77Q23 65 36 51L54 29Q61 21 68 29L88 53Q99 67 89 78Z" fill="#f3c77e"/><path d="M43 55Q60 37 77 57M38 68Q60 51 82 69" fill="none" stroke="#fff0c9" strokeWidth="6" strokeLinecap="round"/><path d="M26 86Q59 99 94 86" fill="none" stroke="#a65c30" strokeWidth="5" strokeLinecap="round"/><g fill="#fff6df"><circle cx="48" cy="17" r="2"/><circle cx="68" cy="13" r="2"/><circle cx="83" cy="27" r="2"/></g></svg></span>}
 const shopSectionOrder=["Сладкое","Выпечка","Пицца","Пироги","Торты","Хлеб","Завтраки","Кулинария","Заморозка","Другое"];
-function ruAddressName(value){
- if(!value)return "";
- const fixed={"Timashevsk":"Тимашевск","Timashyovsky District":"Тимашёвский район","Krasnodar Krai":"Краснодарский край","Russia":"Россия"};
- if(fixed[value])return fixed[value];
- const suffix=value.match(/^(.*)\s+Street$/i);
- const source=suffix?suffix[1]:value;
- const rules=[[/shch/gi,"щ"],[/yo/gi,"ё"],[/zh/gi,"ж"],[/kh/gi,"х"],[/ts/gi,"ц"],[/ch/gi,"ч"],[/sh/gi,"ш"],[/yu/gi,"ю"],[/ya/gi,"я"],[/ye/gi,"е"],[/a/gi,"а"],[/b/gi,"б"],[/c/gi,"к"],[/d/gi,"д"],[/e/gi,"е"],[/f/gi,"ф"],[/g/gi,"г"],[/h/gi,"х"],[/i/gi,"и"],[/j/gi,"й"],[/k/gi,"к"],[/l/gi,"л"],[/m/gi,"м"],[/n/gi,"н"],[/o/gi,"о"],[/p/gi,"п"],[/q/gi,"к"],[/r/gi,"р"],[/s/gi,"с"],[/t/gi,"т"],[/u/gi,"у"],[/v/gi,"в"],[/w/gi,"в"],[/x/gi,"кс"],[/y/gi,"ы"],[/z/gi,"з"]];
- let result=source;for(const [pattern,replacement] of rules)result=result.replace(pattern,replacement);
- result=result.replace(/(^|\s)\S/g,letter=>letter.toUpperCase());
- return suffix?"улица "+result:result;
-}
 const API_URL="https://tim-tim-api.onrender.com";
 function App(){
 const [page,setPage]=useState("home"),[category,setCategory]=useState("Все"),[query,setQuery]=useState(""),[activeShop,setActiveShop]=useState(null),[selectedProduct,setSelectedProduct]=useState(null),[cart,setCart]=useState([]),[address,setAddress]=useState(""),[apartment,setApartment]=useState(""),[entrance,setEntrance]=useState(""),[floor,setFloor]=useState(""),[phone,setPhone]=useState(""),[comment,setComment]=useState(""),[notice,setNotice]=useState(""),[selectedOrder,setSelectedOrder]=useState(null),[isSubmitting,setIsSubmitting]=useState(false),[adminPassword,setAdminPassword]=useState(""),[adminSession,setAdminSession]=useState(""),[adminAuthenticated,setAdminAuthenticated]=useState(false),[adminOrders,setAdminOrders]=useState([]),[adminError,setAdminError]=useState("");
-const [addressSuggestions,setAddressSuggestions]=useState([]),[addressLoading,setAddressLoading]=useState(false),[addressChosen,setAddressChosen]=useState(false);
+const [house,setHouse]=useState("");
 const [shopData,setShopData]=useState(shops),[productData,setProductData]=useState(products),[catalogLoading,setCatalogLoading]=useState(true),[productSectionFilter,setProductSectionFilter]=useState("Все");
 const [operatorTab,setOperatorTab]=useState("orders"),[adminShops,setAdminShops]=useState([]),[adminProducts,setAdminProducts]=useState([]);
 const [newShopName,setNewShopName]=useState(""),[newShopCategory,setNewShopCategory]=useState("Продукты");
@@ -89,38 +78,6 @@ useEffect(()=>{
  return()=>clearInterval(timer);
 },[orders.filter(o=>o.trackingToken).map(o=>o.id+":"+o.status).join("|")]);
 useEffect(()=>{if(!notice)return;const id=setTimeout(()=>setNotice(""),2300);return()=>clearTimeout(id)},[notice]);
-useEffect(()=>{
- if(addressChosen||address.trim().length<3){setAddressSuggestions([]);setAddressLoading(false);return}
- const controller=new AbortController();
- const timer=setTimeout(async()=>{
-  setAddressLoading(true);
-  try{
-   const params=new URLSearchParams({q:address.trim()+", Тимашевск, Краснодарский край",lat:"45.615",lon:"38.935",limit:"8"});
-   const response=await fetch("https://photon.komoot.io/api/?"+params.toString(),{signal:controller.signal,headers:{Accept:"application/json"}});
-   if(!response.ok)throw new Error("Address lookup failed");
-   const data=await response.json();
-   const results=(data.features||[]).filter(feature=>{
-    const code=(feature.properties?.countrycode||"").toLowerCase();
-    return !code||code==="ru";
-   }).map(feature=>{
-    const p=feature.properties||{};
-    const street=ruAddressName(p.street||p.name||p.locality||p.city||"");
-    const house=p.housenumber||"";
-    const city=ruAddressName(p.city||p.town||p.village||p.locality||p.county||"Тимашевск");
-    const district=ruAddressName(p.district||"");
-    const state=ruAddressName(p.state||"");
-    const country=ruAddressName(p.country||"");
-    const primary=[street,house].filter(Boolean).join(", ");
-    const secondary=[city,district,state,country].filter((v,i,a)=>v&&a.indexOf(v)===i).join(", ");
-    const displayAddress=[primary,city==="Тимашевск"?"":city].filter(Boolean).join(", ");
-    return {...feature,displayAddress:displayAddress||primary||street,primary:primary||street||"Адрес",secondary};
-   }).filter(item=>item.displayAddress);
-   setAddressSuggestions(results);
-  }catch(error){if(error.name!=="AbortError")setAddressSuggestions([])}
-  finally{if(!controller.signal.aborted)setAddressLoading(false)}
- },350);
- return()=>{clearTimeout(timer);controller.abort()};
-},[address,addressChosen]);
 
 const total=cart.reduce((s,p)=>s+p.price*p.qty,0),count=cart.reduce((s,p)=>s+p.qty,0),cartShop=cart.length?shopData.find(s=>s.id===cart[0].shop):null;
 const visibleShops=shopData.filter(s=>(category==="Все"||s.category===category)&&s.name.toLowerCase().includes(query.toLowerCase()));
@@ -132,8 +89,8 @@ function changeQty(id,d){setCart(old=>old.map(p=>p.id===id?{...p,qty:p.qty+d}:p)
 async function submitOrder(){
  if(isSubmitting)return;
  if(total<700){setNotice("Минимальная сумма заказа — 700 ₽");return}
- if(!address.trim()||!phone.trim()){setNotice("Укажите адрес и телефон");return}
- const deliveryAddress=[address.trim(),apartment.trim()?"кв. "+apartment.trim():"",entrance.trim()?"подъезд "+entrance.trim():"",floor.trim()?"этаж "+floor.trim():""].filter(Boolean).join(", ");
+ if(!address.trim()||!house.trim()||!phone.trim()){setNotice("Укажите адрес и телефон");return}
+ const deliveryAddress=[address.trim(),house.trim()?("дом "+house.trim()):"",apartment.trim()?"кв. "+apartment.trim():"",entrance.trim()?"подъезд "+entrance.trim():"",floor.trim()?"этаж "+floor.trim():""].filter(Boolean).join(", ");
  if(!cartShop){setNotice("Не удалось определить магазин");return}
  setIsSubmitting(true);
  try{
@@ -142,7 +99,7 @@ async function submitOrder(){
   if(!response.ok)throw new Error(data.error||"Не удалось отправить заказ. Попробуйте позже.");
   const serverOrder=data.order;
   const o={id:serverOrder.id,orderNumber:serverOrder.order_number,trackingToken:data.trackingToken,items:cart.map(p=>({...p})),total:serverOrder.total_rub,shopName:cartShop.name,address:deliveryAddress,phone,comment,status:serverOrder.status,created:new Date(serverOrder.created_at).toLocaleString("ru-RU")};
-  setOrders(old=>[o,...old]);setCart([]);setAddress("");setApartment("");setEntrance("");setFloor("");setPhone("");setComment("");setSelectedOrder(o.id);setPage("success");
+  setOrders(old=>[o,...old]);setCart([]);setAddress("");setHouse("");setApartment("");setEntrance("");setFloor("");setPhone("");setComment("");setSelectedOrder(o.id);setPage("success");
  }catch(error){setNotice(error.message||"Ошибка соединения с сервером")}
  finally{setIsSubmitting(false)}
 }
@@ -236,14 +193,7 @@ return <div className="app-shell">
 
 <button className="back-link" onClick={()=>{setPage("home");setQuery("")}}><ArrowLeft size={17}/> Все магазины</button><section className="store-hero"><div className="bakery-header-art" aria-hidden="true"><CroissantFloat className="header-croissant"/><PizzaFloat/><PastryFloat/><WheatFloat/><BreadFloat/><BaguetteFloat/></div><span>{activeShop.imageUrl?<img src={activeShop.imageUrl} alt={activeShop.name}/>:activeShop.icon}</span><div><small>{activeShop.category}</small><h1>{activeShop.name}</h1><p><Clock3 size={14}/> {activeShop.time} · Тимашевск</p><p>{activeShop.description}</p>{activeShop.address&&<p><MapPin size={14}/> {activeShop.address}</p>}{activeShop.website&&<a href={activeShop.website} target="_blank" rel="noreferrer">Сайт магазина</a>}</div></section><div className="section-head compact"><div><h2>Каталог</h2><span className="muted">{sectionProducts.length} из {visibleProducts.length} товаров</span></div></div><div className="store-category-tabs"><button className={productSectionFilter==="Все"?"active":""} onClick={()=>setProductSectionFilter("Все")}>Все <small>{visibleProducts.length}</small></button>{shopSections.map(section=><button key={section} className={productSectionFilter===section?"active":""} onClick={()=>setProductSectionFilter(section)}>{section} <small>{visibleProducts.filter(p=>productSection(p)===section).length}</small></button>)}</div><div className="product-grid">{sectionProducts.map(p=><article className="product-card" key={p.id} role="button" tabIndex="0" onClick={()=>setSelectedProduct(p)} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setSelectedProduct(p)}}}><div className="product-picture">{p.imageUrl?<img src={p.imageUrl} alt={p.name} loading="lazy" onError={e=>{const parent=e.currentTarget.parentElement;e.currentTarget.remove();const fallback=document.createElement("span");fallback.textContent=p.icon||"🥐";parent.appendChild(fallback)}}/>:<span>{p.icon}</span>}</div><div className="product-details"><b>{p.name}</b><small>{p.unit}</small>{p.description&&<small className="product-description">{p.description}</small>}<strong>{money(p.price)}</strong></div><button className="add-button" aria-label={"Добавить "+p.name} onClick={e=>{e.stopPropagation();addProduct(p)}}><Plus size={19}/></button></article>)}</div>{count>0&&cartShop?.id===activeShop.id&&<button className="bakery-cart-bar" onClick={()=>setPage("cart")}><span className="bakery-cart-count">{count}</span><span><b>Перейти в корзину</b><small>{count} товара · {money(total)}</small></span><strong>{money(total)}</strong><ArrowRight size={19}/></button>}</div>}
 {page==="cart"&&<><button className="back-link" onClick={()=>setPage("home")}><ArrowLeft size={17}/> Продолжить покупки</button><div className="page-title"><span className="eyebrow dark">ВАШ ЗАКАЗ</span><h1>Корзина</h1></div>{!cart.length?<div className="empty-state"><span>🛍️</span><h2>Пока здесь пусто</h2><p>Добавьте товары из любого магазина Тимашевска.</p><button className="primary-button" onClick={()=>setPage("home")}>Выбрать товары</button></div>:<><div className="cart-store"><Store size={17}/><b>{cartShop?.name}</b><span>{count} шт.</span></div>{cart.map(p=><div className="cart-line" key={p.id}><span className="cart-emoji">{p.icon}</span><div className="cart-info"><b>{p.name}</b><small>{money(p.price)} / {p.unit}</small></div><div className="stepper"><button onClick={()=>changeQty(p.id,-1)}><Minus size={14}/></button><b>{p.qty}</b><button onClick={()=>changeQty(p.id,1)}><Plus size={14}/></button></div><strong>{money(p.price*p.qty)}</strong></div>)}<div className="total-row"><span>Товары</span><b>{money(total)}</b></div><div className="minimum-hint">{total<700?"До минимального заказа осталось "+money(700-total):"Минимальная сумма заказа выполнена"}</div><button className="primary-button full" disabled={total<700} onClick={()=>setPage("checkout")}>Перейти к оформлению <ArrowRight size={17}/></button><button className="text-button" onClick={()=>setCart([])}>Очистить корзину</button></>}</>}
-{page==="checkout"&&<><button className="back-link" onClick={()=>setPage("cart")}><ArrowLeft size={17}/> Корзина</button><div className="page-title"><span className="eyebrow dark">ПОСЛЕДНИЙ ШАГ</span><h1>Куда доставить?</h1></div><div className="form-card"><label>Адрес доставки
-<div className="address-autocomplete">
-<input value={address} onChange={e=>{setAddress(e.target.value);setAddressChosen(false)}} placeholder="Начните вводить улицу или дом" autoComplete="street-address" aria-autocomplete="list" aria-expanded={addressSuggestions.length>0}/>
-{addressLoading&&<small className="address-hint">Ищем адрес на карте…</small>}
-{!addressLoading&&!addressChosen&&address.trim().length>=3&&addressSuggestions.length===0&&<small className="address-hint">Не нашли подсказки? Можно указать адрес вручную.</small>}
-{addressSuggestions.length>0&&<div className="address-suggestions" role="listbox" aria-label="Подходящие адреса">{addressSuggestions.map((item,index)=><button type="button" role="option" aria-selected="false" key={item.properties?.osm_id||index} onClick={()=>{setAddress(item.displayAddress);setAddressChosen(true);setAddressSuggestions([])}}><MapPin size={16}/><span><b>{item.primary}</b><small>{item.secondary}</small></span></button>)}</div>}
-</div>
-</label><div className="checkout-fields-row"><label>Квартира<input value={apartment} onChange={e=>setApartment(e.target.value)} placeholder="№ квартиры" inputMode="numeric"/></label><label>Подъезд<input value={entrance} onChange={e=>setEntrance(e.target.value)} placeholder="№" inputMode="numeric"/></label><label>Этаж<input value={floor} onChange={e=>setFloor(e.target.value)} placeholder="№" inputMode="numeric"/></label></div><label>Номер телефона<input value={phone} onChange={e=>setPhone(e.target.value)} placeholder="+7 900 000-00-00" inputMode="tel" autoComplete="tel"/></label><label>Комментарий курьеру<textarea value={comment} onChange={e=>setComment(e.target.value)} placeholder="Домофон, ориентир или пожелания к доставке" rows="3"/></label></div><div className="checkout-summary"><div><span>Магазин</span><b>{cartShop?.name}</b></div><div><span>Товары</span><b>{money(total)}</b></div><div><span>Доставка</span><b>Рассчитаем и сообщим отдельно</b></div><p>Сначала отправится заявка. Оператор уточнит наличие и стоимость доставки, а заказ подтвердит после согласования итоговой суммы.</p></div><button className="primary-button full" disabled={isSubmitting||!address.trim()||!phone.trim()||total<700} onClick={submitOrder}>{isSubmitting?"Отправляем заявку…":<>Отправить заявку · {money(total)}</>}</button></>}
+{page==="checkout"&&<><button className="back-link" onClick={()=>setPage("cart")}><ArrowLeft size={17}/> Корзина</button><div className="page-title"><span className="eyebrow dark">ПОСЛЕДНИЙ ШАГ</span><h1>Куда доставить?</h1></div><div className="form-card"><div className="checkout-fields-row address-fields-row"><label>Улица<input value={address} onChange={e=>setAddress(e.target.value)} placeholder="Например, улица Ленина" autoComplete="address-line1"/></label><label>Дом<input value={house} onChange={e=>setHouse(e.target.value)} placeholder="Номер дома" autoComplete="address-line2"/></label></div><small className="address-hint">Укажите улицу и номер дома вручную — без ошибочных подсказок карты.</small><div className="checkout-fields-row"><label>Квартира<input value={apartment} onChange={e=>setApartment(e.target.value)} placeholder="№ квартиры" inputMode="numeric"/></label><label>Подъезд<input value={entrance} onChange={e=>setEntrance(e.target.value)} placeholder="№" inputMode="numeric"/></label><label>Этаж<input value={floor} onChange={e=>setFloor(e.target.value)} placeholder="№" inputMode="numeric"/></label></div><label>Номер телефона<input value={phone} onChange={e=>setPhone(e.target.value)} placeholder="+7 900 000-00-00" inputMode="tel" autoComplete="tel"/></label><label>Комментарий курьеру<textarea value={comment} onChange={e=>setComment(e.target.value)} placeholder="Домофон, ориентир или пожелания к доставке" rows="3"/></label></div><div className="checkout-summary"><div><span>Магазин</span><b>{cartShop?.name}</b></div><div><span>Товары</span><b>{money(total)}</b></div><div><span>Доставка</span><b>Рассчитаем и сообщим отдельно</b></div><p>Сначала отправится заявка. Оператор уточнит наличие и стоимость доставки, а заказ подтвердит после согласования итоговой суммы.</p></div><button className="primary-button full" disabled={isSubmitting||!address.trim()||!house.trim()||!phone.trim()||total<700} onClick={submitOrder}>{isSubmitting?"Отправляем заявку…":<>Отправить заявку · {money(total)}</>}</button></>}
 {page==="success"&&<div className="success-state"><span><Check size={35}/></span><h1>Заказ принят!</h1><p>Заявка №{orders.find(o=>o.id===selectedOrder)?.orderNumber||"—"} отправлена оператору. Он уточнит наличие товаров и стоимость доставки, после чего подтвердит итоговую сумму.</p><button className="primary-button" onClick={()=>setPage("orders")}>Посмотреть заказы</button></div>}
 {page==="orders"&&<><div className="page-title"><span className="eyebrow dark">ИСТОРИЯ ПОКУПОК</span><h1>Мои заказы</h1></div>{!orders.length?<div className="empty-state"><span>📦</span><h2>Заказов пока нет</h2><p>Оформленные заказы появятся здесь.</p></div>:orders.map(o=><article className="order-card" key={o.id}><div className="order-top"><b>Заказ №{o.orderNumber||String(o.id).slice(-6)}</b><span className="status-pill">{o.status}</span></div><small>{o.created} · {o.shopName}</small><div className="order-bottom"><b>{money(o.total)}</b><button onClick={()=>setSelectedOrder(selectedOrder===o.id?null:o.id)}>{selectedOrder===o.id?"Скрыть":"Подробнее"}</button></div>{selectedOrder===o.id&&<div className="order-details">{o.items.map(i=><p key={i.id}>{i.name} × {i.qty}</p>)}<p><MapPin size={13}/> {o.address}</p></div>}</article>)}</>}
 {page==="profile"&&<><div className="page-title"><span className="eyebrow dark">ТИМ-ТИМ</span><h1>Профиль</h1></div><div className="profile-card"><span><UserRound size={28}/></span><div><b>Покупатель</b><small>Гость · демонстрационный режим</small></div></div><div className="profile-info"><p><MapPin size={17}/> Доставка по Тимашевску</p><p><Truck size={17}/> Ориентир по времени: 30–60 минут</p><p><ShoppingBag size={17}/> Минимальный заказ: 700 ₽</p></div><button className="text-button" onClick={()=>{setAdminError("");setPage("operator");if(adminAuthenticated)loadOperatorOrders()}}>Вход для оператора</button><p className="demo-note">Для реального запуска потребуются регистрация, сервер и подключение уведомлений.</p></>}
