@@ -1080,3 +1080,34 @@ h1,h2,h3,.section-head h2,.page-title h1,.store-hero h1{
 .product-picture-fallback{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border-radius:15px;background:radial-gradient(circle at 50% 35%,#fff8e9 0,#f6eddb 48%,#eee4d2 100%);color:#9b7958}
 .product-picture-fallback i{font-style:normal;font-size:48px;line-height:1;filter:drop-shadow(0 4px 5px #6f503322)}
 .product-picture-fallback small{font-size:8px;letter-spacing:1.1px;text-transform:uppercase;font-weight:800;color:#a68b70}
+
+
+/* Поворот — clean red-and-white hardware hypermarket identity */
+.shop-card-povorot .shop-visual{background:linear-gradient(135deg,#fff 0%,#f8eeee 48%,#e9dede 100%);isolation:isolate}
+.shop-card-povorot .shop-visual:before{content:"ПОВОРОТ";position:absolute;z-index:2;left:14px;top:13px;padding:7px 10px;background:#c92b32;color:#fff;font-size:12px;font-weight:950;letter-spacing:1.8px;border-radius:3px;box-shadow:0 5px 14px #75151d30}
+.shop-card-povorot .shop-visual:after{content:"СТРОЙМАРКЕТ";position:absolute;z-index:2;left:15px;bottom:15px;color:#fff;background:#252525;padding:5px 8px;font-size:8px;font-weight:900;letter-spacing:2px;border-radius:2px}
+.shop-card-povorot .shop-visual img{width:100%;height:100%;object-fit:cover;opacity:.92;mix-blend-mode:multiply}
+.shop-card-povorot .shop-visual>small{background:#c92b32;color:#fff}
+.shop-card-povorot .shop-card-copy .shop-category{color:#c92b32}
+.shop-card-povorot .shop-card-copy>b{letter-spacing:-.4px}
+.shop-card-povorot .shop-card-copy .shop-foot{color:#b9232b}
+.povorot-storefront{--povorot-red:#c92b32;--povorot-dark:#242424;background:#fff}
+.povorot-storefront .store-hero{position:relative;overflow:hidden;background:linear-gradient(112deg,#fff 0%,#fff 55%,#f7eeee 100%);border:1px solid #eadada;box-shadow:0 14px 34px #4a15120d}
+.povorot-storefront .store-hero:after{content:"";position:absolute;right:-70px;top:-100px;width:290px;height:290px;border:34px solid #c92b3210;border-radius:50%;pointer-events:none}
+.povorot-storefront .store-hero>span.store-hero-povorot-mark{position:relative;z-index:2;display:grid;place-items:center;width:86px;height:86px;flex:0 0 86px;border-radius:8px;background:linear-gradient(145deg,#d9343b,#a91d27);color:#fff;font-size:54px;font-weight:950;box-shadow:0 12px 24px #b21f2933}
+.povorot-storefront .store-hero>div:not(.povorot-header-art){position:relative;z-index:2}
+.povorot-storefront .store-hero>div h1{color:#222;font-weight:950;letter-spacing:-1.3px}
+.povorot-storefront .store-hero>div>small{color:#c92b32;font-weight:900;letter-spacing:1.7px;text-transform:uppercase}
+.povorot-storefront .store-hero>div>p{color:#5e5e5e}
+.povorot-storefront .store-hero a{color:#b9232b;font-weight:800}
+.povorot-header-art{position:absolute;inset:0;overflow:hidden;pointer-events:none;background:linear-gradient(105deg,transparent 0 48%,#c92b3208 48% 100%)}
+.povorot-art-word{position:absolute;right:8%;top:18%;font-size:clamp(34px,7vw,78px);line-height:.9;font-weight:1000;letter-spacing:-4px;color:#c92b32;opacity:.10;white-space:nowrap}
+.povorot-art-line{position:absolute;right:9%;top:57%;font-size:9px;letter-spacing:3px;font-weight:950;color:#282828;opacity:.18}
+.povorot-art-shape{position:absolute;display:block;border:12px solid #c92b3212;transform:rotate(45deg)}
+.povorot-art-shape.shape-one{right:15%;bottom:-60px;width:180px;height:180px}
+.povorot-art-shape.shape-two{right:34%;top:-65px;width:120px;height:120px}
+.povorot-storefront .store-category-tabs button.active{background:#c92b32;border-color:#c92b32}
+.povorot-storefront .product-details strong{color:#b9232b}
+.povorot-storefront .add-button{background:linear-gradient(135deg,#dc3b43,#b71f2a);box-shadow:0 6px 14px #b71f2a30}
+.povorot-storefront .add-button:hover{background:#a91d27}
+.povorot-storefront .bakery-cart-bar{background:linear-gradient(110deg,#252525,#b9232b);box-shadow:0 9px 24px #a91d2730}
