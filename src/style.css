@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap');
 :root{font-family:Manrope,system-ui,sans-serif;color:#17392e;background:#edf1eb;font-synthesis:none;text-rendering:optimizeLegibility;font-optical-sizing:auto}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-width:320px;background:radial-gradient(ellipse at 50% -15%,#dce9dd 0,transparent 42%),#edf1eb}button,input,textarea,select{font:inherit}button{cursor:pointer;-webkit-tap-highlight-color:transparent}
 .app-shell{max-width:760px;min-height:100vh;margin:auto;padding-bottom:104px;background:#f8faf6;position:relative;overflow:hidden;box-shadow:0 24px 90px #17392e12}
@@ -390,7 +391,6 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 
 
 /* Elegant typography, prices and information panels */
-@import url('https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap');
 :root{
   font-family:'Onest',Manrope,system-ui,sans-serif;
   font-feature-settings:"ss01" on;
