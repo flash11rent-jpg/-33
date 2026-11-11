@@ -205,7 +205,7 @@ async function logoutOperator(){
  setAdminSession("");setAdminAuthenticated(false);setAdminOrders([]);setPage("profile");
 }
 return <div className="app-shell">
-<header className="topbar"><button className="brand" onClick={()=>{setPage("home");setActiveShop(null)}}><img className="brand-mark" src={brandLogo||"/timtim-logo.svg"} alt="Тим-Тим" /><span className="brand-tagline"><small>Доставка из магазинов</small></span></button><button className="icon-button cart-top" onClick={()=>setPage("cart")} aria-label="Корзина"><ShoppingBag size={21}/>{count>0&&<i>{count}</i>}</button></header>
+<header className="topbar"><button className="brand" onClick={()=>{setPage("home");setActiveShop(null)}}><img className="brand-mark" src={brandLogo||"/timtim-logo.svg"} alt="Тим-Тим — доставка из магазинов" /></button><button className="icon-button cart-top" onClick={()=>setPage("cart")} aria-label="Корзина"><ShoppingBag size={21}/>{count>0&&<i>{count}</i>}</button></header>
 <main>
 {page==="home"&&<div className="home-page">
 <section className="home-location"><div><span className="location-dot"><MapPin size={15}/></span><span><small>Доставляем в</small><b>Тимашевск</b></span></div><span className="delivery-chip"><Clock3 size={14}/> 30–60 мин</span></section>
