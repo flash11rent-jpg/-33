@@ -25,6 +25,17 @@ function productSection(p){
  if(c.includes("кулинар")||n.includes("котлет")||n.includes("голубц"))return "Кулинария";
  if(c.includes("заморож"))return "Заморозка";
  if(c.includes("выпеч"))return "Выпечка";
+ if(c.includes("набор"))return "Наборы";
+ if(c.includes("комбо"))return "Комбо";
+ if(c.includes("новин"))return "Новинки";
+ if(c.includes("ролл")||c.includes("суши"))return "Роллы и суши";
+ if(c.includes("ёнигири")||c.includes("онигири"))return "Ёнигири";
+ if(c.includes("темпура"))return "Темпура";
+ if(c.includes("запеч"))return "Запечённые";
+ if(c.includes("горячее")||c.includes("салат"))return "Горячее и салаты";
+ if(c.includes("закуск"))return "Закуски";
+ if(c.includes("напит")||c.includes("десерт"))return "Напитки и десерты";
+ if(c.includes("соус")||c.includes("спец"))return "Соусы";
  return p.category||"Другое";
 }
 function CroissantFloat({className}){const gradientId="gold-"+className;return <span className={"bakery-croissant "+className}><svg viewBox="0 0 180 110" aria-hidden="true"><defs><linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#ffe4a8"/><stop offset=".48" stopColor="#d98b3d"/><stop offset="1" stopColor="#9c5128"/></linearGradient></defs><path d="M14 76C5 65 12 42 29 26 44 12 60 14 67 27c8 13 19 19 33 18 16-1 28-14 37-25 9-11 24-7 29 6 7 19-6 42-24 56-24 19-50 12-72 2-22-10-41 3-56-8Z" fill={"url(#"+gradientId+")"} stroke="#9b572d" strokeWidth="3"/><path d="M32 34c-7 12-10 24-8 36m27-48c-8 17-10 34-5 51m26-42c-7 17-7 34 0 48m25-30c-5 14-3 28 5 40m23-48c-4 15 0 27 10 37m14-52c-1 12 4 21 13 27" fill="none" stroke="#ffe7b5" strokeWidth="5" strokeLinecap="round" opacity=".72"/><path d="M18 68c8 5 17 4 27-1m93 16c11-7 18-17 20-28" fill="none" stroke="#87451f" strokeWidth="3" strokeLinecap="round" opacity=".5"/></svg></span>}
@@ -33,7 +44,7 @@ function WheatFloat(){return <span className="bakery-food wheat-float"><svg view
 function BreadFloat(){return <span className="bakery-food bread-float"><svg viewBox="0 0 130 100" aria-hidden="true"><path d="M13 66Q9 34 34 22Q64 3 96 22Q122 37 116 67Q111 88 66 89Q19 89 13 66Z" fill="#c77b39" stroke="#8e4e29" strokeWidth="4"/><path d="M25 57Q28 35 46 28M53 55Q57 29 77 24M82 58Q89 36 104 34" fill="none" stroke="#f5d39a" strokeWidth="9" strokeLinecap="round"/><path d="M17 70Q61 92 112 70" fill="none" stroke="#a85e2f" strokeWidth="4" opacity=".55"/></svg></span>}
 function BaguetteFloat(){return <span className="bakery-food baguette-float"><svg viewBox="0 0 150 65" aria-hidden="true"><path d="M10 43Q16 17 45 14L123 8Q144 8 141 28Q137 48 111 51L30 58Q8 59 10 43Z" fill="#d99a4d" stroke="#a96330" strokeWidth="3"/><path d="M39 19L29 42M68 15L58 40M98 12L88 37" stroke="#f8d99e" strokeWidth="7" strokeLinecap="round"/><path d="M15 45Q25 53 43 49" fill="none" stroke="#f4c77f" strokeWidth="3"/></svg></span>}
 function PastryFloat(){return <span className="bakery-food pastry-float"><svg viewBox="0 0 120 110" aria-hidden="true"><path d="M20 83Q10 67 26 50L47 22Q60 7 74 22L96 50Q111 69 96 83Z" fill="#d98d43" stroke="#99552d" strokeWidth="4"/><path d="M28 77Q23 65 36 51L54 29Q61 21 68 29L88 53Q99 67 89 78Z" fill="#f3c77e"/><path d="M43 55Q60 37 77 57M38 68Q60 51 82 69" fill="none" stroke="#fff0c9" strokeWidth="6" strokeLinecap="round"/><path d="M26 86Q59 99 94 86" fill="none" stroke="#a65c30" strokeWidth="5" strokeLinecap="round"/><g fill="#fff6df"><circle cx="48" cy="17" r="2"/><circle cx="68" cy="13" r="2"/><circle cx="83" cy="27" r="2"/></g></svg></span>}
-const shopSectionOrder=["Сладкое","Выпечка","Пицца","Пироги","Торты","Хлеб","Завтраки","Кулинария","Заморозка","Другое"];
+const shopSectionOrder=["Новинки","Наборы","Комбо","Роллы и суши","Ёнигири","Темпура","Запечённые","Горячее и салаты","Закуски","Напитки и десерты","Соусы","Сладкое","Выпечка","Пицца","Пироги","Торты","Хлеб","Завтраки","Кулинария","Заморозка","Другое"];
 const API_URL="https://tim-tim-api.onrender.com";
 function App(){
 const [page,setPage]=useState("home"),[category,setCategory]=useState("Все"),[query,setQuery]=useState(""),[activeShop,setActiveShop]=useState(null),[selectedProduct,setSelectedProduct]=useState(null),[cart,setCart]=useState([]),[address,setAddress]=useState(""),[apartment,setApartment]=useState(""),[entrance,setEntrance]=useState(""),[floor,setFloor]=useState(""),[phone,setPhone]=useState(""),[comment,setComment]=useState(""),[notice,setNotice]=useState(""),[selectedOrder,setSelectedOrder]=useState(null),[isSubmitting,setIsSubmitting]=useState(false),[adminPassword,setAdminPassword]=useState(""),[adminSession,setAdminSession]=useState(""),[adminAuthenticated,setAdminAuthenticated]=useState(false),[adminOrders,setAdminOrders]=useState([]),[adminError,setAdminError]=useState("");
