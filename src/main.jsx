@@ -29,7 +29,7 @@ function ShopBrandMark({shop}){
   14:"https://logo-teka.com/wp-content/uploads/2025/06/magnit-cosmetic-logo.svg",
   15:"https://shift.dodobrands.io/images/graphic-design/logo-all-languages/RU.png"
  };
- const src=logos[id]||shop.imageUrl;
+ const src=shop.imageUrl||logos[id];
  return src
   ? <img className={"shop-card-photo"+(logos[id]?" shop-card-logo":"")} src={src} alt={name+" — "+(logos[id]?"логотип":"фото магазина")} loading="lazy" onError={e=>{e.currentTarget.style.display="none";const fallback=e.currentTarget.nextElementSibling;if(fallback)fallback.style.display="grid"}}/>
   : null;
