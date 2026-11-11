@@ -34,6 +34,17 @@ function BreadFloat(){return <span className="bakery-food bread-float"><svg view
 function BaguetteFloat(){return <span className="bakery-food baguette-float"><svg viewBox="0 0 150 65" aria-hidden="true"><path d="M10 43Q16 17 45 14L123 8Q144 8 141 28Q137 48 111 51L30 58Q8 59 10 43Z" fill="#d99a4d" stroke="#a96330" strokeWidth="3"/><path d="M39 19L29 42M68 15L58 40M98 12L88 37" stroke="#f8d99e" strokeWidth="7" strokeLinecap="round"/><path d="M15 45Q25 53 43 49" fill="none" stroke="#f4c77f" strokeWidth="3"/></svg></span>}
 function PastryFloat(){return <span className="bakery-food pastry-float"><svg viewBox="0 0 120 110" aria-hidden="true"><path d="M20 83Q10 67 26 50L47 22Q60 7 74 22L96 50Q111 69 96 83Z" fill="#d98d43" stroke="#99552d" strokeWidth="4"/><path d="M28 77Q23 65 36 51L54 29Q61 21 68 29L88 53Q99 67 89 78Z" fill="#f3c77e"/><path d="M43 55Q60 37 77 57M38 68Q60 51 82 69" fill="none" stroke="#fff0c9" strokeWidth="6" strokeLinecap="round"/><path d="M26 86Q59 99 94 86" fill="none" stroke="#a65c30" strokeWidth="5" strokeLinecap="round"/><g fill="#fff6df"><circle cx="48" cy="17" r="2"/><circle cx="68" cy="13" r="2"/><circle cx="83" cy="27" r="2"/></g></svg></span>}
 const shopSectionOrder=["Сладкое","Выпечка","Пицца","Пироги","Торты","Хлеб","Завтраки","Кулинария","Заморозка","Другое"];
+function ruAddressName(value){
+ if(!value)return "";
+ const fixed={"Timashevsk":"Тимашевск","Timashyovsky District":"Тимашёвский район","Krasnodar Krai":"Краснодарский край","Russia":"Россия"};
+ if(fixed[value])return fixed[value];
+ const suffix=value.match(/^(.*)\\s+Street$/i);
+ const source=suffix?suffix[1]:value;
+ const rules=[[/shch/gi,"щ"],[/yo/gi,"ё"],[/zh/gi,"ж"],[/kh/gi,"х"],[/ts/gi,"ц"],[/ch/gi,"ч"],[/sh/gi,"ш"],[/yu/gi,"ю"],[/ya/gi,"я"],[/ye/gi,"е"],[/a/gi,"а"],[/b/gi,"б"],[/c/gi,"к"],[/d/gi,"д"],[/e/gi,"е"],[/f/gi,"ф"],[/g/gi,"г"],[/h/gi,"х"],[/i/gi,"и"],[/j/gi,"й"],[/k/gi,"к"],[/l/gi,"л"],[/m/gi,"м"],[/n/gi,"н"],[/o/gi,"о"],[/p/gi,"п"],[/q/gi,"к"],[/r/gi,"р"],[/s/gi,"с"],[/t/gi,"т"],[/u/gi,"у"],[/v/gi,"в"],[/w/gi,"в"],[/x/gi,"кс"],[/y/gi,"ы"],[/z/gi,"з"]];
+ let result=source;for(const [pattern,replacement] of rules)result=result.replace(pattern,replacement);
+ result=result.replace(/(^|\\s)\\S/g,letter=>letter.toUpperCase());
+ return suffix?"улица "+result:result;
+}
 const API_URL="https://tim-tim-api.onrender.com";
 function App(){
 const [page,setPage]=useState("home"),[category,setCategory]=useState("Все"),[query,setQuery]=useState(""),[activeShop,setActiveShop]=useState(null),[selectedProduct,setSelectedProduct]=useState(null),[cart,setCart]=useState([]),[address,setAddress]=useState(""),[apartment,setApartment]=useState(""),[entrance,setEntrance]=useState(""),[floor,setFloor]=useState(""),[phone,setPhone]=useState(""),[comment,setComment]=useState(""),[notice,setNotice]=useState(""),[selectedOrder,setSelectedOrder]=useState(null),[isSubmitting,setIsSubmitting]=useState(false),[adminPassword,setAdminPassword]=useState(""),[adminSession,setAdminSession]=useState(""),[adminAuthenticated,setAdminAuthenticated]=useState(false),[adminOrders,setAdminOrders]=useState([]),[adminError,setAdminError]=useState("");
@@ -93,11 +104,14 @@ useEffect(()=>{
     return !code||code==="ru";
    }).map(feature=>{
     const p=feature.properties||{};
-    const street=p.street||p.name||p.locality||p.city||"";
+    const street=ruAddressName(p.street||p.name||p.locality||p.city||"");
     const house=p.housenumber||"";
-    const city=p.city||p.town||p.village||p.locality||p.county||"Тимашевск";
+    const city=ruAddressName(p.city||p.town||p.village||p.locality||p.county||"Тимашевск");
+    const district=ruAddressName(p.district||"");
+    const state=ruAddressName(p.state||"");
+    const country=ruAddressName(p.country||"");
     const primary=[street,house].filter(Boolean).join(", ");
-    const secondary=[city,p.district,p.state,p.country].filter((v,i,a)=>v&&a.indexOf(v)===i).join(", ");
+    const secondary=[city,district,state,country].filter((v,i,a)=>v&&a.indexOf(v)===i).join(", ");
     const displayAddress=[primary,city==="Тимашевск"?"":city].filter(Boolean).join(", ");
     return {...feature,displayAddress:displayAddress||primary||street,primary:primary||street||"Адрес",secondary};
    }).filter(item=>item.displayAddress);
