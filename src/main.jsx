@@ -238,7 +238,7 @@ async function loadAdminCatalog(session=adminSession){
   const response=await fetch(API_URL+"/api/admin/catalog",{credentials:"include",headers:session?{Authorization:"Bearer "+session}:{}});
   const data=await response.json().catch(()=>({}));
   if(!response.ok)throw new Error(data.error||"Не удалось загрузить каталог");
-  setAdminShops(data.shops||[]);setAdminProducts(data.products||[]);setAdminCategories(data.categories||[]);setShopCategories((data.categories||[]).filter(x=>x.category_type==="shop"&&x.is_active));
+  setAdminShops(data.shops||[]);setAdminProducts(data.products||[]);setAdminCategories(data.categories||[]);setShopCategories((data.categories||[]).filter(x=>x.category_type==="shop"));
  }catch(error){setAdminError(error.message||"Ошибка загрузки каталога")}
 }
 function resetShopForm(){setEditingShopId(null);setShopForm({name:"",category:shopCategories[0]?.name||"Продукты",description:"",imageUrl:null,website:"",phone:"",address:"",mapsUrl:"",isActive:true});}
