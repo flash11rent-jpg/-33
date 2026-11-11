@@ -4,8 +4,7 @@
 .app-shell{max-width:760px;min-height:100vh;margin:auto;padding-bottom:104px;background:#f8faf6;position:relative;overflow:hidden;box-shadow:0 24px 90px #17392e12}
 .topbar{height:78px;padding:0 25px;display:flex;align-items:center;justify-content:space-between;background:#fbfcf9eF;border-bottom:1px solid #e9eee7;position:sticky;top:0;z-index:8;backdrop-filter:blur(18px)}
 .brand{display:flex;align-items:center;gap:12px;border:0;background:none;color:#174b39;text-align:left;padding:0}
-.brand-mark{width:44px;height:44px;border-radius:15px;background:linear-gradient(145deg,#205b43,#103b2d);color:white;display:grid;place-items:center;font-weight:800;font-size:19px;letter-spacing:-2px;box-shadow:0 6px 14px #174b3930;position:relative}
-.brand-mark:after{content:"";position:absolute;width:17px;height:5px;border-bottom:2px solid #f28b35;border-radius:50%;bottom:8px;left:14px}
+.brand-mark{display:block;width:48px;height:48px;flex:0 0 48px;object-fit:contain;border-radius:14px;box-shadow:0 6px 14px #174b3930}
 .brand b{display:block;font-size:20px;letter-spacing:-.9px}.brand small{display:block;color:#8b9a8f;font-size:10px;margin-top:2px;letter-spacing:.1px}
 .icon-button{border:1px solid #e7eee6;background:#f2f6f0;color:#174b39;border-radius:15px;width:46px;height:46px;display:grid;place-items:center;position:relative;transition:.2s}
 .icon-button:active,.add-button:active,.primary-button:active{transform:scale(.97)}
