@@ -392,7 +392,7 @@ app.patch("/api/admin/products/:id", requireAdmin, async (req, res, next) => {
     if (!parsed.success) return res.status(400).json({ error: "Проверьте данные товара" });
     const d = parsed.data;
     const result = await pool.query(
-      "UPDATE products SET shop_id=$1,name=$2,price_rub=$3,unit=$4,category=$5,description=$6,image_url=CASE WHEN $7=$11 THEN image_url ELSE $7 END,source_url=$8,is_active=$9,updated_at=NOW() WHERE id=$12 RETURNING id,shop_id,name,price_rub,unit,category,description,image_url,source_url,is_active",
+      "UPDATE products SET shop_id=$1,name=$2,price_rub=$3,unit=$4,category=$5,description=$6,image_url=CASE WHEN $7=$10 THEN image_url ELSE $7 END,source_url=$8,is_active=$9,updated_at=NOW() WHERE id=$11 RETURNING id,shop_id,name,price_rub,unit,category,description,image_url,source_url,is_active",
       [d.shopId,d.name,d.priceRub,d.unit,d.category,d.description,d.imageUrl??null,d.sourceUrl||null,d.isActive,publicApiUrl + "/api/media/product/" + req.params.id,req.params.id]
     );
     if (!result.rowCount) return res.status(404).json({ error: "Товар не найден" });
@@ -430,7 +430,7 @@ app.patch("/api/admin/categories/:id", requireAdmin, async (req, res, next) => {
     if (!parsed.success) return res.status(400).json({ error: "Проверьте данные категории" });
     const d = parsed.data;
     const result = await pool.query(
-      "UPDATE catalog_categories SET name=$1,emoji=$2,image_url=CASE WHEN $3=$7 THEN image_url ELSE $3 END,sort_order=$4,is_active=$5 WHERE id=$8 RETURNING id,name,category_type,emoji,image_url,sort_order,is_active",
+      "UPDATE catalog_categories SET name=$1,emoji=$2,image_url=CASE WHEN $3=$6 THEN image_url ELSE $3 END,sort_order=$4,is_active=$5 WHERE id=$7 RETURNING id,name,category_type,emoji,image_url,sort_order,is_active",
       [d.name,d.emoji,d.imageUrl??null,d.sortOrder,d.isActive,publicApiUrl + "/api/media/category/" + req.params.id,req.params.id]
     );
     if (!result.rowCount) return res.status(404).json({ error: "Категория не найдена" });
