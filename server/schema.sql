@@ -318,5 +318,9 @@ ON CONFLICT (id) DO UPDATE SET
 
 UPDATE shops SET maps_url='https://yandex.ru/maps/-/CXCnAGyX'
 WHERE id=5;
+UPDATE shops SET phone='+7 989 849-99-55' WHERE id=5 AND phone IS NULL;
 UPDATE shops SET maps_url='https://yandex.ru/maps/-/CXCnEK5L'
 WHERE id=6;
+UPDATE shops SET phone='+7 918 918-50-00' WHERE id=8;
+UPDATE shops SET phone='+7 861 304-40-23' WHERE id=11;
+UPDATE shops SET phone='8 800 333-33-23' WHERE id=12;
