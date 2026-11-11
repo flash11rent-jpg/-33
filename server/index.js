@@ -53,6 +53,15 @@ const orderLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 12, standardHe
 const statusLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 60, standardHeaders: "draft-8", legacyHeaders: false });
 const loginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 5, standardHeaders: "draft-8", legacyHeaders: false });
 
+const createIndividualRequestSchema = z.object({
+  storeName: z.string().trim().min(2).max(120),
+  storeAddress: z.string().trim().min(5).max(300),
+  itemsText: z.string().trim().min(3).max(5000),
+  deliveryAddress: z.string().trim().min(5).max(300),
+  phone: z.string().trim().min(7).max(30),
+  comment: z.string().trim().max(1000).optional().default("")
+}).strict();
+
 const createOrderSchema = z.object({
   shopId: z.number().int().positive(),
   items: z.array(z.object({
@@ -180,6 +189,20 @@ app.post("/api/orders", orderLimiter, async (req, res, next) => {
   } catch (error) { return next(error); }
 });
 
+app.post("/api/individual-requests", orderLimiter, async (req, res, next) => {
+  try {
+    const parsed = createIndividualRequestSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: "Проверьте данные индивидуальной заявки" });
+    const { storeName, storeAddress, itemsText, deliveryAddress, phone, comment } = parsed.data;
+    const result = await pool.query(
+      `INSERT INTO individual_requests (store_name, store_address, items_text, delivery_address, customer_phone, customer_comment)
+       VALUES ($1,$2,$3,$4,$5,$6) RETURNING id, request_number, status, created_at`,
+      [storeName, storeAddress, itemsText, deliveryAddress, phone, comment]
+    );
+    return res.status(201).json({ request: result.rows[0] });
+  } catch (error) { return next(error); }
+});
+
 app.get("/api/orders/:id", statusLimiter, async (req, res, next) => {
   try {
     const token = req.get("x-order-token") || req.query.token;
@@ -220,6 +243,13 @@ app.get("/api/admin/orders", requireAdmin, async (req, res, next) => {
       [limit]
     );
     return res.json({ orders: result.rows });
+  } catch (error) { return next(error); }
+});
+
+app.get("/api/admin/individual-requests", requireAdmin, async (_req, res, next) => {
+  try {
+    const result = await pool.query("SELECT id, request_number, store_name, store_address, items_text, delivery_address, customer_phone, customer_comment, status, created_at FROM individual_requests ORDER BY created_at DESC LIMIT 100");
+    return res.json({ requests: result.rows });
   } catch (error) { return next(error); }
 });
 
