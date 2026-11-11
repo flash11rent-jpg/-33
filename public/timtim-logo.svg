@@ -1,8 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 150" role="img" aria-labelledby="title">
 <title id="title">Тим-Тим — доставка из магазинов</title>
-<rect width="512" height="512" rx="116" fill="#123d32"/>
-<text x="256" y="244" text-anchor="middle" fill="#fff" font-family="Arial,sans-serif" font-size="91" font-style="italic" font-weight="800" letter-spacing="-5">Тим-Тим</text>
-<path d="M137 306 Q256 405 375 306" fill="none" stroke="#f28b35" stroke-width="21" stroke-linecap="round"/>
-<circle cx="137" cy="306" r="10" fill="#f28b35"/>
-<circle cx="375" cy="306" r="10" fill="#f28b35"/>
+<g fill="#123d32">
+<text x="12" y="78" font-family="Arial,sans-serif" font-size="82" font-style="italic" font-weight="900" letter-spacing="-5">Тим-Тим</text>
+</g>
+<path d="M34 94 Q250 151 472 94" fill="none" stroke="#f28b35" stroke-width="11" stroke-linecap="round"/>
+<text x="18" y="137" font-family="Arial,sans-serif" font-size="25" font-weight="600" letter-spacing="1.1" fill="#60776b">Доставка из магазинов</text>
 </svg>
