@@ -7,10 +7,7 @@ const shops=[
 {id:2,name:"Цветочный мир",category:"Цветы",icon:"💐",time:"40–60 мин",description:"Букеты и цветы для близких"},
 {id:4,name:"Дом и уют",category:"Для дома",icon:"🏡",time:"40–60 мин",description:"Полезные мелочи для дома"},
 {id:6,name:"Мастер",category:"Стройматериалы",icon:"🛠️",time:"40–60 мин",description:"Строительные материалы, инструменты и товары для ремонта"}];
-const products=[
-{id:1,name:"Молоко 3,2%",price:95,shop:1,unit:"1 л",icon:"🥛"},{id:2,name:"Хлеб белый",price:45,shop:1,unit:"шт.",icon:"🍞"},{id:3,name:"Яйца С1",price:110,shop:1,unit:"10 шт.",icon:"🥚"},{id:4,name:"Бананы",price:130,shop:1,unit:"1 кг",icon:"🍌"},{id:5,name:"Сыр",price:220,shop:1,unit:"300 г",icon:"🧀"},
-{id:6,name:"Букет цветов",price:1800,shop:2,unit:"букет",icon:"💐"},{id:7,name:"Ромашки",price:900,shop:2,unit:"букет",icon:"🌼"},{id:8,name:"Тюльпаны",price:1200,shop:2,unit:"букет",icon:"🌷"},
-{id:10,name:"Средство для посуды",price:160,shop:4,unit:"шт.",icon:"🧽"},{id:11,name:"Бумажные полотенца",price:190,shop:4,unit:"упаковка",icon:"🧻"}];
+const productIcons={1:"🥛",2:"🍞",3:"🥚",4:"🍌",5:"🧀",6:"💐",7:"🌼",8:"🌷",10:"🧽",11:"🧻"};
 const categories=["Все","Продукты","Цветы","Для дома","Выпечка","Стройматериалы","Рестораны","Косметика"];
 const statuses=["Новый","Подтверждён","Собирается","Готов","В пути","Доставлен","Отменён"];
 const individualStatuses=["Новая заявка","Проверяется","Согласована","Покупка выполняется","Выполнена","Отменена"];
@@ -96,7 +93,7 @@ const [individualComment,setIndividualComment]=useState("");
 const [individualSubmitting,setIndividualSubmitting]=useState(false);
 const [individualSuccessNumber,setIndividualSuccessNumber]=useState(null);
 const [adminIndividualRequests,setAdminIndividualRequests]=useState([]);
-const [shopData,setShopData]=useState(shops),[productData,setProductData]=useState(products),[catalogLoading,setCatalogLoading]=useState(true),[productSectionFilter,setProductSectionFilter]=useState("Все");
+const [shopData,setShopData]=useState(shops),[productData,setProductData]=useState([]),[catalogLoading,setCatalogLoading]=useState(true),[productSectionFilter,setProductSectionFilter]=useState("Все");
 const [operatorTab,setOperatorTab]=useState("orders"),[adminShops,setAdminShops]=useState([]),[adminProducts,setAdminProducts]=useState([]);
 const [newShopName,setNewShopName]=useState(""),[newShopCategory,setNewShopCategory]=useState("Продукты");
 const [newProductShop,setNewProductShop]=useState(""),[newProductName,setNewProductName]=useState(""),[newProductPrice,setNewProductPrice]=useState(""),[newProductUnit,setNewProductUnit]=useState("шт.");
@@ -111,12 +108,12 @@ useEffect(()=>{
   .then(data=>{
    if(cancelled)return;
    const nextShops=(data.shops||[]).map(s=>({...s,icon:shops.find(x=>x.id===s.id)?.icon||({5:"🥐",6:"🛠️",7:"🍗",8:"🥙",9:"🛒",10:"🛍️",11:"🔩",12:"🍣",13:"🦀",14:"💄",15:"🍕"}[s.id]||"🏬"),time:shops.find(x=>x.id===s.id)?.time||"30–60 мин",description:s.description||shops.find(x=>x.id===s.id)?.description||"Товары с доставкой по Тимашевску",imageUrl:s.id===12?"https://storage.yandexcloud.net/yobiweb-storage-prod/42e3e1d5-084d-4f04-baf2-ff7f695f0ae0/e9bf70c9-f9b4-4a03-9cdc-7e03bb03dcec/web/logo_y.svg":s.id===6?"https://stroy.cataloged.ru/pics/pp/pics/logo/master_210730_20260508.webp":s.image_url,website:s.website,phone:s.phone,address:s.address,mapsUrl:s.maps_url}));
-   const nextProducts=(data.products||[]).map(p=>({...p,shop:p.shop_id,price:p.price_rub,icon:products.find(x=>x.id===p.id)?.icon||productIconFor(p),imageUrl:p.image_url,category:p.category,description:p.description,sourceUrl:p.source_url}));
+   const nextProducts=(data.products||[]).map(p=>({...p,shop:p.shop_id,price:p.price_rub,icon:productIcons[p.id]||productIconFor(p),imageUrl:p.image_url,category:p.category,description:p.description,sourceUrl:p.source_url}));
    // Do not replace the usable starter catalogue with empty arrays if a new database is not seeded yet.
-   if(nextShops.length&&nextProducts.length){setShopData(nextShops);setProductData(nextProducts);setActiveShop(current=>current?nextShops.find(s=>s.id===current.id)||current:current)}
-   else setNotice("Пока показываем стартовый каталог");
+   if(nextShops.length){setShopData(nextShops);setProductData(nextProducts);setActiveShop(current=>current?nextShops.find(s=>s.id===current.id)||current:current)}
+   else setNotice("Каталог временно недоступен");
   })
-  .catch(()=>{if(!cancelled)setNotice("Показываем сохранённый каталог")})
+  .catch(()=>{if(!cancelled){setProductData([]);setNotice("Каталог временно недоступен — товары не показываем до восстановления связи")}})
   .finally(()=>{if(!cancelled)setCatalogLoading(false)});
  return()=>{cancelled=true};
 },[]);
