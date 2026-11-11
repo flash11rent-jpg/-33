@@ -284,3 +284,10 @@ WHERE id = 86 AND shop_id = 5;
 -- Pharmacy delivery remains disabled until legal and partner checks are completed.
 UPDATE shops SET is_active = FALSE WHERE id = 3;
 UPDATE products SET is_active = FALSE WHERE shop_id = 3;
+
+
+CREATE TABLE IF NOT EXISTS app_settings (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
