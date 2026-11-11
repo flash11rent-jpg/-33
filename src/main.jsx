@@ -84,7 +84,7 @@ useEffect(()=>{
  const timer=setTimeout(async()=>{
   setAddressLoading(true);
   try{
-   const params=new URLSearchParams({q:address.trim()+", Тимашевск, Краснодарский край",lat:"45.615",lon:"38.935",limit:"8",lang:"ru"});
+   const params=new URLSearchParams({q:address.trim()+", Тимашевск, Краснодарский край",lat:"45.615",lon:"38.935",limit:"8"});
    const response=await fetch("https://photon.komoot.io/api/?"+params.toString(),{signal:controller.signal,headers:{Accept:"application/json"}});
    if(!response.ok)throw new Error("Address lookup failed");
    const data=await response.json();
