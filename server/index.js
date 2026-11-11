@@ -131,7 +131,7 @@ app.get("/api/media/:kind/:id", async (req, res, next) => {
     const id = Number(req.params.id);
     if (!Number.isSafeInteger(id) || id < 1 || !["shop", "product", "category"].includes(kind)) return res.status(404).end();
     const table = kind === "shop" ? "shops" : kind === "product" ? "products" : "catalog_categories";
-    const result = await pool.query("SELECT image_url FROM " + table + " WHERE id = $1 AND is_active = TRUE", [id]);
+    const result = await pool.query("SELECT image_url FROM " + table + " WHERE id = $1", [id]);
     const value = result.rows[0]?.image_url;
     if (typeof value !== "string" || !value.startsWith("data:image/")) return res.status(404).end();
     const match = value.match(/^data:image\/(png|jpeg|webp);base64,([A-Za-z0-9+/=]+)$/);
