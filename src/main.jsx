@@ -15,11 +15,10 @@ const categories=["Все","Продукты","Цветы","Для дома","В
 const statuses=["Новый","Подтверждён","Собирается","Готов","В пути","Доставлен","Отменён"];
 const money=n=>new Intl.NumberFormat("ru-RU").format(n)+" ₽";
 function ShopBrandMark({shop}){
- const id=Number(shop.id), name=shop.name||"Магазин";
- const labels={5:"ХЛЕБНЫЙ\\nДВОРИК",6:"МАСТЕР",7:"ROSTIC'S",8:"PERLIN'S\\nPITA",9:"ПЯТЁРОЧКА",10:"МАГНИТ",11:"ПОВОРОТ",12:"ЁБИДОЁБИ",13:"ШУСТРЫЙ\\nКРАБ",14:"М.КОСМЕТИК",15:"ДОДО\\nПИЦЦА",1:"У ДОМА",2:"ЦВЕТОЧНЫЙ\\nМИР",4:"ДОМ И УЮТ"};
- const marks={5:"ХД",6:"М",7:"R",8:"P",9:"5",10:"М",11:"П",12:"Ё",13:"К",14:"М",15:"Д",1:"У",2:"Ц",4:"Д"};
- const logos={7:"https://logo-teka.com/wp-content/uploads/2025/07/rostics-logo.svg",9:"https://logo-teka.com/wp-content/uploads/2025/06/pyaterochka-logo.svg",10:"https://www.magnit.com/images/logo/logo--red--ru.svg"};
- return <span className={"shop-brand-mark shop-brand-"+id+(logos[id]?" has-official-logo":"")}>{logos[id]?<img src={logos[id]} alt={name+" — логотип"} loading="lazy"/>:<><i>{marks[id]||name.slice(0,1)}</i><b>{(labels[id]||name).split("\\n").map((line,index)=><React.Fragment key={index}>{index>0&&<br/>}{line}</React.Fragment>)}</b></>}</span>;
+ const name=shop.name||"Магазин";
+ return shop.imageUrl
+  ? <img className="shop-card-photo" src={shop.imageUrl} alt={name} loading="lazy" onError={e=>{e.currentTarget.style.display="none";const fallback=e.currentTarget.nextElementSibling;if(fallback)fallback.style.display="grid"}}/>
+  : null;
 }
 function productSection(p){
  const n=(p.name||"").toLowerCase(), c=(p.category||"").toLowerCase();
@@ -235,7 +234,7 @@ return <div className="app-shell">
 <section className="delivery-promo"><div className="promo-icon">🚗</div><div><b>Доставим до двери</b><span>Минимальный заказ — 700 ₽ · Работаем с 09:00 до 21:00</span></div><ArrowRight size={17}/></section>
 <button className="individual-order-promo" onClick={()=>setPage("individual-order")}><span className="individual-order-icon">✦</span><span><b>Не нашли нужный магазин?</b><small>Закажите из любого магазина Тимашевска — просто напишите список покупок</small><strong>Оформить индивидуальный заказ <ArrowRight size={15}/></strong></span></button>
 <div className="section-head shops-heading" id="shops"><div><span className="eyebrow dark">ВЫБИРАЙТЕ МЕСТО</span><h2>Магазины рядом</h2></div><span className="muted">{visibleShops.length} места</span></div>
-<div className="shop-grid">{visibleShops.map((s,i)=><button className={`shop-card shop-card-v2 shop-tone-${i%3} ${Number(s.id)===12?"shop-card-yobidoyobi":""} ${Number(s.id)===11?"shop-card-povorot":""}`} key={s.id} onClick={()=>{setActiveShop(s);setProductSectionFilter("Все");setPage("shop");setQuery("")}}><div className="shop-visual"><ShopBrandMark shop={s}/><small>{s.time}</small></div><div className="shop-card-copy"><span className="shop-category">{s.category}</span><b>{s.name}</b><small>{s.description}</small><span className="shop-foot">Открыть магазин <ArrowRight size={15}/></span></div></button>)}</div>
+<div className="shop-grid">{visibleShops.map((s,i)=><button className={`shop-card shop-card-v2 shop-tone-${i%3} ${Number(s.id)===12?"shop-card-yobidoyobi":""} ${Number(s.id)===11?"shop-card-povorot":""}`} key={s.id} onClick={()=>{setActiveShop(s);setProductSectionFilter("Все");setPage("shop");setQuery("")}}><div className="shop-visual"><ShopBrandMark shop={s}/><span className="shop-card-photo-fallback" style={{display:s.imageUrl?"none":"grid"}}>{s.icon||"🏬"}</span><small>{s.time}</small></div><div className="shop-card-copy"><span className="shop-category">{s.category}</span><b>{s.name}</b><small>{s.description}</small><span className="shop-foot">Открыть магазин <ArrowRight size={15}/></span></div></button>)}</div>
 <p className="demo-note">Каталог загружается из базы сервиса. Актуальные цены и наличие оператор подтвердит перед сборкой заказа.</p>
 </div>}{page==="shop"&&activeShop&&<div className={`storefront ${(Number(activeShop.id)===5||activeShop.name==="Хлебный дворик")?"bakery-storefront":Number(activeShop.id)===6||activeShop.name==="Мастер"?"construction-storefront":Number(activeShop.id)===12||activeShop.name==="Ёбидоёби"?"yobidoyobi-storefront":Number(activeShop.id)===11||activeShop.name==="Поворот"?"povorot-storefront":""}`}>
 
