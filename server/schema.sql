@@ -76,6 +76,10 @@ INSERT INTO shops (id, name, category, description, image_url, website, phone, a
   (5, 'Хлебный дворик', 'Выпечка', 'Кулинария и кондитерская: десерты, выпечка, торты, хлеб, завтраки и готовые блюда.', 'https://static.tildacdn.com/tild6563-3663-4463-b362-316236616361/_.png', 'https://khlebnyi-dvorik.ru/', '+7 (989) 849-99-55', 'г. Тимашевск, ул. 50 лет Октября, 197')
 ON CONFLICT (id) DO UPDATE SET name=EXCLUDED.name, category=EXCLUDED.category, description=EXCLUDED.description, image_url=EXCLUDED.image_url, website=EXCLUDED.website, phone=EXCLUDED.phone, address=EXCLUDED.address;
 
+INSERT INTO shops (id, name, category, description, address) VALUES
+  (6, 'Мастер', 'Стройматериалы', 'Строительные материалы, инструменты и товары для ремонта. Каталог и цены уточняются у магазина.', 'г. Тимашевск, ул. Ленина, 32')
+ON CONFLICT (id) DO UPDATE SET name=EXCLUDED.name, category=EXCLUDED.category, description=EXCLUDED.description, address=EXCLUDED.address;
+
 INSERT INTO products (id, shop_id, name, price_rub, unit) VALUES
   (1,1,'Молоко 3,2%',95,'1 л'),
   (2,1,'Хлеб белый',45,'шт.'),
