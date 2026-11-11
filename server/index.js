@@ -119,7 +119,7 @@ app.patch("/api/admin/brand", requireAdmin, async (req, res, next) => { try { co
 app.get("/api/catalog", async (_req, res, next) => {
   try {
     const [shopsResult, productsResult] = await Promise.all([
-      pool.query("SELECT id, name, category, description, image_url, website, phone, address FROM shops WHERE is_active = TRUE ORDER BY id"),
+      pool.query("SELECT id, name, category, description, image_url, website, phone, address, maps_url FROM shops WHERE is_active = TRUE ORDER BY id"),
       pool.query("SELECT id, shop_id, name, price_rub, unit, category, description, image_url, source_url FROM products WHERE is_active = TRUE ORDER BY shop_id, id")
     ]);
     return res.set("Cache-Control", "public, max-age=30, stale-while-revalidate=120").json({
@@ -260,7 +260,7 @@ app.get("/api/admin/individual-requests", requireAdmin, async (_req, res, next) 
 app.get("/api/admin/catalog", requireAdmin, async (_req, res, next) => {
   try {
     const [shops, products] = await Promise.all([
-      pool.query("SELECT id, name, category, description, image_url, website, phone, address, is_active, created_at FROM shops ORDER BY id"),
+      pool.query("SELECT id, name, category, description, image_url, website, phone, address, maps_url, is_active, created_at FROM shops ORDER BY id"),
       pool.query("SELECT id, shop_id, name, price_rub, unit, category, description, image_url, source_url, is_active, updated_at FROM products ORDER BY shop_id, id")
     ]);
     return res.json({ shops: shops.rows, products: products.rows });
