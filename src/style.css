@@ -1074,3 +1074,9 @@ h1,h2,h3,.section-head h2,.page-title h1,.store-hero h1{
 .shop-card-yobidoyobi .shop-card-copy .shop-category{color:#b34272}
 .shop-card-yobidoyobi .shop-card-copy .shop-foot{color:#82345e}
 @media(prefers-reduced-motion:reduce){.yobi-float{animation:none}}
+
+
+/* Clear branded placeholder for catalog items without a verified product photo */
+.product-picture-fallback{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border-radius:15px;background:radial-gradient(circle at 50% 35%,#fff8e9 0,#f6eddb 48%,#eee4d2 100%);color:#9b7958}
+.product-picture-fallback i{font-style:normal;font-size:48px;line-height:1;filter:drop-shadow(0 4px 5px #6f503322)}
+.product-picture-fallback small{font-size:8px;letter-spacing:1.1px;text-transform:uppercase;font-weight:800;color:#a68b70}
