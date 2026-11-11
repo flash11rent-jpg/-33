@@ -877,3 +877,19 @@ h1,h2,h3,.section-head h2,.page-title h1,.store-hero h1{
 .address-suggestions button b{font-size:12px;line-height:1.35;font-weight:750}
 .address-suggestions button small{font-size:10px;line-height:1.35;color:#829087}
 @media(prefers-reduced-motion:reduce){.address-suggestions{scroll-behavior:auto}}
+
+
+/* Individual order request */
+.individual-order-promo{width:100%;display:flex;align-items:flex-start;gap:14px;margin:16px 0 28px;padding:17px;border:1px solid #dce8dd;border-radius:19px;background:linear-gradient(120deg,#f1f7ef,#fffaf1);color:#214b39;text-align:left;box-shadow:0 8px 24px #234c3510}
+.individual-order-icon{flex:0 0 42px;height:42px;display:grid;place-items:center;border-radius:14px;background:#e0eee1;color:#bd773e;font-size:24px}
+.individual-order-promo>span:last-child{display:grid;gap:6px;min-width:0}
+.individual-order-promo b{font-size:15px;font-weight:850}
+.individual-order-promo small{font-size:12px;line-height:1.45;color:#718477}
+.individual-order-promo strong{display:flex;align-items:center;gap:6px;margin-top:3px;font-size:12px;color:#b36e36}
+.individual-intro{max-width:620px;color:#748278;font-size:13px;line-height:1.6;margin:9px 0 0}
+.individual-form{gap:15px}
+.individual-form textarea{min-height:108px;resize:vertical}
+.individual-request-card{margin:12px 0;padding:16px}
+.individual-request-card pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;font-size:13px;line-height:1.55;background:#f6f8f4;border-radius:10px;padding:11px;color:#35483b}
+.individual-request-card p{overflow-wrap:anywhere}
+@media(prefers-reduced-motion:reduce){.individual-order-promo{scroll-behavior:auto}}
