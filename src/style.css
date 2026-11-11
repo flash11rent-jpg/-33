@@ -854,3 +854,26 @@ h1,h2,h3,.section-head h2,.page-title h1,.store-hero h1{
 .checkout-summary>div b{text-align:right;max-width:65%}
 .checkout-summary p{line-height:1.55}
 @media(max-width:390px){.checkout-fields-row{gap:7px}.checkout-fields-row input{padding-left:9px;padding-right:9px}}
+
+
+/* Real address autocomplete powered by OpenStreetMap geodata via Photon */
+.address-autocomplete{position:relative}
+.address-autocomplete>input{width:100%;box-sizing:border-box}
+.address-hint{display:block;margin:7px 2px 0;color:#7b887f;font-size:11px;line-height:1.4}
+.address-suggestions{
+ position:absolute;top:calc(100% + 5px);left:0;right:0;z-index:30;
+ max-height:260px;overflow:auto;padding:5px;
+ border:1px solid #e4eae4;border-radius:13px;background:#fff;
+ box-shadow:0 12px 28px #1c35251c;
+}
+.address-suggestions button{
+ display:flex;align-items:flex-start;gap:10px;width:100%;padding:11px 10px;
+ border:0;border-radius:9px;background:transparent;color:#26392e;text-align:left;
+}
+.address-suggestions button+button{border-top:1px solid #f0f2ee}
+.address-suggestions button:active{background:#f2f6f0}
+.address-suggestions button>svg{flex:0 0 auto;margin-top:2px;color:#56816a}
+.address-suggestions button>span{display:grid;gap:3px;min-width:0}
+.address-suggestions button b{font-size:12px;line-height:1.35;font-weight:750}
+.address-suggestions button small{font-size:10px;line-height:1.35;color:#829087}
+@media(prefers-reduced-motion:reduce){.address-suggestions{scroll-behavior:auto}}
