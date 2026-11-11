@@ -313,6 +313,21 @@ WHERE shop_id IN (1, 2, 4)
   AND id IN (1,2,3,4,5,6,7,8,10,11)
   AND EXISTS (SELECT 1 FROM apply_migration);
 
+-- Add the public phone number shown on the current Yandex Maps listing for
+-- Шустрый Краб. Run once so future operator edits are not overwritten.
+WITH apply_migration AS (
+  INSERT INTO app_migrations (migration_key)
+  VALUES ('add_shustry_krab_public_phone_v1')
+  ON CONFLICT (migration_key) DO NOTHING
+  RETURNING migration_key
+)
+UPDATE shops
+SET phone = '+7 989 029-99-45'
+WHERE id = 13
+  AND phone IS NULL
+  AND EXISTS (SELECT 1 FROM apply_migration);
+
+
 CREATE TABLE IF NOT EXISTS app_settings (
   key TEXT PRIMARY KEY,
   value TEXT NOT NULL,
