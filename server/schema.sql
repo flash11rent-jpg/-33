@@ -23,6 +23,7 @@ ALTER TABLE shops ADD COLUMN IF NOT EXISTS image_url TEXT;
 ALTER TABLE shops ADD COLUMN IF NOT EXISTS website TEXT;
 ALTER TABLE shops ADD COLUMN IF NOT EXISTS phone TEXT;
 ALTER TABLE shops ADD COLUMN IF NOT EXISTS address TEXT;
+ALTER TABLE shops ADD COLUMN IF NOT EXISTS maps_url TEXT;
 
 ALTER TABLE products ADD COLUMN IF NOT EXISTS category TEXT NOT NULL DEFAULT 'Другое';
 ALTER TABLE products ADD COLUMN IF NOT EXISTS description TEXT NOT NULL DEFAULT '';
@@ -300,16 +301,22 @@ CREATE TABLE IF NOT EXISTS app_settings (
 -- Tim-Tim partner/store directory imported from the owner's Yandex Maps links.
 -- Prices and product catalogues are intentionally not fabricated; each new store
 -- is listed with a clear "catalogue and prices are being confirmed" description.
-INSERT INTO shops (id, name, category, description, address, website) VALUES
-  (7, 'Rostic''s', 'Рестораны', 'Меню и цены уточняются у магазина.', 'г. Тимашевск, ул. Пролетарская, 156', 'https://rostics.ru/'),
-  (8, 'Perlin''s Pita', 'Рестораны', 'Меню и цены уточняются у магазина.', 'г. Тимашевск, ул. Интернациональная, 18', 'http://pita23.ru/'),
-  (9, 'Пятёрочка', 'Продукты', 'Ассортимент и цены уточняются у магазина.', 'г. Тимашевск, ул. 50 лет Октября, 115', 'https://5ka.ru/'),
-  (10, 'Магнит', 'Продукты', 'Ассортимент и цены уточняются у магазина.', 'г. Тимашевск, ул. Котляра, 195', 'https://www.magnit.com/'),
-  (11, 'Поворот', 'Стройматериалы', 'Ассортимент и цены уточняются у магазина.', 'г. Тимашевск, ул. Пролетарская, 180А', NULL),
-  (12, 'Ёбидоёби', 'Рестораны', 'Меню и цены уточняются у магазина.', 'г. Тимашевск, Советский пер., 18', 'https://yobidoyobi.ru/'),
-  (13, 'Шустрый Краб', 'Рестораны', 'Меню и цены уточняются у магазина.', 'г. Тимашевск, ул. Пролетарская, 114', NULL),
-  (14, 'М.Косметик', 'Косметика', 'Ассортимент и цены уточняются у магазина.', 'г. Тимашевск, ул. Ленина, 128', 'https://cosmetic.magnit.ru/'),
-  (15, 'Додо Пицца', 'Рестораны', 'Меню и цены уточняются у магазина.', 'г. Тимашевск, ул. Красная, 104', 'https://dodopizza.ru/')
+INSERT INTO shops (id, name, category, description, address, website, maps_url, image_url) VALUES
+  (7, 'Rostic''s', 'Рестораны', 'Ресторан быстрого питания. Меню и цены уточняются перед подтверждением заказа.', 'г. Тимашевск, ул. Пролетарская, 156', 'https://rostics.ru/', 'https://yandex.ru/maps/-/CXCnABKx', 'https://avatars.mds.yandex.net/get-altay/19707167/2a0000019dd955f81be1ab093285ba87113a/L_height'),
+  (8, 'Perlin''s Pita', 'Рестораны', 'Пита, кафе и блюда на вынос. Меню и цены уточняются перед подтверждением заказа.', 'г. Тимашевск, ул. Интернациональная, 18', 'http://pita23.ru/', 'https://yandex.ru/maps/-/CXCnA817', 'https://avatars.mds.yandex.net/get-altay/4336337/2a000001794325902640c6758578e74ca145/L_height'),
+  (9, 'Пятёрочка', 'Продукты', 'Супермаркет. Ассортимент и цены уточняются перед подтверждением заказа.', 'г. Тимашевск, ул. 50 лет Октября, 115', 'https://5ka.ru/', 'https://yandex.ru/maps/-/CXCnA2la', 'https://avatars.mds.yandex.net/get-altay/1870294/2a0000017015a11fada6dfc3f6b7e228f69d/L_height'),
+  (10, 'Магнит', 'Продукты', 'Супермаркет. Ассортимент и цены уточняются перед подтверждением заказа.', 'г. Тимашевск, ул. Котляра, 195', 'https://magnit.ru/', 'https://yandex.ru/maps/-/CXCnEY6N', 'https://avatars.mds.yandex.net/get-altay/16415892/2a0000019ef83a31dc59dfcd748230a75dda/L_height'),
+  (11, 'Поворот', 'Стройматериалы', 'Гипермаркет строительных и хозяйственных товаров. Наличие и цены уточняются перед подтверждением заказа.', 'г. Тимашевск, ул. Пролетарская, 180А', 'https://povorot-proletarskaja-ulitsa.clients.site/', 'https://yandex.ru/maps/-/CXCnE0Oj', 'https://avatars.mds.yandex.net/get-altay/1032555/2a000001875b4bebc888bf01582ec26d106e/L_height'),
+  (12, 'Ёбидоёби', 'Рестораны', 'Суши-бар. Меню и цены уточняются перед подтверждением заказа.', 'г. Тимашевск, Советский пер., 18', 'https://timashevsk.yobidoyobi.ru/', 'https://yandex.ru/maps/-/CXCnE2Je', 'https://avatars.mds.yandex.net/get-altay/21148955/2a000001a0006fd520db0316ad1512747453/L_height'),
+  (13, 'Шустрый Краб', 'Рестораны', 'Кафе и блюда из морепродуктов. Меню и цены уточняются перед подтверждением заказа.', 'г. Тимашевск, ул. Пролетарская, 114', NULL, 'https://yandex.ru/maps/-/CXCnIIy5', 'https://avatars.mds.yandex.net/get-altay/5482016/2a0000017d8f041fcd403d29273ed223ec35/L_height'),
+  (14, 'М.Косметик', 'Косметика', 'Парфюмерия, косметика и товары для ухода. Ассортимент и цены уточняются перед подтверждением заказа.', 'г. Тимашевск, ул. Ленина, 128', 'https://cosmetic.magnit.ru/', 'https://yandex.ru/maps/-/CXCnIY7g', 'https://avatars.mds.yandex.net/get-altay/3986135/2a0000017949cdfde6b39e19de83c40d3f8e/L_height'),
+  (15, 'Додо Пицца', 'Рестораны', 'Пиццерия. Меню и цены уточняются перед подтверждением заказа.', 'г. Тимашевск, ул. Красная, 104', 'https://dodopizza.ru/', 'https://yandex.ru/maps/-/CXCnMS5T', 'https://avatars.mds.yandex.net/get-altay/13083354/2a00000191569dfe630a046ceb6e72592bf8/L_height')
 ON CONFLICT (id) DO UPDATE SET
   name=EXCLUDED.name, category=EXCLUDED.category, description=EXCLUDED.description,
-  address=EXCLUDED.address, website=EXCLUDED.website;
+  address=EXCLUDED.address, website=EXCLUDED.website, maps_url=EXCLUDED.maps_url,
+  image_url=EXCLUDED.image_url;
+
+UPDATE shops SET maps_url='https://yandex.ru/maps/-/CXCnAGyX'
+WHERE id=5;
+UPDATE shops SET maps_url='https://yandex.ru/maps/-/CXCnEK5L'
+WHERE id=6;
