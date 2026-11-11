@@ -15,9 +15,15 @@ const categories=["Все","Продукты","Цветы","Для дома","В
 const statuses=["Новый","Подтверждён","Собирается","Готов","В пути","Доставлен","Отменён"];
 const money=n=>new Intl.NumberFormat("ru-RU").format(n)+" ₽";
 function ShopBrandMark({shop}){
- const name=shop.name||"Магазин";
- return shop.imageUrl
-  ? <img className="shop-card-photo" src={shop.imageUrl} alt={name} loading="lazy" onError={e=>{e.currentTarget.style.display="none";const fallback=e.currentTarget.nextElementSibling;if(fallback)fallback.style.display="grid"}}/>
+ const id=Number(shop.id), name=shop.name||"Магазин";
+ const logos={
+  7:"https://logo-teka.com/wp-content/uploads/2025/07/rostics-logo.svg",
+  9:"https://logo-teka.com/wp-content/uploads/2025/06/pyaterochka-logo.svg",
+  10:"https://www.magnit.com/images/logo/logo--red--ru.svg"
+ };
+ const src=logos[id]||shop.imageUrl;
+ return src
+  ? <img className={"shop-card-photo"+(logos[id]?" shop-card-logo":"")} src={src} alt={name+" — "+(logos[id]?"логотип":"фото магазина")} loading="lazy" onError={e=>{e.currentTarget.style.display="none";const fallback=e.currentTarget.nextElementSibling;if(fallback)fallback.style.display="grid"}}/>
   : null;
 }
 function productSection(p){
@@ -234,7 +240,7 @@ return <div className="app-shell">
 <section className="delivery-promo"><div className="promo-icon">🚗</div><div><b>Доставим до двери</b><span>Минимальный заказ — 700 ₽ · Работаем с 09:00 до 21:00</span></div><ArrowRight size={17}/></section>
 <button className="individual-order-promo" onClick={()=>setPage("individual-order")}><span className="individual-order-icon">✦</span><span><b>Не нашли нужный магазин?</b><small>Закажите из любого магазина Тимашевска — просто напишите список покупок</small><strong>Оформить индивидуальный заказ <ArrowRight size={15}/></strong></span></button>
 <div className="section-head shops-heading" id="shops"><div><span className="eyebrow dark">ВЫБИРАЙТЕ МЕСТО</span><h2>Магазины рядом</h2></div><span className="muted">{visibleShops.length} места</span></div>
-<div className="shop-grid">{visibleShops.map((s,i)=><button className={`shop-card shop-card-v2 shop-tone-${i%3} ${Number(s.id)===12?"shop-card-yobidoyobi":""} ${Number(s.id)===11?"shop-card-povorot":""}`} key={s.id} onClick={()=>{setActiveShop(s);setProductSectionFilter("Все");setPage("shop");setQuery("")}}><div className="shop-visual"><ShopBrandMark shop={s}/><span className="shop-card-photo-fallback" style={{display:s.imageUrl?"none":"grid"}}>{s.icon||"🏬"}</span><small>{s.time}</small></div><div className="shop-card-copy"><span className="shop-category">{s.category}</span><b>{s.name}</b><small>{s.description}</small><span className="shop-foot">Открыть магазин <ArrowRight size={15}/></span></div></button>)}</div>
+<div className="shop-grid">{visibleShops.map((s,i)=><button className={`shop-card shop-card-v2 shop-tone-${i%3} ${Number(s.id)===12?"shop-card-yobidoyobi":""} ${Number(s.id)===11?"shop-card-povorot":""}`} key={s.id} onClick={()=>{setActiveShop(s);setProductSectionFilter("Все");setPage("shop");setQuery("")}}><div className="shop-visual"><ShopBrandMark shop={s}/><span className="shop-card-photo-fallback" style={{display:(s.imageUrl||[7,9,10].includes(Number(s.id)))?"none":"grid"}}>{s.icon||"🏬"}</span><small>{s.time}</small></div><div className="shop-card-copy"><span className="shop-category">{s.category}</span><b>{s.name}</b><small>{s.description}</small><span className="shop-foot">Открыть магазин <ArrowRight size={15}/></span></div></button>)}</div>
 <p className="demo-note">Каталог загружается из базы сервиса. Актуальные цены и наличие оператор подтвердит перед сборкой заказа.</p>
 </div>}{page==="shop"&&activeShop&&<div className={`storefront ${(Number(activeShop.id)===5||activeShop.name==="Хлебный дворик")?"bakery-storefront":Number(activeShop.id)===6||activeShop.name==="Мастер"?"construction-storefront":Number(activeShop.id)===12||activeShop.name==="Ёбидоёби"?"yobidoyobi-storefront":Number(activeShop.id)===11||activeShop.name==="Поворот"?"povorot-storefront":""}`}>
 
