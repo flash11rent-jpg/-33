@@ -1004,3 +1004,10 @@ h1,h2,h3,.section-head h2,.page-title h1,.store-hero h1{
 .brand-mark{width:76px;height:76px;flex:0 0 76px;object-fit:contain;object-position:center;border-radius:17px;background:transparent;box-shadow:none;padding:0}
 @media(max-width:520px){.topbar{height:88px;padding:0 17px}.brand-mark{width:70px;height:70px;flex-basis:70px}}
 @media(max-width:360px){.brand-mark{width:64px;height:64px;flex-basis:64px}}
+
+/* Horizontal header lockup: preserve the complete wordmark instead of shrinking a square app icon. */
+.topbar{height:88px;padding:0 25px}
+.brand{gap:0;min-width:0}
+.brand-mark{display:block;width:230px;height:68px;flex:0 1 230px;max-width:100%;object-fit:contain;object-position:left center;border-radius:0;background:transparent;box-shadow:none;padding:0}
+@media(max-width:520px){.topbar{height:78px;padding:0 17px}.brand-mark{width:205px;height:62px;flex-basis:205px}}
+@media(max-width:360px){.brand-mark{width:185px;height:56px;flex-basis:185px}}
