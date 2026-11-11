@@ -74,6 +74,7 @@ const createOrderSchema = z.object({
 }).strict();
 
 const validStatuses = ["Новый", "Подтверждён", "Собирается", "Готов", "В пути", "Доставлен", "Отменён"];
+const validIndividualStatuses = ["Новая заявка", "Проверяется", "Согласована", "Покупка выполняется", "Выполнена", "Отменена"];
 const sha256 = value => createHash("sha256").update(value).digest("hex");
 const safeEqual = (a, b) => {
   const left = Buffer.from(String(a));
@@ -254,6 +255,20 @@ app.get("/api/admin/individual-requests", requireAdmin, async (_req, res, next) 
   try {
     const result = await pool.query("SELECT id, request_number, store_name, store_address, items_text, delivery_address, customer_phone, customer_comment, status, created_at FROM individual_requests ORDER BY created_at DESC LIMIT 100");
     return res.json({ requests: result.rows });
+  } catch (error) { return next(error); }
+});
+
+app.patch("/api/admin/individual-requests/:id/status", requireAdmin, async (req, res, next) => {
+  try {
+    const id = z.string().uuid().safeParse(req.params.id);
+    const status = z.string().refine(value => validIndividualStatuses.includes(value)).safeParse(req.body?.status);
+    if (!id.success || !status.success) return res.status(400).json({ error: "Проверьте идентификатор заявки и её статус" });
+    const result = await pool.query(
+      "UPDATE individual_requests SET status = $1, updated_at = NOW() WHERE id = $2 RETURNING id, request_number, status, updated_at",
+      [status.data, id.data]
+    );
+    if (!result.rowCount) return res.status(404).json({ error: "Заявка не найдена" });
+    return res.json({ request: result.rows[0] });
   } catch (error) { return next(error); }
 });
 
