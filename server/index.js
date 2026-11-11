@@ -139,7 +139,7 @@ app.get("/api/media/:kind/:id", async (req, res, next) => {
     const bytes = Buffer.from(match[2], "base64");
     if (bytes.length > 700 * 1024) return res.status(413).end();
     res.set("Content-Type", "image/" + match[1]);
-    res.set("Cache-Control", "public, max-age=300");
+    res.set("Cache-Control", "no-store");
     return res.send(bytes);
   } catch (error) { return next(error); }
 });
