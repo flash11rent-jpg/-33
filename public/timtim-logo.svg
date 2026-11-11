@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<rect width="512" height="512" rx="112" fill="#123d32"/>
+<g fill="#fff" font-family="Manrope,Arial,sans-serif" font-size="112" font-weight="800" letter-spacing="-8" text-anchor="middle">
+<text x="256" y="218">Тим-</text><text x="256" y="330">Тим</text>
+</g>
+<path d="M165 365 Q256 412 347 365" fill="none" stroke="#f28b35" stroke-width="17" stroke-linecap="round"/>
+</svg>
