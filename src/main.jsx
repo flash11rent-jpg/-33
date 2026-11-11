@@ -38,11 +38,11 @@ function ruAddressName(value){
  if(!value)return "";
  const fixed={"Timashevsk":"Тимашевск","Timashyovsky District":"Тимашёвский район","Krasnodar Krai":"Краснодарский край","Russia":"Россия"};
  if(fixed[value])return fixed[value];
- const suffix=value.match(/^(.*)\\s+Street$/i);
+ const suffix=value.match(/^(.*)\s+Street$/i);
  const source=suffix?suffix[1]:value;
  const rules=[[/shch/gi,"щ"],[/yo/gi,"ё"],[/zh/gi,"ж"],[/kh/gi,"х"],[/ts/gi,"ц"],[/ch/gi,"ч"],[/sh/gi,"ш"],[/yu/gi,"ю"],[/ya/gi,"я"],[/ye/gi,"е"],[/a/gi,"а"],[/b/gi,"б"],[/c/gi,"к"],[/d/gi,"д"],[/e/gi,"е"],[/f/gi,"ф"],[/g/gi,"г"],[/h/gi,"х"],[/i/gi,"и"],[/j/gi,"й"],[/k/gi,"к"],[/l/gi,"л"],[/m/gi,"м"],[/n/gi,"н"],[/o/gi,"о"],[/p/gi,"п"],[/q/gi,"к"],[/r/gi,"р"],[/s/gi,"с"],[/t/gi,"т"],[/u/gi,"у"],[/v/gi,"в"],[/w/gi,"в"],[/x/gi,"кс"],[/y/gi,"ы"],[/z/gi,"з"]];
  let result=source;for(const [pattern,replacement] of rules)result=result.replace(pattern,replacement);
- result=result.replace(/(^|\\s)\\S/g,letter=>letter.toUpperCase());
+ result=result.replace(/(^|\s)\S/g,letter=>letter.toUpperCase());
  return suffix?"улица "+result:result;
 }
 const API_URL="https://tim-tim-api.onrender.com";
