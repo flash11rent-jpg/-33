@@ -264,7 +264,8 @@ WHEN 65 THEN 'https://static.tildacdn.com/stor3564-6663-4563-b564-623136373131/5
 WHEN 66 THEN 'https://static.tildacdn.com/stor6133-3431-4038-b561-643831313835/e6a8350f7d6f3195fe5cf6e792ca5f2b.webp'
 WHEN 67 THEN 'https://static.tildacdn.com/stor3933-6165-4535-b466-336632623333/3df5f6111169b2b6ce1bebe2ee07d390.webp'
 WHEN 68 THEN 'https://static.tildacdn.com/stor3065-3261-4562-b530-353266376135/bab59d2abbd540fc94407087c0700fe6.webp'
-WHEN 84 THEN 'https://static.tildacdn.com/stor6162-3762-4738-a536-653064653532/056f437277214ef158d7f5a19fb13fa0.webp'
+WHEN 84 THEN NULL
+WHEN 85 THEN 'https://static.tildacdn.com/stor6162-3762-4738-a536-653064653532/056f437277214ef158d7f5a19fb13fa0.webp'
 WHEN 85 THEN NULL
 WHEN 86 THEN NULL
 WHEN 87 THEN NULL
