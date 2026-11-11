@@ -118,15 +118,43 @@ app.get("/api/brand", async (_req, res, next) => { try { const result = await po
 
 app.patch("/api/admin/brand", requireAdmin, async (req, res, next) => { try { const parsed = z.object({ logo: z.string().max(1200000).regex(/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/) }).strict().safeParse(req.body); if (!parsed.success) return res.status(400).json({ error: "Загрузите PNG, JPG или WebP до 900 КБ" }); const result = await pool.query("INSERT INTO app_settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value RETURNING value", ["brand_logo", parsed.data.logo]); return res.json({ ok: true, logo: result.rows[0].value }); } catch (error) { return next(error); } });
 
+const publicApiUrl = (process.env.PUBLIC_API_URL || "https://tim-tim-api.onrender.com").replace(/\/+$/, "");
+function catalogImageUrl(kind, id, value) {
+  return typeof value === "string" && value.startsWith("data:image/")
+    ? publicApiUrl + "/api/media/" + kind + "/" + id
+    : value;
+}
+
+app.get("/api/media/:kind/:id", async (req, res, next) => {
+  try {
+    const kind = req.params.kind;
+    const id = Number(req.params.id);
+    if (!Number.isSafeInteger(id) || id < 1 || !["shop", "product", "category"].includes(kind)) return res.status(404).end();
+    const table = kind === "shop" ? "shops" : kind === "product" ? "products" : "catalog_categories";
+    const result = await pool.query("SELECT image_url FROM " + table + " WHERE id = $1 AND is_active = TRUE", [id]);
+    const value = result.rows[0]?.image_url;
+    if (typeof value !== "string" || !value.startsWith("data:image/")) return res.status(404).end();
+    const match = value.match(/^data:image\/(png|jpeg|webp);base64,([A-Za-z0-9+/=]+)$/);
+    if (!match) return res.status(404).end();
+    const bytes = Buffer.from(match[2], "base64");
+    if (bytes.length > 700 * 1024) return res.status(413).end();
+    res.set("Content-Type", "image/" + match[1]);
+    res.set("Cache-Control", "public, max-age=300");
+    return res.send(bytes);
+  } catch (error) { return next(error); }
+});
+
 app.get("/api/catalog", async (_req, res, next) => {
   try {
-    const [shopsResult, productsResult] = await Promise.all([
+    const [shopsResult, productsResult, categoriesResult] = await Promise.all([
       pool.query("SELECT id, name, category, description, image_url, website, phone, address, maps_url FROM shops WHERE is_active = TRUE ORDER BY id"),
-      pool.query("SELECT id, shop_id, name, price_rub, unit, category, description, image_url, source_url FROM products WHERE is_active = TRUE ORDER BY shop_id, id")
+      pool.query("SELECT id, shop_id, name, price_rub, unit, category, description, image_url, source_url FROM products WHERE is_active = TRUE ORDER BY shop_id, id"),
+      pool.query("SELECT id, name, category_type, emoji, image_url, sort_order FROM catalog_categories WHERE is_active = TRUE ORDER BY category_type, sort_order, name")
     ]);
     return res.set("Cache-Control", "public, max-age=30, stale-while-revalidate=120").json({
-      shops: shopsResult.rows,
-      products: productsResult.rows
+      shops: shopsResult.rows.map(item => ({...item, image_url: catalogImageUrl("shop", item.id, item.image_url)})),
+      products: productsResult.rows.map(item => ({...item, image_url: catalogImageUrl("product", item.id, item.image_url)})),
+      categories: categoriesResult.rows.map(item => ({...item, image_url: catalogImageUrl("category", item.id, item.image_url)}))
     });
   } catch (error) { return next(error); }
 });
@@ -275,79 +303,139 @@ app.patch("/api/admin/individual-requests/:id/status", requireAdmin, async (req,
 
 app.get("/api/admin/catalog", requireAdmin, async (_req, res, next) => {
   try {
-    const [shops, products] = await Promise.all([
+    const [shops, products, categories] = await Promise.all([
       pool.query("SELECT id, name, category, description, image_url, website, phone, address, maps_url, is_active, created_at FROM shops ORDER BY id"),
-      pool.query("SELECT id, shop_id, name, price_rub, unit, category, description, image_url, source_url, is_active, updated_at FROM products ORDER BY shop_id, id")
+      pool.query("SELECT id, shop_id, name, price_rub, unit, category, description, image_url, source_url, is_active, updated_at FROM products ORDER BY shop_id, id"),
+      pool.query("SELECT id, name, category_type, emoji, image_url, sort_order, is_active FROM catalog_categories ORDER BY category_type, sort_order, name")
     ]);
-    return res.json({ shops: shops.rows, products: products.rows });
+    return res.json({
+      shops: shops.rows.map(item => ({...item, image_url: catalogImageUrl("shop", item.id, item.image_url)})),
+      products: products.rows.map(item => ({...item, image_url: catalogImageUrl("product", item.id, item.image_url)})),
+      categories: categories.rows.map(item => ({...item, image_url: catalogImageUrl("category", item.id, item.image_url)}))
+    });
   } catch (error) { return next(error); }
 });
 
 app.post("/api/admin/shops", requireAdmin, async (req, res, next) => {
   try {
+    const imageValue = z.string().max(900000).nullable().optional().refine(v => v == null || /^data:image\/(png|jpeg|webp);base64,/.test(v) || /^https?:\/\//.test(v));
     const parsed = z.object({
-      name: z.string().trim().min(2).max(100),
-      category: z.string().trim().min(2).max(60)
+      name: z.string().trim().min(2).max(100), category: z.string().trim().min(2).max(60),
+      description: z.string().trim().max(500).optional().default(""), imageUrl: imageValue,
+      website: z.string().trim().max(300).optional().default(""), phone: z.string().trim().max(50).optional().default(""),
+      address: z.string().trim().max(300).optional().default(""), mapsUrl: z.string().trim().max(500).optional().default("")
     }).strict().safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ error: "Укажите название и категорию магазина" });
+    if (!parsed.success) return res.status(400).json({ error: "Проверьте название, категорию и поля карточки магазина" });
+    const d = parsed.data;
     const result = await pool.query(
-      "INSERT INTO shops (id, name, category) VALUES ((SELECT COALESCE(MAX(id), 0) + 1 FROM shops), $1, $2) RETURNING id, name, category, is_active",
-      [parsed.data.name, parsed.data.category]
+      "INSERT INTO shops (id,name,category,description,image_url,website,phone,address,maps_url) VALUES ((SELECT COALESCE(MAX(id),0)+1 FROM shops),$1,$2,$3,$4,$5,$6,$7,$8) RETURNING id,name,category,description,image_url,website,phone,address,maps_url,is_active",
+      [d.name,d.category,d.description,d.imageUrl||null,d.website||null,d.phone||null,d.address||null,d.mapsUrl||null]
     );
-    return res.status(201).json({ shop: result.rows[0] });
+    const item = result.rows[0];
+    return res.status(201).json({ shop: {...item, image_url: catalogImageUrl("shop",item.id,item.image_url)} });
   } catch (error) { return next(error); }
 });
 
 app.patch("/api/admin/shops/:id", requireAdmin, async (req, res, next) => {
   try {
+    const imageValue = z.string().max(900000).nullable().optional().refine(v => v == null || /^data:image\/(png|jpeg|webp);base64,/.test(v) || /^https?:\/\//.test(v));
     const parsed = z.object({
-      name: z.string().trim().min(2).max(100),
-      category: z.string().trim().min(2).max(60),
+      name: z.string().trim().min(2).max(100), category: z.string().trim().min(2).max(60),
+      description: z.string().trim().max(500).optional().default(""), imageUrl: imageValue,
+      website: z.string().trim().max(300).optional().default(""), phone: z.string().trim().max(50).optional().default(""),
+      address: z.string().trim().max(300).optional().default(""), mapsUrl: z.string().trim().max(500).optional().default(""),
       isActive: z.boolean()
     }).strict().safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ error: "Проверьте название, категорию и статус магазина" });
+    if (!parsed.success) return res.status(400).json({ error: "Проверьте данные карточки магазина" });
+    const d = parsed.data;
     const result = await pool.query(
-      "UPDATE shops SET name = $1, category = $2, is_active = $3 WHERE id = $4 RETURNING id, name, category, is_active",
-      [parsed.data.name, parsed.data.category, parsed.data.isActive, req.params.id]
+      "UPDATE shops SET name=$1,category=$2,description=$3,image_url=$4,website=$5,phone=$6,address=$7,maps_url=$8,is_active=$9 WHERE id=$10 RETURNING id,name,category,description,image_url,website,phone,address,maps_url,is_active",
+      [d.name,d.category,d.description,d.imageUrl??null,d.website||null,d.phone||null,d.address||null,d.mapsUrl||null,d.isActive,req.params.id]
     );
     if (!result.rowCount) return res.status(404).json({ error: "Магазин не найден" });
-    return res.json({ shop: result.rows[0] });
+    const item = result.rows[0];
+    return res.json({ shop: {...item, image_url: catalogImageUrl("shop",item.id,item.image_url)} });
   } catch (error) { return next(error); }
 });
 
 app.post("/api/admin/products", requireAdmin, async (req, res, next) => {
   try {
+    const imageValue = z.string().max(900000).nullable().optional().refine(v => v == null || /^data:image\/(png|jpeg|webp);base64,/.test(v) || /^https?:\/\//.test(v));
     const parsed = z.object({
-      shopId: z.number().int().positive(),
-      name: z.string().trim().min(2).max(140),
-      priceRub: z.number().int().min(0).max(10000000),
-      unit: z.string().trim().min(1).max(40)
+      shopId: z.number().int().positive(), name: z.string().trim().min(2).max(140),
+      priceRub: z.number().int().min(0).max(10000000), unit: z.string().trim().min(1).max(40),
+      category: z.string().trim().min(1).max(80).optional().default("Другое"),
+      description: z.string().trim().max(1000).optional().default(""), imageUrl: imageValue,
+      sourceUrl: z.string().trim().max(500).optional().default("")
     }).strict().safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ error: "Проверьте магазин, название, цену и единицу товара" });
+    if (!parsed.success) return res.status(400).json({ error: "Проверьте магазин, название, цену, единицу и фотографию товара" });
+    const d = parsed.data;
     const result = await pool.query(
-      "INSERT INTO products (id, shop_id, name, price_rub, unit) SELECT COALESCE(MAX(id), 0) + 1, $1, $2, $3, $4 FROM products RETURNING id, shop_id, name, price_rub, unit, is_active",
-      [parsed.data.shopId, parsed.data.name, parsed.data.priceRub, parsed.data.unit]
+      "INSERT INTO products (id,shop_id,name,price_rub,unit,category,description,image_url,source_url) SELECT COALESCE(MAX(id),0)+1,$1,$2,$3,$4,$5,$6,$7,$8 FROM products RETURNING id,shop_id,name,price_rub,unit,category,description,image_url,source_url,is_active",
+      [d.shopId,d.name,d.priceRub,d.unit,d.category,d.description,d.imageUrl||null,d.sourceUrl||null]
     );
-    return res.status(201).json({ product: result.rows[0] });
+    const item = result.rows[0];
+    return res.status(201).json({ product: {...item, image_url: catalogImageUrl("product",item.id,item.image_url)} });
   } catch (error) { return next(error); }
 });
 
 app.patch("/api/admin/products/:id", requireAdmin, async (req, res, next) => {
   try {
+    const imageValue = z.string().max(900000).nullable().optional().refine(v => v == null || /^data:image\/(png|jpeg|webp);base64,/.test(v) || /^https?:\/\//.test(v));
     const parsed = z.object({
-      shopId: z.number().int().positive(),
-      name: z.string().trim().min(2).max(140),
-      priceRub: z.number().int().min(0).max(10000000),
-      unit: z.string().trim().min(1).max(40),
-      isActive: z.boolean()
+      shopId: z.number().int().positive(), name: z.string().trim().min(2).max(140),
+      priceRub: z.number().int().min(0).max(10000000), unit: z.string().trim().min(1).max(40),
+      category: z.string().trim().min(1).max(80).optional().default("Другое"),
+      description: z.string().trim().max(1000).optional().default(""), imageUrl: imageValue,
+      sourceUrl: z.string().trim().max(500).optional().default(""), isActive: z.boolean()
     }).strict().safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: "Проверьте данные товара" });
+    const d = parsed.data;
     const result = await pool.query(
-      "UPDATE products SET shop_id = $1, name = $2, price_rub = $3, unit = $4, is_active = $5, updated_at = NOW() WHERE id = $6 RETURNING id, shop_id, name, price_rub, unit, is_active",
-      [parsed.data.shopId, parsed.data.name, parsed.data.priceRub, parsed.data.unit, parsed.data.isActive, req.params.id]
+      "UPDATE products SET shop_id=$1,name=$2,price_rub=$3,unit=$4,category=$5,description=$6,image_url=$7,source_url=$8,is_active=$9,updated_at=NOW() WHERE id=$10 RETURNING id,shop_id,name,price_rub,unit,category,description,image_url,source_url,is_active",
+      [d.shopId,d.name,d.priceRub,d.unit,d.category,d.description,d.imageUrl??null,d.sourceUrl||null,d.isActive,req.params.id]
     );
     if (!result.rowCount) return res.status(404).json({ error: "Товар не найден" });
-    return res.json({ product: result.rows[0] });
+    const item = result.rows[0];
+    return res.json({ product: {...item, image_url: catalogImageUrl("product",item.id,item.image_url)} });
+  } catch (error) { return next(error); }
+});
+
+app.post("/api/admin/categories", requireAdmin, async (req, res, next) => {
+  try {
+    const imageValue = z.string().max(900000).nullable().optional().refine(v => v == null || /^data:image\/(png|jpeg|webp);base64,/.test(v) || /^https?:\/\//.test(v));
+    const parsed = z.object({
+      name: z.string().trim().min(2).max(80), categoryType: z.enum(["shop","product"]),
+      emoji: z.string().trim().max(12).optional().default("🛍️"), imageUrl: imageValue,
+      sortOrder: z.number().int().min(0).max(10000).optional().default(100)
+    }).strict().safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: "Укажите название и тип категории" });
+    const d = parsed.data;
+    const result = await pool.query(
+      "INSERT INTO catalog_categories (name,category_type,emoji,image_url,sort_order) VALUES ($1,$2,$3,$4,$5) ON CONFLICT (category_type,name) DO UPDATE SET emoji=EXCLUDED.emoji,image_url=COALESCE(EXCLUDED.image_url,catalog_categories.image_url),is_active=TRUE RETURNING id,name,category_type,emoji,image_url,sort_order,is_active",
+      [d.name,d.categoryType,d.emoji,d.imageUrl||null,d.sortOrder]
+    );
+    const item = result.rows[0];
+    return res.status(201).json({ category: {...item, image_url: catalogImageUrl("category",item.id,item.image_url)} });
+  } catch (error) { return next(error); }
+});
+
+app.patch("/api/admin/categories/:id", requireAdmin, async (req, res, next) => {
+  try {
+    const imageValue = z.string().max(900000).nullable().optional().refine(v => v == null || /^data:image\/(png|jpeg|webp);base64,/.test(v) || /^https?:\/\//.test(v));
+    const parsed = z.object({
+      name: z.string().trim().min(2).max(80), emoji: z.string().trim().max(12).optional().default("🛍️"),
+      imageUrl: imageValue, sortOrder: z.number().int().min(0).max(10000).optional().default(100), isActive: z.boolean()
+    }).strict().safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: "Проверьте данные категории" });
+    const d = parsed.data;
+    const result = await pool.query(
+      "UPDATE catalog_categories SET name=$1,emoji=$2,image_url=$3,sort_order=$4,is_active=$5 WHERE id=$6 RETURNING id,name,category_type,emoji,image_url,sort_order,is_active",
+      [d.name,d.emoji,d.imageUrl??null,d.sortOrder,d.isActive,req.params.id]
+    );
+    if (!result.rowCount) return res.status(404).json({ error: "Категория не найдена" });
+    const item = result.rows[0];
+    return res.json({ category: {...item, image_url: catalogImageUrl("category",item.id,item.image_url)} });
   } catch (error) { return next(error); }
 });
 
