@@ -301,22 +301,17 @@ CREATE TABLE IF NOT EXISTS app_migrations (
   applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-DO $
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM app_migrations
-    WHERE migration_key = 'hide_unverified_demo_products_v1'
-  ) THEN
-    UPDATE products
-    SET is_active = FALSE
-    WHERE shop_id IN (1, 2, 4)
-      AND id IN (1,2,3,4,5,6,7,8,10,11);
-
-    INSERT INTO app_migrations (migration_key)
-    VALUES ('hide_unverified_demo_products_v1');
-  END IF;
-END $;
-
+WITH apply_migration AS (
+  INSERT INTO app_migrations (migration_key)
+  VALUES ('hide_unverified_demo_products_v1')
+  ON CONFLICT (migration_key) DO NOTHING
+  RETURNING migration_key
+)
+UPDATE products
+SET is_active = FALSE
+WHERE shop_id IN (1, 2, 4)
+  AND id IN (1,2,3,4,5,6,7,8,10,11)
+  AND EXISTS (SELECT 1 FROM apply_migration);
 
 CREATE TABLE IF NOT EXISTS app_settings (
   key TEXT PRIMARY KEY,
