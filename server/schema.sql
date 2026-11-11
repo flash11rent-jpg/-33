@@ -316,6 +316,24 @@ ON CONFLICT (id) DO UPDATE SET
   address=EXCLUDED.address, website=EXCLUDED.website, maps_url=EXCLUDED.maps_url,
   image_url=EXCLUDED.image_url;
 
+
+-- Verified starter menu for the Timashevsk Yobidoyobi branch.
+-- Names, weights, prices and images were read from its official live menu on 2026-11-11.
+INSERT INTO products (id, shop_id, name, price_rub, unit, category, description, image_url, source_url) VALUES
+(115,12,'Гранд Суши Тако Бокс',2459,'1850 г','Наборы','Суши-тако с лососем, беконом и крабом, сливочная кола.','https://imgr.yobidoyobi.ru/42e3e1d5-084d-4f04-baf2-ff7f695f0ae0/e9bf70c9-f9b4-4a03-9cdc-7e03bb03dcec/menu/04ed28ce-2eaa-4e6a-a98e-3c9eddc1915c/fc6c9d1e-1b53-49db-930e-779df71e3d10.webp','https://timashevsk.yobidoyobi.ru/'),
+(116,12,'Atomic Heart',1699,'1195 г','Наборы','Сет роллов: Лава Эби, Филадельфия Лосось Лайт, Калифорния и запечённые Аяши.','https://imgr.yobidoyobi.ru/42e3e1d5-084d-4f04-baf2-ff7f695f0ae0/e9bf70c9-f9b4-4a03-9cdc-7e03bb03dcec/menu/e4da23bf-2bd6-42a1-b349-82ab9610d08e/c421f0b9-d97b-41ae-8d34-beb6d455fce9.webp','https://timashevsk.yobidoyobi.ru/'),
+(117,12,'Большой БиЧ',1799,'1415 г','Наборы','Состав сета: Краб терияки, Филадельфия лосось лайт, Цезарь, Калифорния, Лава темпура и Цезарь темпура.','https://imgr.yobidoyobi.ru/42e3e1d5-084d-4f04-baf2-ff7f695f0ae0/e9bf70c9-f9b4-4a03-9cdc-7e03bb03dcec/menu/d5cb0261-98fd-4505-b6fe-5c611c0c1450/d660091c-ef55-4b69-91f5-22e199b95052.webp','https://timashevsk.yobidoyobi.ru/'),
+(118,12,'Филадельфия с огурцом',879,'295 г','Роллы и суши','Ролл с лососем, сливочным сыром и огурцом.','https://imgr.yobidoyobi.ru/42e3e1d5-084d-4f04-baf2-ff7f695f0ae0/e9bf70c9-f9b4-4a03-9cdc-7e03bb03dcec/menu/81c8ca42-a187-464d-807e-fb97c966aff4/e93ec9a1-0027-4db9-83e4-ddea6188e182.webp','https://timashevsk.yobidoyobi.ru/'),
+(119,12,'Калифорния',389,'215 г','Роллы и суши','Ролл Калифорния. Состав и наличие уточняйте в официальном меню.','https://imgr.yobidoyobi.ru/42e3e1d5-084d-4f04-baf2-ff7f695f0ae0/e9bf70c9-f9b4-4a03-9cdc-7e03bb03dcec/menu/93e42547-a43d-4029-87e3-b252ce34b148/aeecfa49-b203-4a2e-a81d-63c24b603835.webp','https://timashevsk.yobidoyobi.ru/'),
+(120,12,'Цезарь запечённый с курицей',249,'250 г','Запечённые','Запечённый ролл с курицей.','https://imgr.yobidoyobi.ru/42e3e1d5-084d-4f04-baf2-ff7f695f0ae0/e9bf70c9-f9b4-4a03-9cdc-7e03bb03dcec/menu/4f3061ff-3d31-47d2-a3f7-9d2df2569ab6/64fc5237-56be-4461-adbf-cbcd9806fd4c.webp','https://timashevsk.yobidoyobi.ru/'),
+(121,12,'Сливочная кола Ёбидоёби',129,'330 г','Напитки и десерты','Фирменный напиток.','https://imgr.yobidoyobi.ru/42e3e1d5-084d-4f04-baf2-ff7f695f0ae0/e9bf70c9-f9b4-4a03-9cdc-7e03bb03dcec/menu/3673c9da-429c-441d-94fc-2d9fc95e7252/3c851ffd-fc61-4bb0-89bc-77216b81dd3f.webp','https://timashevsk.yobidoyobi.ru/'),
+(122,12,'Чизкейк New York',309,'100 г','Напитки и десерты','Чизкейк New York.','https://imgr.yobidoyobi.ru/42e3e1d5-084d-4f04-baf2-ff7f695f0ae0/e9bf70c9-f9b4-4a03-9cdc-7e03bb03dcec/menu/c54038c2-d3f4-47db-aba4-1528cfbb264a/b9050a2f-7c97-4fe1-acea-2371c0c60bce.webp','https://timashevsk.yobidoyobi.ru/'),
+(123,12,'Соус Терияки',79,'30 г','Соусы','Соус Терияки.','https://imgr.yobidoyobi.ru/42e3e1d5-084d-4f04-baf2-ff7f695f0ae0/e9bf70c9-f9b4-4a03-9cdc-7e03bb03dcec/menu/a10c02f5-4f8f-481b-bd0e-a95188ef153b/54dbe4be-44fc-4c52-9269-00b0926189df.webp','https://timashevsk.yobidoyobi.ru/')
+ON CONFLICT (id) DO UPDATE SET
+ shop_id=EXCLUDED.shop_id,name=EXCLUDED.name,price_rub=EXCLUDED.price_rub,unit=EXCLUDED.unit,
+ category=EXCLUDED.category,description=EXCLUDED.description,image_url=EXCLUDED.image_url,
+ source_url=EXCLUDED.source_url,is_active=TRUE,updated_at=NOW();
+
 UPDATE shops SET maps_url='https://yandex.ru/maps/-/CXCnAGyX'
 WHERE id=5;
 UPDATE shops SET phone='+7 989 849-99-55' WHERE id=5 AND phone IS NULL;
