@@ -1142,3 +1142,13 @@ h1,h2,h3,.section-head h2,.page-title h1,.store-hero h1{
 .shop-brand-9.has-official-logo img{max-width:112px;max-height:112px}
 .shop-brand-10.has-official-logo img{max-width:230px;max-height:88px}
 .shop-brand-7.has-official-logo img{max-width:205px;max-height:100px}
+
+
+/* Restore original store imagery in shop cards; no generated wordmarks over photos. */
+.shop-card .shop-visual{display:flex;align-items:center;justify-content:center;overflow:hidden;background:#f2f2ef}
+.shop-card .shop-visual:before{display:none!important}
+.shop-card .shop-visual .shop-card-photo{display:block!important;position:absolute;inset:0;width:100%;height:100%;max-width:none;max-height:none;object-fit:cover;padding:0;border:0;border-radius:0;box-shadow:none;background:transparent;z-index:0}
+.shop-card .shop-card-photo-fallback{position:absolute;inset:0;place-items:center;font-size:48px;background:linear-gradient(145deg,#f7f8f6,#e9eeeb)}
+.shop-card .shop-visual>small{z-index:2}
+.shop-card-povorot .shop-visual:before,.shop-card-povorot .shop-visual:after{display:none!important;content:none!important}
+.shop-card-yobidoyobi .shop-visual:after{display:none!important;content:none!important}
