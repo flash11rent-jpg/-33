@@ -997,3 +997,10 @@ h1,h2,h3,.section-head h2,.page-title h1,.store-hero h1{
  .construction-tool.tool-toolbox{right:1%;bottom:0;font-size:43px}
 }
 @media(prefers-reduced-motion:reduce){.construction-tool{animation:none}}
+
+/* Show the uploaded square brand artwork at a readable size without cropping. */
+.topbar{height:96px;padding:0 25px}
+.brand{gap:0}
+.brand-mark{width:76px;height:76px;flex:0 0 76px;object-fit:contain;object-position:center;border-radius:17px;background:transparent;box-shadow:none;padding:0}
+@media(max-width:520px){.topbar{height:88px;padding:0 17px}.brand-mark{width:70px;height:70px;flex-basis:70px}}
+@media(max-width:360px){.brand-mark{width:64px;height:64px;flex-basis:64px}}
