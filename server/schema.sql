@@ -376,3 +376,7 @@ WHERE id=6;
 UPDATE shops SET phone='+7 918 918-50-00' WHERE id=8;
 UPDATE shops SET phone='+7 861 304-40-23' WHERE id=11;
 UPDATE shops SET phone='8 800 333-33-23' WHERE id=12;
+
+
+-- Official product photo confirmed on the merchant's product page.
+UPDATE products SET image_url='https://static.tildacdn.com/stor6162-3762-4738-a536-653064653532/056f437277214ef158d7f5a19fb13fa0.webp' WHERE id=85 AND shop_id=5;
