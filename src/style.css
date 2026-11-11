@@ -893,3 +893,107 @@ h1,h2,h3,.section-head h2,.page-title h1,.store-hero h1{
 .individual-request-card pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;font-size:13px;line-height:1.55;background:#f6f8f4;border-radius:10px;padding:11px;color:#35483b}
 .individual-request-card p{overflow-wrap:anywhere}
 @media(prefers-reduced-motion:reduce){.individual-order-promo{scroll-behavior:auto}}
+
+
+/* Master hardware store: blueprint + industrial workshop identity */
+.construction-storefront{
+ --construction-ink:#202b32;--construction-muted:#71808a;--construction-orange:#ef762b;
+ position:relative;isolation:isolate;overflow:hidden;
+ margin:0 -18px;padding:0 18px 28px;
+ background:
+  radial-gradient(ellipse at 92% 9%,#f5d9c5 0,transparent 27%),
+  radial-gradient(ellipse at 0 48%,#dce7eb 0,transparent 30%),
+  linear-gradient(180deg,#f1f4f4 0%,#fbfcfa 54%,#edf1f1 100%);
+ border-radius:0 0 26px 26px;
+}
+.construction-storefront .back-link{color:#53636d}
+.construction-storefront .store-hero{
+ position:relative;overflow:hidden;isolation:isolate;min-height:158px;
+ background:linear-gradient(118deg,#26343d 0%,#344650 58%,#52636a 100%);
+ border:1px solid #53656e;border-radius:23px;
+ box-shadow:0 13px 30px #1d303d24;
+}
+.construction-storefront .store-hero:after{
+ content:"";position:absolute;width:150px;height:150px;right:-38px;bottom:-72px;
+ border:1px solid #f5a36b55;border-radius:50%;
+ box-shadow:0 0 0 14px #f5a36b12,0 0 0 30px #f5a36b0b;pointer-events:none
+}
+.construction-storefront .store-hero>span.store-hero-master-mark{
+ position:relative;z-index:2;display:grid;place-items:center;
+ width:62px;height:62px;flex:0 0 62px;border-radius:17px;
+ background:linear-gradient(145deg,#f28a43,#d95b21);color:#fff;
+ font-size:34px;font-weight:900;box-shadow:0 8px 18px #111d253f;
+}
+.construction-storefront .store-hero>div:not(.construction-header-art){position:relative;z-index:2;max-width:calc(100% - 74px)}
+.construction-storefront .store-hero>div>small{
+ display:inline-block;padding:5px 9px;border-radius:20px;
+ background:#ffffff18;color:#ffc18e;font-size:10px;font-weight:850;letter-spacing:.1em;text-transform:uppercase
+}
+.construction-storefront .store-hero h1{
+ color:#fff;font-family:'Manrope',sans-serif;font-weight:850;letter-spacing:-1px
+}
+.construction-storefront .store-hero p{color:#d2dde0}
+.construction-storefront .store-hero a{color:#ffb17d}
+.construction-header-art{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.construction-blueprint-grid{
+ position:absolute;inset:0;opacity:.17;
+ background-image:linear-gradient(#d9e7e9 1px,transparent 1px),linear-gradient(90deg,#d9e7e9 1px,transparent 1px);
+ background-size:23px 23px;
+ mask-image:linear-gradient(90deg,transparent 8%,#000 100%);
+}
+.construction-orbit{position:absolute;right:4%;top:-65px;width:190px;height:190px;border:1px solid #d8e6e64a;border-radius:50%;color:#f6a16b66;font-size:0}
+.construction-orbit:before,.construction-orbit:after{content:"";position:absolute;inset:17px;border:1px dashed #d8e6e64a;border-radius:50%}
+.construction-orbit:after{inset:38px}
+.construction-tool{position:absolute;display:grid;place-items:center;filter:drop-shadow(0 8px 8px #101a2040);animation:construction-float 10s ease-in-out infinite}
+.construction-tool.tool-hammer{right:13%;top:14px;font-size:62px;transform:rotate(-24deg);animation-delay:-2s}
+.construction-tool.tool-ruler{right:34%;bottom:5px;font-size:47px;opacity:.85;animation-delay:-6s}
+.construction-tool.tool-toolbox{right:3%;bottom:0;font-size:53px;animation-delay:-4s}
+@keyframes construction-float{0%,100%{translate:0 0;rotate:-5deg}50%{translate:0 -13px;rotate:5deg}}
+.construction-storefront .section-head h2{color:var(--construction-ink);font-family:'Manrope',sans-serif;font-weight:850}
+.construction-storefront .section-head .muted{color:#7a8990}
+.construction-storefront .store-category-tabs button{
+ background:#e7edef;border-color:#d6e0e2;color:#53636b
+}
+.construction-storefront .store-category-tabs button.active{
+ background:#df6b2c;border-color:#df6b2c;color:#fff;
+ box-shadow:0 6px 15px #d9672c30
+}
+.construction-storefront .store-category-tabs button small{background:#fff;color:#64737a}
+.construction-storefront .product-card{
+ background:#fff;border-color:#e0e7e8;border-radius:15px;
+ box-shadow:0 5px 16px #2339430d;transition:transform .25s ease,box-shadow .25s ease
+}
+.construction-storefront .product-card:hover{transform:translateY(-3px);box-shadow:0 12px 24px #23394318}
+.construction-storefront .product-picture{
+ background:linear-gradient(145deg,#edf1f1,#e3e9e9);border-radius:10px
+}
+.construction-storefront .product-details b{color:#26343b}
+.construction-storefront .product-details small{color:#819097}
+.construction-storefront .product-details strong{
+ color:#d9652a;font-family:'Manrope',sans-serif;font-weight:850
+}
+.construction-storefront .add-button{
+ background:#e66e2d;box-shadow:0 5px 12px #d9672c35;border-radius:11px
+}
+.construction-storefront .master-catalog-empty{
+ background:linear-gradient(145deg,#fff,#f0f4f3);
+ border:1px solid #dbe4e4;border-radius:19px;box-shadow:0 8px 22px #263b430d
+}
+.construction-storefront .master-catalog-empty>span{background:#e9edef;color:#df6b2c}
+.construction-storefront .master-catalog-empty h2{color:#26343b}
+.construction-storefront .master-catalog-empty p{color:#728188}
+.construction-storefront .master-catalog-empty .primary-button{background:#df6b2c}
+.construction-storefront .construction-cart-bar{
+ background:linear-gradient(115deg,#293943,#df6b2c);border-color:#c75a25;
+ box-shadow:0 10px 28px #27394238
+}
+@media(max-width:520px){
+ .construction-storefront{margin:0 -14px;padding:0 14px 24px}
+ .construction-storefront .store-hero{min-height:150px;border-radius:19px}
+ .construction-storefront .store-hero>div:not(.construction-header-art){max-width:calc(100% - 60px)}
+ .construction-storefront .store-hero>span.store-hero-master-mark{width:54px;height:54px;flex-basis:54px;font-size:30px}
+ .construction-tool.tool-hammer{right:10%;top:15px;font-size:48px}
+ .construction-tool.tool-ruler{right:31%;bottom:4px;font-size:38px}
+ .construction-tool.tool-toolbox{right:1%;bottom:0;font-size:43px}
+}
+@media(prefers-reduced-motion:reduce){.construction-tool{animation:none}}
