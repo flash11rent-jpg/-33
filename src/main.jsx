@@ -28,6 +28,27 @@ function ShopBrandMark({shop}){
   ? <img className={"shop-card-photo"+(logos[id]?" shop-card-logo":"")} src={src} alt={name+" — "+(logos[id]?"логотип":"фото магазина")} loading="lazy" onError={e=>{e.currentTarget.style.display="none";const fallback=e.currentTarget.nextElementSibling;if(fallback)fallback.style.display="grid"}}/>
   : null;
 }
+function ShopMiniIcon({shop}){
+ const id=Number(shop.id);
+ if(id<7||id>15)return null;
+ const logos={
+  7:"https://logo-teka.com/wp-content/uploads/2025/07/rostics-logo.svg",
+  8:"https://cdn.foodsoul.ru/zones/ru/chains/6407/images/main/40b41d64c305e11a726fc2dd93cb9876.png?v1692435179",
+  9:"https://logo-teka.com/wp-content/uploads/2025/06/pyaterochka-logo.svg",
+  10:"https://www.magnit.com/images/logo/logo--red--ru.svg",
+  11:"https://avatars.mds.yandex.net/get-maps-adv-crm/11387709/2a00000190021c14742255df868c33ca4569/landing_logo",
+  12:"https://storage.yandexcloud.net/yobiweb-storage-prod/42e3e1d5-084d-4f04-baf2-ff7f695f0ae0/e9bf70c9-f9b4-4a03-9cdc-7e03bb03dcec/web/logo_y.svg",
+  14:"https://logo-teka.com/wp-content/uploads/2025/06/magnit-cosmetic-logo.svg",
+  15:"https://shift.dodobrands.io/images/graphic-design/logo-all-languages/RU.png"
+ };
+ const src=logos[id];
+ return <span className={"shop-mini-brand shop-mini-brand-"+id}>
+  {src&&<img src={src} alt="" loading="lazy" onError={e=>{e.currentTarget.style.display="none";const f=e.currentTarget.nextElementSibling;if(f)f.style.display="grid"}}/>}
+  <span className="shop-mini-brand-fallback">{id===13?"ШК":id===11?"П":"✦"}</span>
+ </span>;
+}
+function shopCountLabel(n){const m=n%10,t=n%100;return t>=11&&t<=14?"мест":m===1?"место":m>=2&&m<=4?"места":"мест"}
+function productIconFor(p){const n=(p.name||"").toLowerCase();if(n.includes("пицц"))return "🍕";if(n.includes("пирог")||n.includes("пирож")||n.includes("эклер")||n.includes("трайфл")||n.includes("чизкейк"))return "🍰";if(n.includes("слойк")||n.includes("булоч")||n.includes("хлеб"))return "🥐";if(n.includes("напит")||n.includes("кола"))return "🥤";return "🥐"}
 function productSection(p){
  const n=(p.name||"").toLowerCase(), c=(p.category||"").toLowerCase();
  if(n.includes("пицц"))return "Пицца";
@@ -89,7 +110,7 @@ useEffect(()=>{
   .then(data=>{
    if(cancelled)return;
    const nextShops=(data.shops||[]).map(s=>({...s,icon:shops.find(x=>x.id===s.id)?.icon||({5:"🥐",6:"🛠️",7:"🍗",8:"🥙",9:"🛒",10:"🛍️",11:"🔩",12:"🍣",13:"🦀",14:"💄",15:"🍕"}[s.id]||"🏬"),time:shops.find(x=>x.id===s.id)?.time||"30–60 мин",description:s.description||shops.find(x=>x.id===s.id)?.description||"Товары с доставкой по Тимашевску",imageUrl:s.id===12?"https://storage.yandexcloud.net/yobiweb-storage-prod/42e3e1d5-084d-4f04-baf2-ff7f695f0ae0/e9bf70c9-f9b4-4a03-9cdc-7e03bb03dcec/web/logo_y.svg":s.id===6?"https://stroy.cataloged.ru/pics/pp/pics/logo/master_210730_20260508.webp":s.image_url,website:s.website,phone:s.phone,address:s.address,mapsUrl:s.maps_url}));
-   const nextProducts=(data.products||[]).map(p=>({...p,shop:p.shop_id,price:p.price_rub,icon:products.find(x=>x.id===p.id)?.icon||(p.name?.toLowerCase().includes("кола")?"🥤":"🛒"),imageUrl:p.image_url,category:p.category,description:p.description,sourceUrl:p.source_url}));
+   const nextProducts=(data.products||[]).map(p=>({...p,shop:p.shop_id,price:p.price_rub,icon:products.find(x=>x.id===p.id)?.icon||productIconFor(p),imageUrl:p.image_url,category:p.category,description:p.description,sourceUrl:p.source_url}));
    // Do not replace the usable starter catalogue with empty arrays if a new database is not seeded yet.
    if(nextShops.length&&nextProducts.length){setShopData(nextShops);setProductData(nextProducts);setActiveShop(current=>current?nextShops.find(s=>s.id===current.id)||current:current)}
    else setNotice("Пока показываем стартовый каталог");
@@ -241,8 +262,8 @@ return <div className="app-shell">
 <section className="quick-categories"><div className="section-head"><h2>Категории</h2><span className="muted">Выбирай своё</span></div><div className="category-tiles">{[{name:"Продукты",emoji:"🥑",tone:"green"},{name:"Выпечка",emoji:"🥐",tone:"orange"},{name:"Цветы",emoji:"💐",tone:"pink"},{name:"Для дома",emoji:"🪴",tone:"sand"},{name:"Стройматериалы",emoji:"🛠️",tone:"sand"},{name:"Рестораны",emoji:"🍽️",tone:"orange"},{name:"Косметика",emoji:"💄",tone:"pink"},{name:"Все",emoji:"✨",tone:"violet"}].map(c=><button key={c.name} className={`category-tile ${c.tone} ${category===c.name?"chosen":""}`} onClick={()=>setCategory(c.name)}><span>{c.emoji}</span><b>{c.name}</b></button>)}</div></section>
 <section className="delivery-promo"><div className="promo-icon">🚗</div><div><b>Доставим до двери</b><span>Минимальный заказ — 700 ₽ · Работаем с 09:00 до 21:00</span></div><ArrowRight size={17}/></section>
 <button className="individual-order-promo" onClick={()=>setPage("individual-order")}><span className="individual-order-icon">✦</span><span><b>Не нашли нужный магазин?</b><small>Закажите из любого магазина Тимашевска — просто напишите список покупок</small><strong>Оформить индивидуальный заказ <ArrowRight size={15}/></strong></span></button>
-<div className="section-head shops-heading" id="shops"><div><span className="eyebrow dark">ВЫБИРАЙТЕ МЕСТО</span><h2>Магазины рядом</h2></div><span className="muted">{visibleShops.length} места</span></div>
-<div className="shop-grid">{visibleShops.map((s,i)=><button className={`shop-card shop-card-v2 shop-tone-${i%3} ${Number(s.id)===12?"shop-card-yobidoyobi":""} ${Number(s.id)===11?"shop-card-povorot":""}`} key={s.id} onClick={()=>{setActiveShop(s);setProductSectionFilter("Все");setPage("shop");setQuery("")}}><div className="shop-visual"><ShopBrandMark shop={s}/><span className="shop-card-photo-fallback" style={{display:(s.imageUrl||[7,9,10].includes(Number(s.id)))?"none":"grid"}}>{s.icon||"🏬"}</span><small>{s.time}</small></div><div className="shop-card-copy"><span className="shop-category">{s.category}</span><b>{s.name}</b><small>{s.description}</small><span className="shop-foot">Открыть магазин <ArrowRight size={15}/></span></div></button>)}</div>
+<div className="section-head shops-heading" id="shops"><div><span className="eyebrow dark">ВЫБИРАЙТЕ МЕСТО</span><h2>Магазины рядом</h2></div><span className="muted">{visibleShops.length} {shopCountLabel(visibleShops.length)}</span></div>
+<div className="shop-grid">{visibleShops.map((s,i)=><button className={`shop-card shop-card-v2 shop-tone-${i%3} ${Number(s.id)===12?"shop-card-yobidoyobi":""} ${Number(s.id)===11?"shop-card-povorot":""}`} key={s.id} onClick={()=>{setActiveShop(s);setProductSectionFilter("Все");setPage("shop");setQuery("")}}><div className="shop-visual"><ShopBrandMark shop={s}/><span className="shop-card-photo-fallback" style={{display:(s.imageUrl||[7,9,10,14,15].includes(Number(s.id)))?"none":"grid"}}>{s.icon||"🏬"}</span><small>{s.time}</small></div><div className="shop-card-copy"><span className="shop-category">{s.category}</span><div className="shop-title-row"><ShopMiniIcon shop={s}/><b>{s.name}</b></div><small>{s.description}</small><span className="shop-foot">Открыть магазин <ArrowRight size={15}/></span></div></button>)}</div>
 <p className="demo-note">Каталог загружается из базы сервиса. Актуальные цены и наличие оператор подтвердит перед сборкой заказа.</p>
 </div>}{page==="shop"&&activeShop&&<div className={`storefront ${(Number(activeShop.id)===5||activeShop.name==="Хлебный дворик")?"bakery-storefront":Number(activeShop.id)===6||activeShop.name==="Мастер"?"construction-storefront":Number(activeShop.id)===12||activeShop.name==="Ёбидоёби"?"yobidoyobi-storefront":Number(activeShop.id)===11||activeShop.name==="Поворот"?"povorot-storefront":""}`}>
 
