@@ -1242,3 +1242,105 @@ h1,h2,h3,.section-head h2,.page-title h1,.store-hero h1{
  .grocery-storefront,.flower-storefront,.homegoods-storefront{margin:0 -14px;padding:0 14px 24px}
  .grocery-storefront .store-hero,.flower-storefront .store-hero,.homegoods-storefront .store-hero{min-height:150px;border-radius:19px}
 }
+
+
+/* Dedicated identities for the two national grocery partners. */
+.shop-card-9 .shop-card-copy .shop-category,
+.shop-card-9 .shop-card-copy .shop-foot{color:#21834a}
+.shop-card-9 .shop-card-copy .shop-foot{font-weight:900}
+.shop-card-9 .shop-visual{background:#f5f8f5}
+.shop-card-10 .shop-card-copy .shop-category,
+.shop-card-10 .shop-card-copy .shop-foot{color:#c92e3a}
+.shop-card-10 .shop-card-copy .shop-foot{font-weight:900}
+.shop-card-10 .shop-visual{background:#fff5f5}
+
+.pyaterochka-storefront{
+ --pyat-green:#21834a;
+ --pyat-red:#e23d43;
+ --pyat-ink:#263b30;
+ position:relative;
+ isolation:isolate;
+ overflow:hidden;
+ margin:0 -18px;
+ padding:0 18px 30px;
+ border-radius:0 0 26px 26px;
+ background:radial-gradient(ellipse at 100% 0%,#dff0e4 0,transparent 34%),linear-gradient(180deg,#f2f8f3 0%,#fff 47%,#f7faf7 100%);
+}
+.pyaterochka-storefront .store-hero{
+ position:relative;overflow:hidden;isolation:isolate;min-height:166px;
+ background:linear-gradient(112deg,#17663a 0%,#21834a 58%,#2d9558 100%);
+ border:1px solid #277f4a;border-radius:23px;
+ box-shadow:0 14px 30px #17663a26;
+}
+.pyaterochka-storefront .store-hero:after{
+ content:"";position:absolute;right:-72px;top:-112px;width:270px;height:270px;
+ border:22px solid #ffffff18;border-radius:50%;box-shadow:0 0 0 18px #ffffff0c,0 0 0 39px #ffffff08;
+ pointer-events:none;
+}
+.pyaterochka-storefront .store-hero>span:not(.store-hero-master-mark){
+ position:relative;z-index:2;background:#fff;border:3px solid #fff;border-radius:22px;
+ box-shadow:0 8px 20px #0c382344;
+}
+.pyaterochka-storefront .store-hero>span img{width:100%;height:100%;object-fit:cover;border-radius:18px}
+.pyaterochka-storefront .store-hero>div{position:relative;z-index:2}
+.pyaterochka-storefront .store-hero small{color:#d8f3df;font-weight:950;letter-spacing:1.5px;text-transform:uppercase}
+.pyaterochka-storefront .store-hero h1{color:#fff;font-weight:950;letter-spacing:-1px}
+.pyaterochka-storefront .store-hero p{color:#e5f4e9}
+.pyaterochka-storefront .store-hero a{color:#fff0b8;font-weight:850}
+.pyaterochka-storefront .store-category-tabs button{border-color:#dcebe0;background:#fff;color:#326344}
+.pyaterochka-storefront .store-category-tabs button.active{background:var(--pyat-red);border-color:var(--pyat-red);color:#fff;box-shadow:0 5px 14px #e23d4333}
+.pyaterochka-storefront .product-card{border-color:#dfebe2;box-shadow:0 6px 18px #17663a0d}
+.pyaterochka-storefront .product-picture{background:linear-gradient(145deg,#eef6ef,#e2efe5)}
+.pyaterochka-storefront .product-details strong{color:var(--pyat-green)}
+.pyaterochka-storefront .add-button{background:linear-gradient(135deg,#2d9856,#1d7541);box-shadow:0 6px 14px #17663a2e}
+.pyaterochka-storefront .bakery-cart-bar{background:linear-gradient(110deg,#17663a,#298d50);box-shadow:0 9px 24px #17663a30}
+.pyaterochka-storefront .master-catalog-empty>span{background:#e8f3eb;color:var(--pyat-green)}
+.pyaterochka-storefront .master-catalog-empty .primary-button{background:var(--pyat-green)}
+
+.magnit-storefront{
+ --magnit-red:#d72d3b;
+ --magnit-dark:#8d1827;
+ position:relative;
+ isolation:isolate;
+ overflow:hidden;
+ margin:0 -18px;
+ padding:0 18px 30px;
+ border-radius:0 0 26px 26px;
+ background:radial-gradient(ellipse at 95% 3%,#f8dfe3 0,transparent 34%),linear-gradient(180deg,#fff3f4 0%,#fff 48%,#fff7f7 100%);
+}
+.magnit-storefront .store-hero{
+ position:relative;overflow:hidden;isolation:isolate;min-height:166px;
+ background:linear-gradient(112deg,#8d1827 0%,#c62837 54%,#e3424c 100%);
+ border:1px solid #bd2937;border-radius:23px;
+ box-shadow:0 14px 30px #8d182726;
+}
+.magnit-storefront .store-hero:after{
+ content:"";position:absolute;right:-45px;bottom:-156px;width:280px;height:280px;
+ border:1px solid #ffe7e980;border-radius:50%;
+ box-shadow:0 0 0 18px #ffe7e91a,0 0 0 39px #ffe7e90d;
+ pointer-events:none;
+}
+.magnit-storefront .store-hero>span:not(.store-hero-master-mark){
+ position:relative;z-index:2;background:#fff;border:2px solid #fff0f0;border-radius:50%;
+ box-shadow:0 8px 20px #4b111e40;
+}
+.magnit-storefront .store-hero>span img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.magnit-storefront .store-hero>div{position:relative;z-index:2}
+.magnit-storefront .store-hero small{color:#ffe0e3;font-weight:950;letter-spacing:1.5px;text-transform:uppercase}
+.magnit-storefront .store-hero h1{color:#fff;font-weight:950;letter-spacing:-1px}
+.magnit-storefront .store-hero p{color:#ffe9eb}
+.magnit-storefront .store-hero a{color:#fff;font-weight:850}
+.magnit-storefront .store-category-tabs button{border-color:#f1dfe1;background:#fff8f8;color:#783d44}
+.magnit-storefront .store-category-tabs button.active{background:var(--magnit-red);border-color:var(--magnit-red);color:#fff;box-shadow:0 5px 14px #d72d3b33}
+.magnit-storefront .product-card{border-color:#f1dfe1;box-shadow:0 6px 18px #8d18270d}
+.magnit-storefront .product-picture{background:linear-gradient(145deg,#fff0f1,#f8e2e4)}
+.magnit-storefront .product-details strong{color:var(--magnit-red)}
+.magnit-storefront .add-button{background:linear-gradient(135deg,#e34450,#b91f2e);box-shadow:0 6px 14px #b91f2e30}
+.magnit-storefront .bakery-cart-bar{background:linear-gradient(110deg,#8d1827,#d72d3b);box-shadow:0 9px 24px #8d182730}
+.magnit-storefront .master-catalog-empty>span{background:#fbe9eb;color:var(--magnit-red)}
+.magnit-storefront .master-catalog-empty .primary-button{background:var(--magnit-red)}
+
+@media(max-width:520px){
+ .pyaterochka-storefront,.magnit-storefront{margin:0 -14px;padding:0 14px 24px}
+ .pyaterochka-storefront .store-hero,.magnit-storefront .store-hero{min-height:150px;border-radius:19px}
+}
