@@ -1134,3 +1134,11 @@ h1,h2,h3,.section-head h2,.page-title h1,.store-hero h1{
 .shop-brand-2 i{background:#b75b83}
 .shop-card-yobidoyobi .shop-visual{background:radial-gradient(circle at 78% 25%,#ffffffb0 0 12%,transparent 13%),linear-gradient(135deg,#f7dce9,#e9d8f3 60%,#f9e3cf)}
 .shop-card-povorot .shop-visual{background:linear-gradient(135deg,#fff 0%,#f8eeee 48%,#e9dede 100%)}
+
+/* Official retail and restaurant marks */
+.shop-brand-mark.has-official-logo{width:100%;height:100%;min-height:0;min-width:0;padding:18px 24px;background:transparent;box-shadow:none;border:0;border-radius:0}
+.shop-brand-mark.has-official-logo:before{display:none}
+.shop-brand-mark.has-official-logo img{display:block!important;width:100%;height:100%;max-width:210px;max-height:94px;object-fit:contain;padding:0;background:transparent;border:0;border-radius:0;box-shadow:none}
+.shop-brand-9.has-official-logo img{max-width:112px;max-height:112px}
+.shop-brand-10.has-official-logo img{max-width:230px;max-height:88px}
+.shop-brand-7.has-official-logo img{max-width:205px;max-height:100px}
