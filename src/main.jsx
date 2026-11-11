@@ -80,7 +80,7 @@ async function prepareCatalogImage(file) {
  });
 }
 
-function PhotoPicker({value,onChange,title="Фотография",wide=false}) {
+function PhotoPicker({value,onChange,title="Фотография",wide=false,hint=""}) {
  const [busy,setBusy]=useState(false);
  const [error,setError]=useState("");
  async function choose(file){
@@ -94,7 +94,7 @@ function PhotoPicker({value,onChange,title="Фотография",wide=false}) {
   <div className="admin-photo-preview">{value?<img src={value} alt={title}/>:<span>📷</span>}</div>
   <div className="admin-photo-actions">
    <b>{title}</b>
-   <small>JPG, PNG или WebP. Фото автоматически уменьшится и сохранится в WebP.</small>
+   <small>{hint||"JPG, PNG или WebP. Фото автоматически уменьшится и сохранится в WebP."}</small>
    <label className="admin-upload-button">{busy?"Обрабатываем…":value?"Заменить фото":"Загрузить фото"}<input type="file" accept="image/jpeg,image/png,image/webp" disabled={busy} onChange={e=>{choose(e.target.files?.[0]);e.target.value=""}}/></label>
    {value&&<button type="button" className="admin-clear-photo" onClick={()=>{setError("");onChange(null)}}>Убрать фото</button>}
    {error&&<small className="admin-photo-error">{error}</small>}
@@ -377,7 +377,7 @@ return <div className="app-shell">
  <div className="admin-section-heading"><div><span className="eyebrow dark">УПРАВЛЕНИЕ ВИТРИНОЙ</span><h2>Магазины</h2><p>Создавайте карточки магазинов и меняйте всё, что увидит покупатель.</p></div><span className="admin-count">{adminShops.length} шт.</span></div>
  <div className="admin-editor-card">
   <div className="admin-editor-title"><span className="admin-step">1</span><div><b>{editingShopId?"Изменить карточку магазина":"Создать магазин"}</b><small>Название, описание, фотография и контакты</small></div></div>
-  <PhotoPicker title="Фото карточки магазина" wide value={shopForm.imageUrl} onChange={v=>setShopForm({...shopForm,imageUrl:v})}/>
+  <PhotoPicker title="Фото карточки магазина" hint="Лучше горизонтальное фото 16:9: фасад, витрина или узнаваемый вид магазина." wide value={shopForm.imageUrl} onChange={v=>setShopForm({...shopForm,imageUrl:v})}/>
   <div className="admin-form-grid">
    <label>Название магазина *<input value={shopForm.name} onChange={e=>setShopForm({...shopForm,name:e.target.value})} placeholder="Например, Магнит"/></label>
    <label>Категория *<select value={shopForm.category} onChange={e=>setShopForm({...shopForm,category:e.target.value})}>{[...new Set([...adminCategories.filter(x=>x.category_type==="shop").map(x=>x.name),...shopCategories.map(x=>x.name),shopForm.category].filter(Boolean))].map(x=><option key={x}>{x}</option>)}</select></label>
@@ -402,7 +402,7 @@ return <div className="app-shell">
  <div className="admin-howto"><b>Как добавить товар?</b><ol><li>Выберите магазин.</li><li>Напишите понятное название и цену.</li><li>Загрузите настоящее фото товара.</li><li>Нажмите «Опубликовать товар».</li></ol></div>
  <div className="admin-editor-card">
   <div className="admin-editor-title"><span className="admin-step">1</span><div><b>{editingProductId?"Редактировать товар":"Новый товар"}</b><small>Обязательные поля отмечены звёздочкой *</small></div></div>
-  <PhotoPicker title="Фото товара" wide value={productForm.imageUrl} onChange={v=>setProductForm({...productForm,imageUrl:v})}/>
+  <PhotoPicker title="Фото товара" hint="Лучше квадратное фото 1:1: один товар крупно, без коллажей и мелкого текста." wide value={productForm.imageUrl} onChange={v=>setProductForm({...productForm,imageUrl:v})}/>
   <div className="admin-form-grid">
    <label>В какой магазин добавить? *<select value={productForm.shopId} onChange={e=>setProductForm({...productForm,shopId:e.target.value})}><option value="">Выберите магазин</option>{adminShops.filter(s=>s.is_active).map(s=><option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
    <label>Название товара *<input value={productForm.name} onChange={e=>setProductForm({...productForm,name:e.target.value})} placeholder="Например, Молоко 3,2%"/></label>
@@ -432,13 +432,13 @@ return <div className="app-shell">
    <label>Эмодзи, если нет фотографии<input value={categoryForm.emoji} onChange={e=>setCategoryForm({...categoryForm,emoji:e.target.value})} placeholder="🛍️"/></label>
    <label>Порядок на витрине<input type="number" min="0" value={categoryForm.sortOrder} onChange={e=>setCategoryForm({...categoryForm,sortOrder:e.target.value})}/></label>
   </div>
-  <PhotoPicker title="Фото категории (необязательно)" wide value={categoryForm.imageUrl} onChange={v=>setCategoryForm({...categoryForm,imageUrl:v})}/>
+  <PhotoPicker title="Фото категории (необязательно)" hint="Лучше квадратное фото 1:1, чтобы оно аккуратно смотрелось на плитке главной страницы." wide value={categoryForm.imageUrl} onChange={v=>setCategoryForm({...categoryForm,imageUrl:v})}/>
   <button className="primary-button" disabled={categorySaving||categoryForm.name.trim().length<2} onClick={createCategory}>{categorySaving?"Создаём…":"Добавить категорию"}</button>
  </div>
  {["shop","product"].map(kind=><div className="admin-category-group" key={kind}>
   <div className="admin-list-heading"><b>{kind==="shop"?"Категории магазинов":"Категории товаров"}</b><small>{adminCategories.filter(x=>x.category_type===kind).length} категорий</small></div>
   {adminCategories.filter(x=>x.category_type===kind).map(item=><article className="admin-category-card" key={item.id}>
-   <PhotoPicker title="Фото категории" value={item.image_url||null} onChange={v=>setAdminCategories(old=>old.map(x=>x.id===item.id?{...x,image_url:v}:x))}/>
+   <PhotoPicker title="Фото категории" hint="Квадратное фото 1:1 смотрится лучше всего." value={item.image_url||null} onChange={v=>setAdminCategories(old=>old.map(x=>x.id===item.id?{...x,image_url:v}:x))}/>
    <div className="admin-form-grid"><label>Название<input value={item.name} onChange={e=>setAdminCategories(old=>old.map(x=>x.id===item.id?{...x,name:e.target.value}:x))}/></label><label>Эмодзи<input value={item.emoji||""} onChange={e=>setAdminCategories(old=>old.map(x=>x.id===item.id?{...x,emoji:e.target.value}:x))}/></label><label>Порядок<input type="number" value={item.sort_order} onChange={e=>setAdminCategories(old=>old.map(x=>x.id===item.id?{...x,sort_order:Number(e.target.value)}:x))}/></label></div>
    <label className="admin-checkbox"><input type="checkbox" checked={item.is_active} onChange={e=>setAdminCategories(old=>old.map(x=>x.id===item.id?{...x,is_active:e.target.checked}:x))}/> Показывать категорию</label>
    <button className="primary-button" onClick={()=>saveCategory(item)}>Сохранить категорию</button>
