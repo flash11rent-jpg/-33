@@ -15,7 +15,8 @@ const port = Number(process.env.PORT || 10000);
 const databaseUrl = process.env.DATABASE_URL;
 const adminApiKey = process.env.ADMIN_API_KEY;
 const adminPassword = process.env.ADMIN_PASSWORD;
-const allowedOrigins = (process.env.CORS_ORIGINS || "").split(",").map(v => v.trim()).filter(Boolean);
+const configuredOrigins = (process.env.CORS_ORIGINS || "").split(",").map(v => v.trim()).filter(Boolean);
+const allowedOrigins = configuredOrigins.length ? configuredOrigins : ["https://tim-tim23.onrender.com", "https://tim-tim.onrender.com"];
 
 if (!databaseUrl) {
   console.error("DATABASE_URL is required. Configure a PostgreSQL database before starting the API.");
@@ -36,7 +37,7 @@ app.disable("x-powered-by");
 app.use(helmet());
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
+  if (!origin || allowedOrigins.includes(origin)) {
     if (origin) res.setHeader("Access-Control-Allow-Origin", origin);
     res.setHeader("Vary", "Origin");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Admin-Key, X-Order-Token");
