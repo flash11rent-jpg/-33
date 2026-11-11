@@ -1173,3 +1173,72 @@ h1,h2,h3,.section-head h2,.page-title h1,.store-hero h1{
 .shop-title-row{width:100%}
 .shop-title-row>b{font-size:12px;line-height:1.3}
 .shop-card-povorot .shop-card-copy .shop-title-row>b{letter-spacing:-.4px}
+
+
+/* Individual storefront identities: neighborhood grocery, florist and home goods. */
+.shop-card-1 .shop-visual{background:linear-gradient(145deg,#e5f2e8,#cfe5d4)}
+.shop-card-1 .shop-visual:after{content:"🥬";position:absolute;right:13px;bottom:3px;font-size:39px;filter:drop-shadow(0 5px 5px #285c3b24)}
+.shop-card-1 .shop-visual .shop-card-photo-fallback{background:linear-gradient(145deg,#e5f2e8,#cfe5d4)}
+.shop-card-1 .shop-card-copy .shop-category,.shop-card-1 .shop-card-copy .shop-foot{color:#28734b}
+.shop-card-2 .shop-visual{background:radial-gradient(circle at 72% 25%,#fff 0 10%,transparent 11%),linear-gradient(145deg,#f8e5ed,#efd2e1)}
+.shop-card-2 .shop-visual:after{content:"🌷";position:absolute;right:13px;bottom:1px;font-size:42px;filter:drop-shadow(0 5px 5px #8d426022)}
+.shop-card-2 .shop-visual .shop-card-photo-fallback{background:linear-gradient(145deg,#f8e5ed,#efd2e1)}
+.shop-card-2 .shop-card-copy .shop-category,.shop-card-2 .shop-card-copy .shop-foot{color:#b34f7b}
+.shop-card-4 .shop-visual{background:linear-gradient(145deg,#f4ecdf,#e8dcc8)}
+.shop-card-4 .shop-visual:after{content:"🪴";position:absolute;right:13px;bottom:1px;font-size:42px;filter:drop-shadow(0 5px 5px #71583b20)}
+.shop-card-4 .shop-visual .shop-card-photo-fallback{background:linear-gradient(145deg,#f4ecdf,#e8dcc8)}
+.shop-card-4 .shop-card-copy .shop-category,.shop-card-4 .shop-card-copy .shop-foot{color:#8b704b}
+
+.grocery-storefront,.flower-storefront,.homegoods-storefront{position:relative;isolation:isolate;overflow:hidden;margin:0 -18px;padding:0 18px 30px;border-radius:0 0 26px 26px}
+.grocery-storefront{background:radial-gradient(ellipse at 100% 0%,#dcefe0 0,transparent 32%),linear-gradient(180deg,#f1f8f2,#fff 48%,#f5faf5)}
+.grocery-storefront .store-hero{position:relative;overflow:hidden;isolation:isolate;min-height:166px;background:linear-gradient(115deg,#174b35,#28734b 68%,#55976a);border:1px solid #2c7951;border-radius:23px;box-shadow:0 14px 30px #174b3526}
+.grocery-storefront .store-hero:after{content:"";position:absolute;right:-35px;bottom:-105px;width:220px;height:220px;border:1px solid #d6f1dc80;border-radius:50%;box-shadow:0 0 0 17px #d6f1dc18,0 0 0 36px #d6f1dc10}
+.grocery-storefront .store-hero>span:not(.store-hero-master-mark){z-index:2;background:#fff;border:1px solid #d6ead9;border-radius:19px;box-shadow:0 8px 20px #102f2240}
+.grocery-storefront .store-hero>div{position:relative;z-index:2}
+.grocery-storefront .store-hero small{color:#d4f0dc;font-weight:900;letter-spacing:1.4px;text-transform:uppercase}
+.grocery-storefront .store-hero h1{color:#fff;font-weight:950;letter-spacing:-1px}
+.grocery-storefront .store-hero p{color:#dcefe2}
+.grocery-storefront .store-hero a{color:#c5edcf;font-weight:800}
+.grocery-storefront .store-category-tabs button.active{background:#246d47;border-color:#246d47}
+.grocery-storefront .product-card{border-color:#e0ece2;box-shadow:0 6px 18px #174b350c}
+.grocery-storefront .product-picture{background:linear-gradient(145deg,#edf6ee,#e3efe5)}
+.grocery-storefront .product-details strong{color:#26734a}
+.grocery-storefront .add-button{background:linear-gradient(135deg,#318354,#1c6740);box-shadow:0 6px 14px #1c67402c}
+.grocery-storefront .bakery-cart-bar{background:linear-gradient(110deg,#174b35,#328153);box-shadow:0 9px 24px #174b3530}
+
+.flower-storefront{background:radial-gradient(ellipse at 92% 5%,#f8dce9 0,transparent 31%),linear-gradient(180deg,#fff4f8,#fff 48%,#fff7fa)}
+.flower-storefront .store-hero{position:relative;overflow:hidden;isolation:isolate;min-height:166px;background:linear-gradient(118deg,#713653,#a84d77 62%,#d17b9d);border:1px solid #bb658d;border-radius:23px;box-shadow:0 14px 30px #71365326}
+.flower-storefront .store-hero:after{content:"";position:absolute;right:-42px;top:-116px;width:245px;height:245px;border:1px solid #ffe4ef80;border-radius:50%;box-shadow:0 0 0 17px #ffe4ef18,0 0 0 37px #ffe4ef10}
+.flower-storefront .store-hero>span:not(.store-hero-master-mark){z-index:2;background:#fff;border:2px solid #f5d6e4;border-radius:22px;box-shadow:0 8px 20px #4d203744}
+.flower-storefront .store-hero>div{position:relative;z-index:2}
+.flower-storefront .store-hero small{color:#ffe0ed;font-weight:900;letter-spacing:1.4px;text-transform:uppercase}
+.flower-storefront .store-hero h1{color:#fff;font-weight:950;letter-spacing:-1px}
+.flower-storefront .store-hero p{color:#f8e5ed}
+.flower-storefront .store-hero a{color:#ffe0ed;font-weight:800}
+.flower-storefront .store-category-tabs button.active{background:#a84d77;border-color:#a84d77}
+.flower-storefront .product-card{border-color:#f1dce6;box-shadow:0 6px 18px #7136530c}
+.flower-storefront .product-picture{background:linear-gradient(145deg,#fbeaf1,#f5dfe9)}
+.flower-storefront .product-details strong{color:#a84d77}
+.flower-storefront .add-button{background:linear-gradient(135deg,#c66b91,#9d426d);box-shadow:0 6px 14px #9d426d2c}
+.flower-storefront .bakery-cart-bar{background:linear-gradient(110deg,#713653,#b75b83);box-shadow:0 9px 24px #71365330}
+
+.homegoods-storefront{background:radial-gradient(ellipse at 100% 0%,#efe4d2 0,transparent 33%),linear-gradient(180deg,#faf6ef,#fff 48%,#faf7f1)}
+.homegoods-storefront .store-hero{position:relative;overflow:hidden;isolation:isolate;min-height:166px;background:linear-gradient(115deg,#514333,#796348 65%,#a68a67);border:1px solid #8c755a;border-radius:23px;box-shadow:0 14px 30px #51433326}
+.homegoods-storefront .store-hero:after{content:"";position:absolute;right:-35px;bottom:-115px;width:235px;height:235px;border:1px solid #fff0d880;border-radius:50%;box-shadow:0 0 0 18px #fff0d818,0 0 0 38px #fff0d80d}
+.homegoods-storefront .store-hero>span:not(.store-hero-master-mark){z-index:2;background:#fff;border:1px solid #e9ddcb;border-radius:19px;box-shadow:0 8px 20px #30271940}
+.homegoods-storefront .store-hero>div{position:relative;z-index:2}
+.homegoods-storefront .store-hero small{color:#f3e4ce;font-weight:900;letter-spacing:1.4px;text-transform:uppercase}
+.homegoods-storefront .store-hero h1{color:#fff;font-weight:950;letter-spacing:-1px}
+.homegoods-storefront .store-hero p{color:#eee3d4}
+.homegoods-storefront .store-hero a{color:#f8e6c9;font-weight:800}
+.homegoods-storefront .store-category-tabs button.active{background:#796348;border-color:#796348}
+.homegoods-storefront .product-card{border-color:#eae1d4;box-shadow:0 6px 18px #5143330c}
+.homegoods-storefront .product-picture{background:linear-gradient(145deg,#f7f0e6,#eee4d5)}
+.homegoods-storefront .product-details strong{color:#856a49}
+.homegoods-storefront .add-button{background:linear-gradient(135deg,#9b7c55,#735a3c);box-shadow:0 6px 14px #735a3c2c}
+.homegoods-storefront .bakery-cart-bar{background:linear-gradient(110deg,#514333,#927653);box-shadow:0 9px 24px #51433330}
+
+@media(max-width:520px){
+ .grocery-storefront,.flower-storefront,.homegoods-storefront{margin:0 -14px;padding:0 14px 24px}
+ .grocery-storefront .store-hero,.flower-storefront .store-hero,.homegoods-storefront .store-hero{min-height:150px;border-radius:19px}
+}
