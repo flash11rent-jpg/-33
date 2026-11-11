@@ -47,7 +47,7 @@ app.use((req, res, next) => {
   }
   return res.status(403).json({ error: "Origin is not allowed" });
 });
-app.use(express.json({ limit: "32kb" }));
+app.use(express.json({ limit: "1.3mb" }));
 
 const orderLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 12, standardHeaders: "draft-8", legacyHeaders: false });
 const statusLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 60, standardHeaders: "draft-8", legacyHeaders: false });
@@ -111,6 +111,10 @@ function requireAdmin(req, res, next) {
   }
   return res.status(401).json({ error: "Требуется вход оператора" });
 }
+
+app.get("/api/brand", async (_req, res, next) => { try { const result = await pool.query("SELECT value FROM app_settings WHERE key = $1", ["brand_logo"]); return res.set("Cache-Control", "public, max-age=30").json({ logo: result.rows[0]?.value || null }); } catch (error) { return next(error); } });
+
+app.patch("/api/admin/brand", requireAdmin, async (req, res, next) => { try { const parsed = z.object({ logo: z.string().max(1200000).regex(/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/) }).strict().safeParse(req.body); if (!parsed.success) return res.status(400).json({ error: "Загрузите PNG, JPG или WebP до 900 КБ" }); const result = await pool.query("INSERT INTO app_settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value RETURNING value", ["brand_logo", parsed.data.logo]); return res.json({ ok: true, logo: result.rows[0].value }); } catch (error) { return next(error); } });
 
 app.get("/api/catalog", async (_req, res, next) => {
   try {
