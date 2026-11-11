@@ -8,7 +8,15 @@ const shops=[
 {id:4,name:"Дом и уют",category:"Для дома",icon:"🏡",time:"40–60 мин",description:"Полезные мелочи для дома"},
 {id:6,name:"Мастер",category:"Стройматериалы",icon:"🛠️",time:"40–60 мин",description:"Строительные материалы, инструменты и товары для ремонта"}];
 const productIcons={1:"🥛",2:"🍞",3:"🥚",4:"🍌",5:"🧀",6:"💐",7:"🌼",8:"🌷",10:"🧽",11:"🧻"};
-const categories=["Все","Продукты","Цветы","Для дома","Выпечка","Стройматериалы","Рестораны","Косметика"];
+const shopCategoryFallback=[
+ {name:"Продукты",emoji:"🥑",category_type:"shop",sort_order:10},
+ {name:"Выпечка",emoji:"🥐",category_type:"shop",sort_order:20},
+ {name:"Цветы",emoji:"💐",category_type:"shop",sort_order:30},
+ {name:"Для дома",emoji:"🪴",category_type:"shop",sort_order:40},
+ {name:"Стройматериалы",emoji:"🛠️",category_type:"shop",sort_order:50},
+ {name:"Рестораны",emoji:"🍽️",category_type:"shop",sort_order:60},
+ {name:"Косметика",emoji:"💄",category_type:"shop",sort_order:70}
+];
 const statuses=["Новый","Подтверждён","Собирается","Готов","В пути","Доставлен","Отменён"];
 const individualStatuses=["Новая заявка","Проверяется","Согласована","Покупка выполняется","Выполнена","Отменена"];
 const money=n=>new Intl.NumberFormat("ru-RU").format(n)+" ₽";
@@ -45,6 +53,55 @@ function ShopMiniIcon({shop}){
   <span className="shop-mini-brand-fallback">{id===13?"ШК":id===11?"П":"✦"}</span>
  </span>;
 }
+async function prepareCatalogImage(file) {
+ if(!file) return null;
+ if(!["image/jpeg","image/png","image/webp"].includes(file.type)) throw new Error("Подойдут фотографии JPG, PNG или WebP.");
+ const bitmap=await createImageBitmap(file);
+ let scale=Math.min(1,1200/Math.max(bitmap.width,bitmap.height));
+ let blob=null;
+ for(let attempt=0;attempt<4;attempt++){
+  const canvas=document.createElement("canvas");
+  canvas.width=Math.max(1,Math.round(bitmap.width*scale));
+  canvas.height=Math.max(1,Math.round(bitmap.height*scale));
+  const ctx=canvas.getContext("2d");
+  if(!ctx) throw new Error("Не удалось обработать фотографию.");
+  ctx.drawImage(bitmap,0,0,canvas.width,canvas.height);
+  blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/webp",0.82-attempt*0.07));
+  if(blob&&blob.size<=560*1024) break;
+  scale*=0.78;
+ }
+ bitmap.close?.();
+ if(!blob||blob.size>560*1024) throw new Error("Фото слишком большое. Попробуйте другое изображение.");
+ return await new Promise((resolve,reject)=>{
+  const reader=new FileReader();
+  reader.onload=()=>resolve(reader.result);
+  reader.onerror=()=>reject(new Error("Не удалось прочитать фотографию."));
+  reader.readAsDataURL(blob);
+ });
+}
+
+function PhotoPicker({value,onChange,title="Фотография",wide=false}) {
+ const [busy,setBusy]=useState(false);
+ const [error,setError]=useState("");
+ async function choose(file){
+  if(!file)return;
+  setBusy(true);setError("");
+  try{onChange(await prepareCatalogImage(file))}
+  catch(e){setError(e.message||"Не удалось загрузить фото")}
+  finally{setBusy(false)}
+ }
+ return <div className={"admin-photo-picker"+(wide?" wide":"")}>
+  <div className="admin-photo-preview">{value?<img src={value} alt={title}/>:<span>📷</span>}</div>
+  <div className="admin-photo-actions">
+   <b>{title}</b>
+   <small>JPG, PNG или WebP. Фото автоматически уменьшится и сохранится в WebP.</small>
+   <label className="admin-upload-button">{busy?"Обрабатываем…":value?"Заменить фото":"Загрузить фото"}<input type="file" accept="image/jpeg,image/png,image/webp" disabled={busy} onChange={e=>{choose(e.target.files?.[0]);e.target.value=""}}/></label>
+   {value&&<button type="button" className="admin-clear-photo" onClick={()=>{setError("");onChange(null)}}>Убрать фото</button>}
+   {error&&<small className="admin-photo-error">{error}</small>}
+  </div>
+ </div>;
+}
+
 function shopCountLabel(n){const m=n%10,t=n%100;return t>=11&&t<=14?"мест":m===1?"место":m>=2&&m<=4?"места":"мест"}
 function productIconFor(p){const n=(p.name||"").toLowerCase();if(n.includes("пицц"))return "🍕";if(n.includes("пирог")||n.includes("пирож")||n.includes("эклер")||n.includes("трайфл")||n.includes("чизкейк"))return "🍰";if(n.includes("слойк")||n.includes("булоч")||n.includes("хлеб"))return "🥐";if(n.includes("напит")||n.includes("кола"))return "🥤";return "🥐"}
 function productSection(p){
@@ -83,6 +140,7 @@ const shopSectionOrder=["Новинки","Наборы","Комбо","Роллы
 const API_URL="https://tim-tim-api.onrender.com";
 function App(){
 const [page,setPage]=useState("home"),[category,setCategory]=useState("Все"),[query,setQuery]=useState(""),[activeShop,setActiveShop]=useState(null),[selectedProduct,setSelectedProduct]=useState(null),[cart,setCart]=useState([]),[address,setAddress]=useState(""),[apartment,setApartment]=useState(""),[entrance,setEntrance]=useState(""),[floor,setFloor]=useState(""),[phone,setPhone]=useState(""),[comment,setComment]=useState(""),[notice,setNotice]=useState(""),[selectedOrder,setSelectedOrder]=useState(null),[isSubmitting,setIsSubmitting]=useState(false),[adminPassword,setAdminPassword]=useState(""),[adminSession,setAdminSession]=useState(""),[adminAuthenticated,setAdminAuthenticated]=useState(false),[adminOrders,setAdminOrders]=useState([]),[adminError,setAdminError]=useState("");
+const [shopSaving,setShopSaving]=useState(false),[productSaving,setProductSaving]=useState(false),[categorySaving,setCategorySaving]=useState(false);
 const [house,setHouse]=useState("");
 const [individualStore,setIndividualStore]=useState("");
 const [individualStoreAddress,setIndividualStoreAddress]=useState("");
@@ -94,7 +152,11 @@ const [individualSubmitting,setIndividualSubmitting]=useState(false);
 const [individualSuccessNumber,setIndividualSuccessNumber]=useState(null);
 const [adminIndividualRequests,setAdminIndividualRequests]=useState([]);
 const [shopData,setShopData]=useState(shops),[productData,setProductData]=useState([]),[catalogLoading,setCatalogLoading]=useState(true),[productSectionFilter,setProductSectionFilter]=useState("Все");
-const [operatorTab,setOperatorTab]=useState("orders"),[adminShops,setAdminShops]=useState([]),[adminProducts,setAdminProducts]=useState([]);
+const [operatorTab,setOperatorTab]=useState("orders"),[adminShops,setAdminShops]=useState([]),[adminProducts,setAdminProducts]=useState([]),[adminCategories,setAdminCategories]=useState([]);
+const [shopCategories,setShopCategories]=useState(shopCategoryFallback);
+const [editingShopId,setEditingShopId]=useState(null),[shopForm,setShopForm]=useState({name:"",category:"Продукты",description:"",imageUrl:null,website:"",phone:"",address:"",mapsUrl:"",isActive:true});
+const [editingProductId,setEditingProductId]=useState(null),[productForm,setProductForm]=useState({shopId:"",name:"",priceRub:"",unit:"шт.",category:"Другое",description:"",imageUrl:null,sourceUrl:"",isActive:true});
+const [categoryForm,setCategoryForm]=useState({name:"",categoryType:"product",emoji:"🛍️",imageUrl:null,sortOrder:100});
 const [newShopName,setNewShopName]=useState(""),[newShopCategory,setNewShopCategory]=useState("Продукты");
 const [newProductShop,setNewProductShop]=useState(""),[newProductName,setNewProductName]=useState(""),[newProductPrice,setNewProductPrice]=useState(""),[newProductUnit,setNewProductUnit]=useState("шт.");
 const [brandLogo,setBrandLogo]=useState("");const [logoSaving,setLogoSaving]=useState(false);
@@ -107,10 +169,10 @@ useEffect(()=>{
   .then(response=>{if(!response.ok)throw new Error("Каталог временно недоступен");return response.json()})
   .then(data=>{
    if(cancelled)return;
-   const nextShops=(data.shops||[]).map(s=>({...s,icon:shops.find(x=>x.id===s.id)?.icon||({5:"🥐",6:"🛠️",7:"🍗",8:"🥙",9:"🛒",10:"🛍️",11:"🔩",12:"🍣",13:"🦀",14:"💄",15:"🍕"}[s.id]||"🏬"),time:shops.find(x=>x.id===s.id)?.time||"30–60 мин",description:s.description||shops.find(x=>x.id===s.id)?.description||"Товары с доставкой по Тимашевску",imageUrl:s.id===12?"https://storage.yandexcloud.net/yobiweb-storage-prod/42e3e1d5-084d-4f04-baf2-ff7f695f0ae0/e9bf70c9-f9b4-4a03-9cdc-7e03bb03dcec/web/logo_y.svg":s.id===6?"https://stroy.cataloged.ru/pics/pp/pics/logo/master_210730_20260508.webp":s.image_url,website:s.website,phone:s.phone,address:s.address,mapsUrl:s.maps_url}));
+   const nextShops=(data.shops||[]).map(s=>({...s,icon:shops.find(x=>x.id===s.id)?.icon||({5:"🥐",6:"🛠️",7:"🍗",8:"🥙",9:"🛒",10:"🛍️",11:"🔩",12:"🍣",13:"🦀",14:"💄",15:"🍕"}[s.id]||"🏬"),time:shops.find(x=>x.id===s.id)?.time||"30–60 мин",description:s.description||shops.find(x=>x.id===s.id)?.description||"Товары с доставкой по Тимашевску",imageUrl:s.image_url||(s.id===12?"https://storage.yandexcloud.net/yobiweb-storage-prod/42e3e1d5-084d-4f04-baf2-ff7f695f0ae0/e9bf70c9-f9b4-4a03-9cdc-7e03bb03dcec/web/logo_y.svg":s.id===6?"https://stroy.cataloged.ru/pics/pp/pics/logo/master_210730_20260508.webp":null),website:s.website,phone:s.phone,address:s.address,mapsUrl:s.maps_url}));
    const nextProducts=(data.products||[]).map(p=>({...p,shop:p.shop_id,price:p.price_rub,icon:productIcons[p.id]||productIconFor(p),imageUrl:p.image_url,category:p.category,description:p.description,sourceUrl:p.source_url}));
    // Do not replace the usable starter catalogue with empty arrays if a new database is not seeded yet.
-   if(nextShops.length){setShopData(nextShops);setProductData(nextProducts);setActiveShop(current=>current?nextShops.find(s=>s.id===current.id)||current:current)}
+   if(nextShops.length){setShopData(nextShops);setProductData(nextProducts);setActiveShop(current=>current?nextShops.find(s=>s.id===current.id)||current:current);if(Array.isArray(data.categories))setShopCategories(data.categories.filter(x=>x.category_type==="shop"))}
    else setNotice("Каталог временно недоступен");
   })
   .catch(()=>{if(!cancelled){setProductData([]);setNotice("Каталог временно недоступен — товары не показываем до восстановления связи")}})
@@ -176,36 +238,52 @@ async function loadAdminCatalog(session=adminSession){
   const response=await fetch(API_URL+"/api/admin/catalog",{credentials:"include",headers:session?{Authorization:"Bearer "+session}:{}});
   const data=await response.json().catch(()=>({}));
   if(!response.ok)throw new Error(data.error||"Не удалось загрузить каталог");
-  setAdminShops(data.shops||[]);setAdminProducts(data.products||[]);
+  setAdminShops(data.shops||[]);setAdminProducts(data.products||[]);setAdminCategories(data.categories||[]);setShopCategories((data.categories||[]).filter(x=>x.category_type==="shop"&&x.is_active));
  }catch(error){setAdminError(error.message||"Ошибка загрузки каталога")}
 }
-async function createAdminShop(){
+function resetShopForm(){setEditingShopId(null);setShopForm({name:"",category:shopCategories[0]?.name||"Продукты",description:"",imageUrl:null,website:"",phone:"",address:"",mapsUrl:"",isActive:true});}
+function editShop(shop){setEditingShopId(shop.id);setShopForm({name:shop.name||"",category:shop.category||"Продукты",description:shop.description||"",imageUrl:shop.image_url||null,website:shop.website||"",phone:shop.phone||"",address:shop.address||"",mapsUrl:shop.maps_url||"",isActive:Boolean(shop.is_active)});window.scrollTo({top:0,behavior:"smooth"});}
+async function saveShopForm(){
+ if(shopForm.name.trim().length<2){setAdminError("Напишите название магазина.");return}
+ setShopSaving(true);
  try{
-  const response=await fetch(API_URL+"/api/admin/shops",{method:"POST",headers:{"Content-Type":"application/json",...(adminSession?{Authorization:"Bearer "+adminSession}:{})},body:JSON.stringify({name:newShopName,category:newShopCategory})});
-  const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||"Не удалось добавить магазин");
-  setNewShopName("");await loadAdminCatalog();setAdminError("");
- }catch(error){setAdminError(error.message)}
-}
-async function saveAdminShop(shop){
- try{
-  const response=await fetch(API_URL+"/api/admin/shops/"+shop.id,{method:"PATCH",headers:{"Content-Type":"application/json",...(adminSession?{Authorization:"Bearer "+adminSession}:{})},body:JSON.stringify({name:shop.name,category:shop.category,isActive:shop.is_active})});
+  const payload={name:shopForm.name.trim(),category:shopForm.category,description:shopForm.description,imageUrl:shopForm.imageUrl||null,website:shopForm.website,phone:shopForm.phone,address:shopForm.address,mapsUrl:shopForm.mapsUrl,...(editingShopId?{isActive:shopForm.isActive}:{})};
+  const response=await fetch(API_URL+(editingShopId?"/api/admin/shops/"+editingShopId:"/api/admin/shops"),{method:editingShopId?"PATCH":"POST",headers:{"Content-Type":"application/json",...(adminSession?{Authorization:"Bearer "+adminSession}:{})},body:JSON.stringify(payload)});
   const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||"Не удалось сохранить магазин");
-  await loadAdminCatalog();setAdminError("");
- }catch(error){setAdminError(error.message)}
+  resetShopForm();await loadAdminCatalog();setAdminError("");setNotice(editingShopId?"Изменения магазина сохранены":"Магазин создан");
+ }catch(error){setAdminError(error.message||"Ошибка сохранения магазина")}
+ finally{setShopSaving(false)}
 }
-async function createAdminProduct(){
+function resetProductForm(){setEditingProductId(null);setProductForm({shopId:adminShops[0]?.id||"",name:"",priceRub:"",unit:"шт.",category:adminCategories.find(x=>x.category_type==="product"&&x.is_active)?.name||"Другое",description:"",imageUrl:null,sourceUrl:"",isActive:true});}
+function editProduct(product){setEditingProductId(product.id);setProductForm({shopId:String(product.shop_id),name:product.name||"",priceRub:String(product.price_rub??""),unit:product.unit||"шт.",category:product.category||"Другое",description:product.description||"",imageUrl:product.image_url||null,sourceUrl:product.source_url||"",isActive:Boolean(product.is_active)});window.scrollTo({top:0,behavior:"smooth"});}
+async function saveProductForm(){
+ if(!productForm.shopId||productForm.name.trim().length<2||productForm.priceRub===""||!Number.isInteger(Number(productForm.priceRub))||Number(productForm.priceRub)<0||!productForm.unit.trim()){setAdminError("Заполните магазин, название, цену и единицу товара.");return}
+ setProductSaving(true);
  try{
-  const response=await fetch(API_URL+"/api/admin/products",{method:"POST",headers:{"Content-Type":"application/json",...(adminSession?{Authorization:"Bearer "+adminSession}:{})},body:JSON.stringify({shopId:Number(newProductShop),name:newProductName,priceRub:Number(newProductPrice),unit:newProductUnit})});
-  const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||"Не удалось добавить товар");
-  setNewProductName("");setNewProductPrice("");await loadAdminCatalog();setAdminError("");
- }catch(error){setAdminError(error.message)}
-}
-async function saveAdminProduct(product){
- try{
-  const response=await fetch(API_URL+"/api/admin/products/"+product.id,{method:"PATCH",headers:{"Content-Type":"application/json",...(adminSession?{Authorization:"Bearer "+adminSession}:{})},body:JSON.stringify({shopId:Number(product.shop_id),name:product.name,priceRub:Number(product.price_rub),unit:product.unit,isActive:product.is_active})});
+  const payload={shopId:Number(productForm.shopId),name:productForm.name.trim(),priceRub:Number(productForm.priceRub),unit:productForm.unit.trim(),category:productForm.category||"Другое",description:productForm.description, imageUrl:productForm.imageUrl||null,sourceUrl:productForm.sourceUrl,...(editingProductId?{isActive:productForm.isActive}:{})};
+  const response=await fetch(API_URL+(editingProductId?"/api/admin/products/"+editingProductId:"/api/admin/products"),{method:editingProductId?"PATCH":"POST",headers:{"Content-Type":"application/json",...(adminSession?{Authorization:"Bearer "+adminSession}:{})},body:JSON.stringify(payload)});
   const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||"Не удалось сохранить товар");
-  await loadAdminCatalog();setAdminError("");
- }catch(error){setAdminError(error.message)}
+  resetProductForm();await loadAdminCatalog();setAdminError("");setNotice(editingProductId?"Товар обновлён":"Товар опубликован");
+ }catch(error){setAdminError(error.message||"Ошибка сохранения товара")}
+ finally{setProductSaving(false)}
+}
+async function saveCategory(category){
+ try{
+  const payload={name:category.name,emoji:category.emoji||"🛍️",imageUrl:category.image_url||null,sortOrder:Number(category.sort_order)||100,isActive:Boolean(category.is_active)};
+  const response=await fetch(API_URL+"/api/admin/categories/"+category.id,{method:"PATCH",headers:{"Content-Type":"application/json",...(adminSession?{Authorization:"Bearer "+adminSession}:{})},body:JSON.stringify(payload)});
+  const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||"Не удалось сохранить категорию");
+  await loadAdminCatalog();setAdminError("");setNotice("Категория сохранена");
+ }catch(error){setAdminError(error.message||"Ошибка сохранения категории")}
+}
+async function createCategory(){
+ if(categoryForm.name.trim().length<2){setAdminError("Введите название категории.");return}
+ setCategorySaving(true);
+ try{
+  const response=await fetch(API_URL+"/api/admin/categories",{method:"POST",headers:{"Content-Type":"application/json",...(adminSession?{Authorization:"Bearer "+adminSession}:{})},body:JSON.stringify({...categoryForm,name:categoryForm.name.trim(),imageUrl:categoryForm.imageUrl||null,sortOrder:Number(categoryForm.sortOrder)||100})});
+  const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||"Не удалось создать категорию");
+  setCategoryForm({name:"",categoryType:categoryForm.categoryType,emoji:"🛍️",imageUrl:null,sortOrder:100});await loadAdminCatalog();setAdminError("");setNotice("Категория создана");
+ }catch(error){setAdminError(error.message||"Ошибка создания категории")}
+ finally{setCategorySaving(false)}
 }
 async function loadOperatorOrders(session=adminSession){
  try{
@@ -276,7 +354,7 @@ return <div className="app-shell">
 <section className="home-location"><div><span className="location-dot"><MapPin size={15}/></span><span><small>Доставляем в</small><b>Тимашевск</b></span></div><span className="delivery-chip"><Clock3 size={14}/> 30–60 мин</span></section>
 <section className="hero hero-market"><div className="hero-copy"><span className="eyebrow">ТВОЙ ГОРОД · ТВОИ МАГАЗИНЫ</span><h1>Всё нужное.<br/><em>С доставкой.</em></h1><p>Продукты, цветы и товары для дома — заказывай в одном месте.</p><button className="hero-cta" onClick={()=>document.getElementById("shops")?.scrollIntoView({behavior:"smooth"})}>Смотреть магазины <ArrowRight size={16}/></button></div><div className="hero-art"><div className="hero-art-circle"></div><div className="hero-art-bag">🛍️</div><span className="hero-art-spark spark-one">✳</span><span className="hero-art-spark spark-two">✦</span></div></section>
 <div className="search-wrap home-search"><Search size={19}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Найти магазин или товар"/></div>
-<section className="quick-categories"><div className="section-head"><h2>Категории</h2><span className="muted">Выбирай своё</span></div><div className="category-tiles">{[{name:"Продукты",emoji:"🥑",tone:"green"},{name:"Выпечка",emoji:"🥐",tone:"orange"},{name:"Цветы",emoji:"💐",tone:"pink"},{name:"Для дома",emoji:"🪴",tone:"sand"},{name:"Стройматериалы",emoji:"🛠️",tone:"sand"},{name:"Рестораны",emoji:"🍽️",tone:"orange"},{name:"Косметика",emoji:"💄",tone:"pink"},{name:"Все",emoji:"✨",tone:"violet"}].map(c=><button key={c.name} className={`category-tile ${c.tone} ${category===c.name?"chosen":""}`} onClick={()=>setCategory(c.name)}><span>{c.emoji}</span><b>{c.name}</b></button>)}</div></section>
+<section className="quick-categories"><div className="section-head"><h2>Категории</h2><span className="muted">Выбирай своё</span></div><div className="category-tiles">{[...shopCategories.map((c,i)=>({...c,tone:["green","orange","pink","sand"][i%4]})),{name:"Все",emoji:"✨",tone:"violet"}].map(c=><button key={c.name} className={`category-tile ${c.tone} ${category===c.name?"chosen":""}`} onClick={()=>setCategory(c.name)}><span>{c.image_url?<img src={c.image_url} alt=""/>:c.emoji}</span><b>{c.name}</b></button>)}</div></section>
 <section className="delivery-promo"><div className="promo-icon">🚗</div><div><b>Доставим до двери</b><span>Минимальный заказ — 700 ₽ · Работаем с 09:00 до 21:00</span></div><ArrowRight size={17}/></section>
 <button className="individual-order-promo" onClick={()=>setPage("individual-order")}><span className="individual-order-icon">✦</span><span><b>Не нашли нужный магазин?</b><small>Закажите из любого магазина Тимашевска — просто напишите список покупок</small><strong>Оформить индивидуальный заказ <ArrowRight size={15}/></strong></span></button>
 <div className="section-head shops-heading" id="shops"><div><span className="eyebrow dark">ВЫБИРАЙТЕ МЕСТО</span><h2>Магазины рядом</h2></div><span className="muted">{visibleShops.length} {shopCountLabel(visibleShops.length)}</span></div>
@@ -293,18 +371,79 @@ return <div className="app-shell">
 {page==="orders"&&<><div className="page-title"><span className="eyebrow dark">ИСТОРИЯ ПОКУПОК</span><h1>Мои заказы</h1></div>{!orders.length?<div className="empty-state"><span>📦</span><h2>Заказов пока нет</h2><p>Оформленные заказы появятся здесь.</p></div>:orders.map(o=><article className="order-card" key={o.id}><div className="order-top"><b>Заказ №{o.orderNumber||String(o.id).slice(-6)}</b><span className="status-pill">{o.status}</span></div><small>{o.created} · {o.shopName}</small><div className="order-bottom"><b>{money(o.total)}</b><button onClick={()=>setSelectedOrder(selectedOrder===o.id?null:o.id)}>{selectedOrder===o.id?"Скрыть":"Подробнее"}</button></div>{selectedOrder===o.id&&<div className="order-details">{o.items.map(i=><p key={i.id}>{i.name} × {i.qty}</p>)}<p><MapPin size={13}/> {o.address}</p></div>}</article>)}</>}
 {page==="profile"&&<><div className="page-title"><span className="eyebrow dark">ТИМ-ТИМ</span><h1>Профиль</h1></div><div className="profile-card"><span><UserRound size={28}/></span><div><b>Покупатель</b><small>Гостевой профиль · без регистрации</small></div></div><div className="profile-info"><p><MapPin size={17}/> Доставка по Тимашевску</p><p><Truck size={17}/> Ориентир по времени: 30–60 минут</p><p><ShoppingBag size={17}/> Минимальный заказ: 700 ₽</p></div><button className="text-button" onClick={()=>{setAdminError("");setPage("operator");if(adminAuthenticated)loadOperatorOrders()}}>Вход для оператора</button><p className="demo-note">История и отслеживание заказа хранятся в этом браузере. Push- и SMS-уведомления пока не подключены.</p></>}
 {page==="operator"&&<><div className="page-title"><span className="eyebrow dark">ЗАЩИЩЁННЫЙ ДОСТУП</span><h1>Панель оператора</h1></div>{!adminAuthenticated?<div className="form-card"><form onSubmit={loginOperator}><label>Пароль оператора<input type="password" value={adminPassword} onChange={e=>setAdminPassword(e.target.value)} placeholder="Введите пароль" autoComplete="current-password"/></label><button className="primary-button full" type="submit" disabled={!adminPassword}>Войти</button></form>{adminError&&<p className="operator-warning">{adminError}</p>}</div>:<><div className="operator-topbar"><b>Заказы · {adminOrders.length} · новые: {adminOrders.filter(o=>o.status==="Новый").length}</b><span>Автообновление каждые 30 секунд</span><div><button className="text-button" onClick={loadOperatorOrders}>Обновить</button><button className="text-button" onClick={logoutOperator}>Выйти</button></div></div>{adminError&&<p className="operator-warning">{adminError}</p>}
-<div className="operator-tabs"><button className={operatorTab==="orders"?"active":""} onClick={()=>setOperatorTab("orders")}>Заказы</button><button className={operatorTab==="individual"?"active":""} onClick={()=>setOperatorTab("individual")}>Индивидуальные · {adminIndividualRequests.length}</button><button className={operatorTab==="shops"?"active":""} onClick={()=>{setOperatorTab("shops");loadAdminCatalog()}}>Магазины</button><button className={operatorTab==="products"?"active":""} onClick={()=>{setOperatorTab("products");loadAdminCatalog()}}>Товары</button><button className={operatorTab==="brand"?"active":""} onClick={()=>setOperatorTab("brand")}>Логотип</button></div>
-{operatorTab==="brand"&&<section className="operator-manager brand-manager"><h2>Логотип сайта</h2><p className="muted">Загрузите PNG, JPG или WebP до 900 КБ. Новый логотип сразу появится у всех посетителей сайта.</p><div className="brand-preview"><img src={brandLogo||"/timtim-logo.svg"} alt="Текущий логотип"/></div><label className="brand-upload">Выбрать изображение<input type="file" accept="image/png,image/jpeg,image/webp" onChange={e=>saveBrandLogo(e.target.files?.[0])}/></label>{logoSaving&&<p className="muted">Сохраняем логотип…</p>}</section>}
+<div className="operator-tabs"><button className={operatorTab==="orders"?"active":""} onClick={()=>setOperatorTab("orders")}>Заказы</button><button className={operatorTab==="individual"?"active":""} onClick={()=>setOperatorTab("individual")}>Индивидуальные · {adminIndividualRequests.length}</button><button className={operatorTab==="shops"?"active":""} onClick={()=>{setOperatorTab("shops");loadAdminCatalog()}}>Магазины</button><button className={operatorTab==="products"?"active":""} onClick={()=>{setOperatorTab("products");loadAdminCatalog()}}>Товары</button><button className={operatorTab==="categories"?"active":""} onClick={()=>{setOperatorTab("categories");loadAdminCatalog()}}>Категории</button></div>
 {operatorTab==="individual"&&<section className="operator-manager"><h2>Индивидуальные заявки</h2>{!adminIndividualRequests.length?<p className="muted">Пока заявок нет</p>:adminIndividualRequests.map(r=><article className="order-card individual-request-card" key={r.id}><div className="order-top"><b>Заявка №{r.request_number}</b><span className="status-pill">{r.status}</span></div><small>{new Date(r.created_at).toLocaleString("ru-RU")}</small><select className="request-status-select" value={r.status} onChange={e=>changeIndividualRequestStatus(r.id,e.target.value)}>{individualStatuses.map(status=><option key={status}>{status}</option>)}</select><p><b>Магазин:</b> {r.store_name}</p><p><b>Адрес магазина:</b> {r.store_address}</p><p><b>Что купить:</b></p><pre>{r.items_text}</pre><p><b>Доставка:</b> {r.delivery_address}</p><p><b>Телефон:</b> <a href={"tel:"+r.customer_phone}>{r.customer_phone}</a></p>{r.customer_comment&&<p><b>Комментарий:</b> {r.customer_comment}</p>}</article>)}</section>}
-{operatorTab==="shops"&&<section className="operator-manager">
-<h2>Магазины</h2>
-<div className="manager-create"><input value={newShopName} onChange={e=>setNewShopName(e.target.value)} placeholder="Название магазина"/><select value={newShopCategory} onChange={e=>setNewShopCategory(e.target.value)}>{["Продукты","Цветы","Для дома","Зоотовары","Выпечка","Другое"].map(v=><option key={v}>{v}</option>)}</select><button className="primary-button" disabled={newShopName.trim().length<2} onClick={createAdminShop}>Добавить магазин</button></div>
-{adminShops.map(shop=><div className="manager-row" key={shop.id}><input value={shop.name} onChange={e=>setAdminShops(old=>old.map(x=>x.id===shop.id?{...x,name:e.target.value}:x))}/><input value={shop.category} onChange={e=>setAdminShops(old=>old.map(x=>x.id===shop.id?{...x,category:e.target.value}:x))}/><label className="manager-active"><input type="checkbox" checked={shop.is_active} onChange={e=>setAdminShops(old=>old.map(x=>x.id===shop.id?{...x,is_active:e.target.checked}:x))}/> Активен</label><button className="text-button" onClick={()=>saveAdminShop(shop)}>Сохранить</button></div>)}
+{operatorTab==="shops"&&<section className="operator-manager admin-builder">
+ <div className="admin-section-heading"><div><span className="eyebrow dark">УПРАВЛЕНИЕ ВИТРИНОЙ</span><h2>Магазины</h2><p>Создавайте карточки магазинов и меняйте всё, что увидит покупатель.</p></div><span className="admin-count">{adminShops.length} шт.</span></div>
+ <div className="admin-editor-card">
+  <div className="admin-editor-title"><span className="admin-step">1</span><div><b>{editingShopId?"Изменить карточку магазина":"Создать магазин"}</b><small>Название, описание, фотография и контакты</small></div></div>
+  <PhotoPicker title="Фото карточки магазина" wide value={shopForm.imageUrl} onChange={v=>setShopForm({...shopForm,imageUrl:v})}/>
+  <div className="admin-form-grid">
+   <label>Название магазина *<input value={shopForm.name} onChange={e=>setShopForm({...shopForm,name:e.target.value})} placeholder="Например, Магнит"/></label>
+   <label>Категория *<select value={shopForm.category} onChange={e=>setShopForm({...shopForm,category:e.target.value})}>{[...new Set([...adminCategories.filter(x=>x.category_type==="shop").map(x=>x.name),...shopCategories.map(x=>x.name),shopForm.category].filter(Boolean))].map(x=><option key={x}>{x}</option>)}</select></label>
+   <label className="span-all">Короткое описание<textarea rows="2" value={shopForm.description} onChange={e=>setShopForm({...shopForm,description:e.target.value})} placeholder="Что покупатель найдёт в этом магазине"/></label>
+   <label>Адрес магазина<input value={shopForm.address} onChange={e=>setShopForm({...shopForm,address:e.target.value})} placeholder="Улица, дом"/></label>
+   <label>Телефон<input value={shopForm.phone} onChange={e=>setShopForm({...shopForm,phone:e.target.value})} placeholder="+7..."/></label>
+   <label>Сайт магазина<input value={shopForm.website} onChange={e=>setShopForm({...shopForm,website:e.target.value})} placeholder="https://..."/></label>
+   <label>Ссылка на карту<input value={shopForm.mapsUrl} onChange={e=>setShopForm({...shopForm,mapsUrl:e.target.value})} placeholder="Ссылка на Яндекс Карты"/></label>
+  </div>
+  {editingShopId&&<label className="admin-checkbox"><input type="checkbox" checked={shopForm.isActive} onChange={e=>setShopForm({...shopForm,isActive:e.target.checked})}/> Показывать магазин покупателям</label>}
+  <div className="admin-form-actions"><button className="primary-button" disabled={shopSaving||shopForm.name.trim().length<2} onClick={saveShopForm}>{shopSaving?"Сохраняем…":editingShopId?"Сохранить изменения":"Создать магазин"}</button>{editingShopId&&<button className="admin-secondary-button" onClick={resetShopForm}>Отмена</button>}</div>
+ </div>
+ <div className="admin-list-heading"><b>Все магазины</b><small>Нажмите «Изменить», чтобы обновить карточку</small></div>
+ <div className="admin-entity-list">{adminShops.map(shop=><article className="admin-entity-card" key={shop.id}>
+  <div className="admin-entity-image">{shop.image_url?<img src={shop.image_url} alt=""/>:<span>{shops.find(x=>x.id===shop.id)?.icon||"🏬"}</span>}</div>
+  <div className="admin-entity-info"><b>{shop.name}</b><small>{shop.category} · {shop.is_active?"В магазине":"Скрыт от покупателей"}</small><small>{adminProducts.filter(x=>x.shop_id===shop.id&&x.is_active).length} активных товаров</small></div>
+  <button className="admin-secondary-button" onClick={()=>editShop(shop)}>Изменить</button>
+ </article>)}</div>
 </section>}
-{operatorTab==="products"&&<section className="operator-manager">
-<h2>Товары</h2>
-<div className="manager-create"><select value={newProductShop} onChange={e=>setNewProductShop(e.target.value)}><option value="">Выберите магазин</option>{adminShops.map(shop=><option key={shop.id} value={shop.id}>{shop.name}</option>)}</select><input value={newProductName} onChange={e=>setNewProductName(e.target.value)} placeholder="Название товара"/><input type="number" min="0" value={newProductPrice} onChange={e=>setNewProductPrice(e.target.value)} placeholder="Цена, ₽"/><input value={newProductUnit} onChange={e=>setNewProductUnit(e.target.value)} placeholder="Единица"/><button className="primary-button" disabled={!newProductShop||newProductName.trim().length<2||newProductPrice===""||!newProductUnit.trim()} onClick={createAdminProduct}>Добавить товар</button></div>
-{adminProducts.map(product=><div className="manager-product" key={product.id}><select value={product.shop_id} onChange={e=>setAdminProducts(old=>old.map(x=>x.id===product.id?{...x,shop_id:Number(e.target.value)}:x))}>{adminShops.map(shop=><option key={shop.id} value={shop.id}>{shop.name}</option>)}</select><input value={product.name} onChange={e=>setAdminProducts(old=>old.map(x=>x.id===product.id?{...x,name:e.target.value}:x))}/><input type="number" min="0" value={product.price_rub} onChange={e=>setAdminProducts(old=>old.map(x=>x.id===product.id?{...x,price_rub:Number(e.target.value)}:x))}/><input value={product.unit} onChange={e=>setAdminProducts(old=>old.map(x=>x.id===product.id?{...x,unit:e.target.value}:x))}/><label className="manager-active"><input type="checkbox" checked={product.is_active} onChange={e=>setAdminProducts(old=>old.map(x=>x.id===product.id?{...x,is_active:e.target.checked}:x))}/> В каталоге</label><button className="text-button" onClick={()=>saveAdminProduct(product)}>Сохранить</button></div>)}
+{operatorTab==="products"&&<section className="operator-manager admin-builder">
+ <div className="admin-section-heading"><div><span className="eyebrow dark">ТОВАРЫ И ЦЕНЫ</span><h2>Каталог товаров</h2><p>Добавьте фотографию, название и цену — Тим-Тим покажет товар в выбранном магазине.</p></div><span className="admin-count">{adminProducts.length} шт.</span></div>
+ <div className="admin-howto"><b>Как добавить товар?</b><ol><li>Выберите магазин.</li><li>Напишите понятное название и цену.</li><li>Загрузите настоящее фото товара.</li><li>Нажмите «Опубликовать товар».</li></ol></div>
+ <div className="admin-editor-card">
+  <div className="admin-editor-title"><span className="admin-step">1</span><div><b>{editingProductId?"Редактировать товар":"Новый товар"}</b><small>Обязательные поля отмечены звёздочкой *</small></div></div>
+  <PhotoPicker title="Фото товара" wide value={productForm.imageUrl} onChange={v=>setProductForm({...productForm,imageUrl:v})}/>
+  <div className="admin-form-grid">
+   <label>В какой магазин добавить? *<select value={productForm.shopId} onChange={e=>setProductForm({...productForm,shopId:e.target.value})}><option value="">Выберите магазин</option>{adminShops.filter(s=>s.is_active).map(s=><option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
+   <label>Название товара *<input value={productForm.name} onChange={e=>setProductForm({...productForm,name:e.target.value})} placeholder="Например, Молоко 3,2%"/></label>
+   <label>Цена, ₽ *<input type="number" min="0" step="1" value={productForm.priceRub} onChange={e=>setProductForm({...productForm,priceRub:e.target.value})} placeholder="150"/></label>
+   <label>Количество / вес<input value={productForm.unit} onChange={e=>setProductForm({...productForm,unit:e.target.value})} placeholder="1 л, 500 г, шт."/></label>
+   <label>Категория<select value={productForm.category} onChange={e=>setProductForm({...productForm,category:e.target.value})}>{[...new Set([...adminCategories.filter(x=>x.category_type==="product"&&x.is_active).map(x=>x.name),...adminProducts.map(x=>x.category),productForm.category].filter(Boolean))].map(x=><option key={x}>{x}</option>)}</select></label>
+   <label className="span-all">Описание<textarea rows="2" value={productForm.description} onChange={e=>setProductForm({...productForm,description:e.target.value})} placeholder="Состав, размер, важные особенности — необязательно"/></label>
+   <label className="span-all">Ссылка на товар в магазине (необязательно)<input value={productForm.sourceUrl} onChange={e=>setProductForm({...productForm,sourceUrl:e.target.value})} placeholder="https://..."/></label>
+  </div>
+  {editingProductId&&<label className="admin-checkbox"><input type="checkbox" checked={productForm.isActive} onChange={e=>setProductForm({...productForm,isActive:e.target.checked})}/> Показывать товар покупателям</label>}
+  <div className="admin-form-actions"><button className="primary-button" disabled={productSaving||!productForm.shopId||productForm.name.trim().length<2||productForm.priceRub===""||!Number.isInteger(Number(productForm.priceRub))} onClick={saveProductForm}>{productSaving?"Сохраняем…":editingProductId?"Сохранить товар":"Опубликовать товар"}</button>{editingProductId&&<button className="admin-secondary-button" onClick={resetProductForm}>Отмена</button>}</div>
+ </div>
+ <div className="admin-list-heading"><b>Все товары</b><small>Можно изменить фото, цену, описание или скрыть позицию</small></div>
+ <div className="admin-entity-list">{adminProducts.map(product=><article className="admin-entity-card" key={product.id}>
+  <div className="admin-entity-image">{product.image_url?<img src={product.image_url} alt=""/>:<span>{productIcons[product.id]||"🛍️"}</span>}</div>
+  <div className="admin-entity-info"><b>{product.name}</b><small>{adminShops.find(s=>s.id===product.shop_id)?.name||"Магазин"} · {product.category||"Без категории"}</small><strong>{money(product.price_rub)} / {product.unit}</strong><small>{product.is_active?"Опубликован":"Скрыт от покупателей"}</small></div>
+  <button className="admin-secondary-button" onClick={()=>editProduct(product)}>Изменить</button>
+ </article>)}</div>
+</section>}
+{operatorTab==="categories"&&<section className="operator-manager admin-builder">
+ <div className="admin-section-heading"><div><span className="eyebrow dark">СТРУКТУРА КАТАЛОГА</span><h2>Категории</h2><p>Категории помогают покупателю быстрее находить магазины и товары. Для плитки на главной можно загрузить своё фото.</p></div></div>
+ <div className="admin-editor-card">
+  <div className="admin-editor-title"><span className="admin-step">+</span><div><b>Добавить категорию</b><small>Создайте новую категорию магазинов или товаров</small></div></div>
+  <div className="admin-form-grid">
+   <label>Где будет использоваться?<select value={categoryForm.categoryType} onChange={e=>setCategoryForm({...categoryForm,categoryType:e.target.value})}><option value="shop">Категория магазинов</option><option value="product">Категория товаров</option></select></label>
+   <label>Название категории *<input value={categoryForm.name} onChange={e=>setCategoryForm({...categoryForm,name:e.target.value})} placeholder="Например, Зоотовары"/></label>
+   <label>Эмодзи, если нет фотографии<input value={categoryForm.emoji} onChange={e=>setCategoryForm({...categoryForm,emoji:e.target.value})} placeholder="🛍️"/></label>
+   <label>Порядок на витрине<input type="number" min="0" value={categoryForm.sortOrder} onChange={e=>setCategoryForm({...categoryForm,sortOrder:e.target.value})}/></label>
+  </div>
+  <PhotoPicker title="Фото категории (необязательно)" wide value={categoryForm.imageUrl} onChange={v=>setCategoryForm({...categoryForm,imageUrl:v})}/>
+  <button className="primary-button" disabled={categorySaving||categoryForm.name.trim().length<2} onClick={createCategory}>{categorySaving?"Создаём…":"Добавить категорию"}</button>
+ </div>
+ {["shop","product"].map(kind=><div className="admin-category-group" key={kind}>
+  <div className="admin-list-heading"><b>{kind==="shop"?"Категории магазинов":"Категории товаров"}</b><small>{adminCategories.filter(x=>x.category_type===kind).length} категорий</small></div>
+  {adminCategories.filter(x=>x.category_type===kind).map(item=><article className="admin-category-card" key={item.id}>
+   <PhotoPicker title="Фото категории" value={item.image_url||null} onChange={v=>setAdminCategories(old=>old.map(x=>x.id===item.id?{...x,image_url:v}:x))}/>
+   <div className="admin-form-grid"><label>Название<input value={item.name} onChange={e=>setAdminCategories(old=>old.map(x=>x.id===item.id?{...x,name:e.target.value}:x))}/></label><label>Эмодзи<input value={item.emoji||""} onChange={e=>setAdminCategories(old=>old.map(x=>x.id===item.id?{...x,emoji:e.target.value}:x))}/></label><label>Порядок<input type="number" value={item.sort_order} onChange={e=>setAdminCategories(old=>old.map(x=>x.id===item.id?{...x,sort_order:Number(e.target.value)}:x))}/></label></div>
+   <label className="admin-checkbox"><input type="checkbox" checked={item.is_active} onChange={e=>setAdminCategories(old=>old.map(x=>x.id===item.id?{...x,is_active:e.target.checked}:x))}/> Показывать категорию</label>
+   <button className="primary-button" onClick={()=>saveCategory(item)}>Сохранить категорию</button>
+  </article>)}
+ </div>)}
 </section>}
 {operatorTab==="orders"&&<>{!adminOrders.length?<div className="empty-state"><span>📋</span><h2>Заказов пока нет</h2></div>:adminOrders.map(o=><article className="order-card" key={o.id}><div className="order-top"><b>№{o.order_number} · {o.shop_name}</b><span className="status-pill">{o.status}</span></div><small>{new Date(o.created_at).toLocaleString("ru-RU")}</small><p>{o.customer_phone} · {o.delivery_address}</p>{o.items.map((item,i)=><p key={i}>{item.name} × {item.qty} · {money(item.lineTotal)}</p>)}{o.customer_comment&&<p>Комментарий: {o.customer_comment}</p>}<div className="fee-editor"><label>Доставка, ₽<input type="number" min="0" max="10000" value={o.delivery_fee_rub??0} onChange={e=>setAdminOrders(old=>old.map(item=>item.id===o.id?{...item,delivery_fee_rub:Number(e.target.value)}:item))}/></label><button className="text-button" onClick={()=>saveDeliveryFee(o.id,o.delivery_fee_rub??0)}>Сохранить доставку</button></div><b>Итого: {money(o.items_total_rub+(o.delivery_fee_rub??0))}</b><select value={o.status} onChange={e=>changeOperatorStatus(o.id,e.target.value)}>{statuses.map(s=><option key={s}>{s}</option>)}</select></article>)}</>}</>}</>}
 </main>
