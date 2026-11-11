@@ -30,6 +30,12 @@ ALTER TABLE products ADD COLUMN IF NOT EXISTS description TEXT NOT NULL DEFAULT 
 ALTER TABLE products ADD COLUMN IF NOT EXISTS image_url TEXT;
 ALTER TABLE products ADD COLUMN IF NOT EXISTS source_url TEXT;
 
+CREATE TABLE IF NOT EXISTS app_migrations (
+  migration_key TEXT PRIMARY KEY,
+  applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+
 CREATE TABLE IF NOT EXISTS individual_requests (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   request_number BIGINT GENERATED ALWAYS AS IDENTITY UNIQUE,
@@ -216,6 +222,12 @@ ON CONFLICT (id) DO NOTHING;
 
 
 -- Replace placeholder/fabricated image paths with original image URLs from official product page metadata.
+WITH apply_migration AS (
+  INSERT INTO app_migrations (migration_key)
+  VALUES ('refresh_verified_bakery_images_v1')
+  ON CONFLICT (migration_key) DO NOTHING
+  RETURNING migration_key
+)
 UPDATE products SET image_url = CASE id
 WHEN 20 THEN 'https://static.tildacdn.com/stor6662-3238-4062-b838-313430323033/782618be9668b430d8b9e661daf7793e.webp'
 WHEN 21 THEN 'https://static.tildacdn.com/stor3139-6463-4363-a436-633937623961/376c2508eaa22ee4474b2d2a4753a68e.webp'
@@ -281,12 +293,18 @@ WHEN 110 THEN NULL
 WHEN 111 THEN NULL
 WHEN 114 THEN NULL
 ELSE image_url END
-WHERE id IN (20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,84,85,86,87,88,97,100,101,103,105,109,110,111,114);
+WHERE id IN (20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,84,85,86,87,88,97,100,101,103,105,109,110,111,114) AND EXISTS (SELECT 1 FROM apply_migration);
 
 -- One verified real photo found in the merchant's gallery for ham pastry.
+WITH apply_migration AS (
+  INSERT INTO app_migrations (migration_key)
+  VALUES ('set_verified_bakery_product_86_image_v1')
+  ON CONFLICT (migration_key) DO NOTHING
+  RETURNING migration_key
+)
 UPDATE products
 SET image_url = 'https://images.delivery-club.com/ol-images/1280x960/621b538227393a981d5c0381.jpg'
-WHERE id = 86 AND shop_id = 5;
+WHERE id = 86 AND shop_id = 5 AND EXISTS (SELECT 1 FROM apply_migration);
 
 -- Pharmacy delivery remains disabled until legal and partner checks are completed.
 UPDATE shops SET is_active = FALSE WHERE id = 3;
@@ -296,10 +314,6 @@ UPDATE products SET is_active = FALSE WHERE shop_id = 3;
 -- One-time safety migration: the original starter entries in these three stores
 -- were demonstration rows without verified merchant prices or product photos.
 -- Keep them in the operator catalogue, but do not expose them for customer orders.
-CREATE TABLE IF NOT EXISTS app_migrations (
-  migration_key TEXT PRIMARY KEY,
-  applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
 
 WITH apply_migration AS (
   INSERT INTO app_migrations (migration_key)
@@ -393,18 +407,30 @@ INSERT INTO products (id, shop_id, name, price_rub, unit, category, description,
 (145,12,'Стрипсы',219,'200 г','Закуски','Порция куриных стрипсов. Возможны следы аллергенов на кухне ресторана.','https://imgr.yobidoyobi.ru/42e3e1d5-084d-4f04-baf2-ff7f695f0ae0/e9bf70c9-f9b4-4a03-9cdc-7e03bb03dcec/menu/83f494c3-ea55-48bf-a00d-06f632352943.webp','https://timashevsk.yobidoyobi.ru/')
 ON CONFLICT (id) DO NOTHING;
 
+WITH apply_migration AS (
+  INSERT INTO app_migrations (migration_key)
+  VALUES ('set_verified_yobi_product_121_image_v1')
+  ON CONFLICT (migration_key) DO NOTHING
+  RETURNING migration_key
+)
 UPDATE products SET image_url='https://imgr.yobidoyobi.ru/42e3e1d5-084d-4f04-baf2-ff7f695f0ae0/e9bf70c9-f9b4-4a03-9cdc-7e03bb03dcec/menu/26d9cbe6-549f-4dcb-ab5a-59505cc6ba70.webp'
-WHERE id=121 AND shop_id=12;
+WHERE id=121 AND shop_id=12 AND EXISTS (SELECT 1 FROM apply_migration);
 
 UPDATE shops SET maps_url='https://yandex.ru/maps/-/CXCnAGyX'
-WHERE id=5;
+WHERE id=5 AND maps_url IS NULL;
 UPDATE shops SET phone='+7 989 849-99-55' WHERE id=5 AND phone IS NULL;
 UPDATE shops SET maps_url='https://yandex.ru/maps/-/CXCnEK5L'
-WHERE id=6;
-UPDATE shops SET phone='+7 918 918-50-00' WHERE id=8;
-UPDATE shops SET phone='+7 861 304-40-23' WHERE id=11;
-UPDATE shops SET phone='8 800 333-33-23' WHERE id=12;
+WHERE id=6 AND maps_url IS NULL;
+UPDATE shops SET phone='+7 918 918-50-00' WHERE id=8 AND phone IS NULL;
+UPDATE shops SET phone='+7 861 304-40-23' WHERE id=11 AND phone IS NULL;
+UPDATE shops SET phone='8 800 333-33-23' WHERE id=12 AND phone IS NULL;
 
 
 -- Official product photo confirmed on the merchant's product page.
-UPDATE products SET image_url='https://static.tildacdn.com/stor6162-3762-4738-a536-653064653532/056f437277214ef158d7f5a19fb13fa0.webp' WHERE id=85 AND shop_id=5;
+WITH apply_migration AS (
+  INSERT INTO app_migrations (migration_key)
+  VALUES ('set_verified_bakery_product_85_image_v1')
+  ON CONFLICT (migration_key) DO NOTHING
+  RETURNING migration_key
+)
+UPDATE products SET image_url='https://static.tildacdn.com/stor6162-3762-4738-a536-653064653532/056f437277214ef158d7f5a19fb13fa0.webp' WHERE id=85 AND shop_id=5 AND EXISTS (SELECT 1 FROM apply_migration);
