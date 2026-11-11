@@ -1513,3 +1513,6 @@ h1,h2,h3,.section-head h2,.page-title h1,.store-hero h1{
  .admin-form-actions .primary-button,.admin-form-actions .admin-secondary-button{width:100%}
  .admin-category-card .primary-button{width:100%}
 }
+
+.category-tile>span{overflow:hidden}
+.category-tile>span img{width:100%;height:100%;display:block;object-fit:cover;border-radius:inherit}
