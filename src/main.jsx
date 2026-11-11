@@ -18,7 +18,7 @@ function ShopBrandMark({shop}){
  const id=Number(shop.id), name=shop.name||"Магазин";
  const labels={5:"ХЛЕБНЫЙ\\nДВОРИК",6:"МАСТЕР",7:"ROSTIC'S",8:"PERLIN'S\\nPITA",9:"ПЯТЁРОЧКА",10:"МАГНИТ",11:"ПОВОРОТ",12:"ЁБИДОЁБИ",13:"ШУСТРЫЙ\\nКРАБ",14:"М.КОСМЕТИК",15:"ДОДО\\nПИЦЦА",1:"У ДОМА",2:"ЦВЕТОЧНЫЙ\\nМИР",4:"ДОМ И УЮТ"};
  const marks={5:"ХД",6:"М",7:"R",8:"P",9:"5",10:"М",11:"П",12:"Ё",13:"К",14:"М",15:"Д",1:"У",2:"Ц",4:"Д"};
- const logos={7:"https://logo-teka.com/wp-content/uploads/2025/07/rostics-logo.svg",9:"https://logo-teka.com/wp-content/uploads/2025/06/pyaterochka-logo.svg",10:"https://www.magnit.com/images/logo/logo--red--ru.svg"};\n return <span className={"shop-brand-mark shop-brand-"+id+(logos[id]?" has-official-logo":"")}>{logos[id]?<img src={logos[id]} alt={name+" — логотип"} loading="lazy"/>:<><i>{marks[id]||name.slice(0,1)}</i><b>{(labels[id]||name).split("\\\\n").map((line,index)=><React.Fragment key={index}>{index>0&&<br/>}{line}</React.Fragment>)}</b></>}</span>;
+ const logos={7:"https://logo-teka.com/wp-content/uploads/2025/07/rostics-logo.svg",9:"https://logo-teka.com/wp-content/uploads/2025/06/pyaterochka-logo.svg",10:"https://www.magnit.com/images/logo/logo--red--ru.svg"};\n return <span className={"shop-brand-mark shop-brand-"+id+(logos[id]?" has-official-logo":"")}>{logos[id]?<img src={logos[id]} alt={name+" — логотип"} loading="lazy"/>:<><i>{marks[id]||name.slice(0,1)}</i><b>{(labels[id]||name).split("\\n").map((line,index)=><React.Fragment key={index}>{index>0&&<br/>}{line}</React.Fragment>)}</b></>}</span>;
 }
 function productSection(p){
  const n=(p.name||"").toLowerCase(), c=(p.category||"").toLowerCase();
