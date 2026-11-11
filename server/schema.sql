@@ -75,11 +75,11 @@ ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO shops (id, name, category, description, image_url, website, phone, address) VALUES
   (5, 'Хлебный дворик', 'Выпечка', 'Кулинария и кондитерская: десерты, выпечка, торты, хлеб, завтраки и готовые блюда.', 'https://static.tildacdn.com/tild6563-3663-4463-b362-316236616361/_.png', 'https://khlebnyi-dvorik.ru/', '+7 (989) 849-99-55', 'г. Тимашевск, ул. 50 лет Октября, 197')
-ON CONFLICT (id) DO UPDATE SET name=EXCLUDED.name, category=EXCLUDED.category, description=EXCLUDED.description, image_url=EXCLUDED.image_url, website=EXCLUDED.website, phone=EXCLUDED.phone, address=EXCLUDED.address;
+ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO shops (id, name, category, description, address) VALUES
   (6, 'Мастер', 'Стройматериалы', 'Строительные материалы, инструменты и товары для ремонта. Каталог и цены уточняются у магазина.', 'г. Тимашевск, ул. Ленина, 32')
-ON CONFLICT (id) DO UPDATE SET name=EXCLUDED.name, category=EXCLUDED.category, description=EXCLUDED.description, address=EXCLUDED.address;
+ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO products (id, shop_id, name, price_rub, unit) VALUES
   (1,1,'Молоко 3,2%',95,'1 л'),
@@ -104,7 +104,7 @@ INSERT INTO products (id, shop_id, name, price_rub, unit, category, description,
   (17,5,'Котлета куриная рубленная',190,'200 г','Кулинария','Куриное филе, лук, яйцо, специи, панировочные сухари или мука. Минимальный заказ — от 200 г.','https://static.tildacdn.com/stor6435-3765-4430-b832-373362306261/54b2141a83e8062d29b198ca529c8fdd.webp','https://khlebnyi-dvorik.ru/catalog/tproduct/186221936932-kotleta-kurinaya-rublennaya'),
   (18,5,'Котлета печеночная',158,'200 г','Кулинария','Куриная или говяжья печень, лук, яйцо, мука, специи. Минимальный заказ — от 200 г.','https://static.tildacdn.com/stor3565-3832-4538-b337-303661386361/fe337275c552b4fec7d8418912a472a7.webp','https://khlebnyi-dvorik.ru/catalog/tproduct/373588448892-kotleta-pechenochnaya'),
   (19,5,'Голубцы куриные',200,'200 г','Кулинария','Куриный фарш, рис, лук, морковь, капуста, томатный соус. Минимальный заказ — от 200 г.','https://static.tildacdn.com/stor3865-3062-4834-b738-333138326461/7ac62b74fd97836e0840a85300713752.webp','https://khlebnyi-dvorik.ru/catalog/tproduct/655406751572-golubtsi-kurinie')
-ON CONFLICT (id) DO UPDATE SET shop_id=EXCLUDED.shop_id, name=EXCLUDED.name, price_rub=EXCLUDED.price_rub, unit=EXCLUDED.unit, category=EXCLUDED.category, description=EXCLUDED.description, image_url=EXCLUDED.image_url, source_url=EXCLUDED.source_url;
+ON CONFLICT (id) DO NOTHING;
 
 
 -- Expanded verified Khlebny Dvorik catalog. Product images are official Open Graph assets.
@@ -210,7 +210,7 @@ INSERT INTO products (id, shop_id, name, price_rub, unit, category, description,
 (118,5,'Хлеб цельнозерновой',75,'шт.','Хлеб','','https://static.tildacdn.com/stor6230-3135-4865-b538-623035313630/9420d092010d50dad35a4c047c344548.webp','https://khlebnyi-dvorik.ru/catalog/tproduct/325049158632-hleb-tselnozernovoi'),
 (119,5,'Панини с курицей',160,'шт.','Завтраки','','https://static.tildacdn.com/stor6261-6433-4566-a165-353234306565/1b78d3b20adb6bdb3d730106ae29e2bf.webp','https://khlebnyi-dvorik.ru/catalog/tproduct/843831849112-panini-s-kuritsei'),
 (120,5,'Пельмени',300,'кг','Замороженная продукция','','https://static.tildacdn.com/stor6332-3335-4439-b438-336563336333/a2a9341eacd0c23e38b98f2088963fa6.webp','https://khlebnyi-dvorik.ru/catalog/tproduct/627998812632-pelmeni')
-ON CONFLICT (id) DO UPDATE SET shop_id=EXCLUDED.shop_id, name=EXCLUDED.name, price_rub=EXCLUDED.price_rub, unit=EXCLUDED.unit, category=EXCLUDED.category, description=EXCLUDED.description, image_url=EXCLUDED.image_url, source_url=EXCLUDED.source_url;
+ON CONFLICT (id) DO NOTHING;
 
 
 -- Replace placeholder/fabricated image paths with original image URLs from official product page metadata.
@@ -265,7 +265,6 @@ WHEN 66 THEN 'https://static.tildacdn.com/stor6133-3431-4038-b561-643831313835/e
 WHEN 67 THEN 'https://static.tildacdn.com/stor3933-6165-4535-b466-336632623333/3df5f6111169b2b6ce1bebe2ee07d390.webp'
 WHEN 68 THEN 'https://static.tildacdn.com/stor3065-3261-4562-b530-353266376135/bab59d2abbd540fc94407087c0700fe6.webp'
 WHEN 84 THEN NULL
-WHEN 85 THEN 'https://static.tildacdn.com/stor6162-3762-4738-a536-653064653532/056f437277214ef158d7f5a19fb13fa0.webp'
 WHEN 85 THEN NULL
 WHEN 86 THEN NULL
 WHEN 87 THEN NULL
@@ -292,6 +291,31 @@ UPDATE shops SET is_active = FALSE WHERE id = 3;
 UPDATE products SET is_active = FALSE WHERE shop_id = 3;
 
 
+-- One-time safety migration: the original starter entries in these three stores
+-- were demonstration rows without verified merchant prices or product photos.
+-- Keep them in the operator catalogue, but do not expose them for customer orders.
+CREATE TABLE IF NOT EXISTS app_migrations (
+  migration_key TEXT PRIMARY KEY,
+  applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+DO $
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM app_migrations
+    WHERE migration_key = 'hide_unverified_demo_products_v1'
+  ) THEN
+    UPDATE products
+    SET is_active = FALSE
+    WHERE shop_id IN (1, 2, 4)
+      AND id IN (1,2,3,4,5,6,7,8,10,11);
+
+    INSERT INTO app_migrations (migration_key)
+    VALUES ('hide_unverified_demo_products_v1');
+  END IF;
+END $;
+
+
 CREATE TABLE IF NOT EXISTS app_settings (
   key TEXT PRIMARY KEY,
   value TEXT NOT NULL,
@@ -312,10 +336,7 @@ INSERT INTO shops (id, name, category, description, address, website, maps_url, 
   (13, 'Шустрый Краб', 'Рестораны', 'Кафе и блюда из морепродуктов. Меню и цены уточняются перед подтверждением заказа.', 'г. Тимашевск, ул. Пролетарская, 114', NULL, 'https://yandex.ru/maps/-/CXCnIIy5', 'https://avatars.mds.yandex.net/get-altay/5482016/2a0000017d8f041fcd403d29273ed223ec35/L_height'),
   (14, 'М.Косметик', 'Косметика', 'Парфюмерия, косметика и товары для ухода. Ассортимент и цены уточняются перед подтверждением заказа.', 'г. Тимашевск, ул. Ленина, 128', 'https://cosmetic.magnit.ru/', 'https://yandex.ru/maps/-/CXCnIY7g', 'https://avatars.mds.yandex.net/get-altay/3986135/2a0000017949cdfde6b39e19de83c40d3f8e/L_height'),
   (15, 'Додо Пицца', 'Рестораны', 'Пиццерия. Меню и цены уточняются перед подтверждением заказа.', 'г. Тимашевск, ул. Красная, 104', 'https://dodopizza.ru/', 'https://yandex.ru/maps/-/CXCnMS5T', 'https://avatars.mds.yandex.net/get-altay/13083354/2a00000191569dfe630a046ceb6e72592bf8/L_height')
-ON CONFLICT (id) DO UPDATE SET
-  name=EXCLUDED.name, category=EXCLUDED.category, description=EXCLUDED.description,
-  address=EXCLUDED.address, website=EXCLUDED.website, maps_url=EXCLUDED.maps_url,
-  image_url=EXCLUDED.image_url;
+ON CONFLICT (id) DO NOTHING;
 
 
 -- Verified starter menu for the Timashevsk Yobidoyobi branch.
@@ -330,10 +351,7 @@ INSERT INTO products (id, shop_id, name, price_rub, unit, category, description,
 (121,12,'Сливочная кола Ёбидоёби',129,'330 г','Напитки и десерты','Фирменный напиток.','https://imgr.yobidoyobi.ru/42e3e1d5-084d-4f04-baf2-ff7f695f0ae0/e9bf70c9-f9b4-4a03-9cdc-7e03bb03dcec/menu/3673c9da-429c-441d-94fc-2d9fc95e7252/3c851ffd-fc61-4bb0-89bc-77216b81dd3f.webp','https://timashevsk.yobidoyobi.ru/'),
 (122,12,'Чизкейк New York',309,'100 г','Напитки и десерты','Чизкейк New York.','https://imgr.yobidoyobi.ru/42e3e1d5-084d-4f04-baf2-ff7f695f0ae0/e9bf70c9-f9b4-4a03-9cdc-7e03bb03dcec/menu/c54038c2-d3f4-47db-aba4-1528cfbb264a/b9050a2f-7c97-4fe1-acea-2371c0c60bce.webp','https://timashevsk.yobidoyobi.ru/'),
 (123,12,'Соус Терияки',79,'30 г','Соусы','Соус Терияки.','https://imgr.yobidoyobi.ru/42e3e1d5-084d-4f04-baf2-ff7f695f0ae0/e9bf70c9-f9b4-4a03-9cdc-7e03bb03dcec/menu/a10c02f5-4f8f-481b-bd0e-a95188ef153b/54dbe4be-44fc-4c52-9269-00b0926189df.webp','https://timashevsk.yobidoyobi.ru/')
-ON CONFLICT (id) DO UPDATE SET
- shop_id=EXCLUDED.shop_id,name=EXCLUDED.name,price_rub=EXCLUDED.price_rub,unit=EXCLUDED.unit,
- category=EXCLUDED.category,description=EXCLUDED.description,image_url=EXCLUDED.image_url,
- source_url=EXCLUDED.source_url,is_active=TRUE,updated_at=NOW();
+ON CONFLICT (id) DO NOTHING;
 
 
 -- Additional 22 live-menu items from the official Timashevsk Ёбидоёби menu.
@@ -361,12 +379,9 @@ INSERT INTO products (id, shop_id, name, price_rub, unit, category, description,
 (143,12,'Корн-доги',189,'145 г','Закуски','Порция корн-догов. Возможны следы аллергенов на кухне ресторана.','https://imgr.yobidoyobi.ru/42e3e1d5-084d-4f04-baf2-ff7f695f0ae0/e9bf70c9-f9b4-4a03-9cdc-7e03bb03dcec/menu/705863f0-8772-456b-873f-f9b736b37f0d.webp','https://timashevsk.yobidoyobi.ru/'),
 (144,12,'Наггетсы',179,'115 г','Закуски','Порция наггетсов. Возможны следы аллергенов на кухне ресторана.','https://imgr.yobidoyobi.ru/42e3e1d5-084d-4f04-baf2-ff7f695f0ae0/e9bf70c9-f9b4-4a03-9cdc-7e03bb03dcec/menu/6f83de1b-c41b-49ff-99e0-0efc9a26e16b.webp','https://timashevsk.yobidoyobi.ru/'),
 (145,12,'Стрипсы',219,'200 г','Закуски','Порция куриных стрипсов. Возможны следы аллергенов на кухне ресторана.','https://imgr.yobidoyobi.ru/42e3e1d5-084d-4f04-baf2-ff7f695f0ae0/e9bf70c9-f9b4-4a03-9cdc-7e03bb03dcec/menu/83f494c3-ea55-48bf-a00d-06f632352943.webp','https://timashevsk.yobidoyobi.ru/')
-ON CONFLICT (id) DO UPDATE SET shop_id=EXCLUDED.shop_id,name=EXCLUDED.name,price_rub=EXCLUDED.price_rub,
- unit=EXCLUDED.unit,category=EXCLUDED.category,description=EXCLUDED.description,image_url=EXCLUDED.image_url,
- source_url=EXCLUDED.source_url,is_active=TRUE,updated_at=NOW();
+ON CONFLICT (id) DO NOTHING;
 
-UPDATE products SET price_rub=149,
- image_url='https://imgr.yobidoyobi.ru/42e3e1d5-084d-4f04-baf2-ff7f695f0ae0/e9bf70c9-f9b4-4a03-9cdc-7e03bb03dcec/menu/26d9cbe6-549f-4dcb-ab5a-59505cc6ba70.webp'
+UPDATE products SET image_url='https://imgr.yobidoyobi.ru/42e3e1d5-084d-4f04-baf2-ff7f695f0ae0/e9bf70c9-f9b4-4a03-9cdc-7e03bb03dcec/menu/26d9cbe6-549f-4dcb-ab5a-59505cc6ba70.webp'
 WHERE id=121 AND shop_id=12;
 
 UPDATE shops SET maps_url='https://yandex.ru/maps/-/CXCnAGyX'
