@@ -19,7 +19,9 @@ function ShopBrandMark({shop}){
  const logos={
   7:"https://logo-teka.com/wp-content/uploads/2025/07/rostics-logo.svg",
   9:"https://logo-teka.com/wp-content/uploads/2025/06/pyaterochka-logo.svg",
-  10:"https://www.magnit.com/images/logo/logo--red--ru.svg"
+  10:"https://www.magnit.com/images/logo/logo--red--ru.svg",
+  14:"https://logo-teka.com/wp-content/uploads/2025/06/magnit-cosmetic-logo.svg",
+  15:"https://shift.dodobrands.io/images/graphic-design/logo-all-languages/RU.png"
  };
  const src=logos[id]||shop.imageUrl;
  return src
