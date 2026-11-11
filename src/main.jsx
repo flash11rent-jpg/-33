@@ -84,17 +84,22 @@ useEffect(()=>{
  const timer=setTimeout(async()=>{
   setAddressLoading(true);
   try{
-   const params=new URLSearchParams({q:address.trim()+", Тимашевск, Краснодарский край, Россия",lat:"45.615",lon:"38.935",limit:"6",lang:"ru"});
+   const params=new URLSearchParams({q:address.trim()+", Тимашевск, Краснодарский край",lat:"45.615",lon:"38.935",limit:"8",lang:"ru"});
    const response=await fetch("https://photon.komoot.io/api/?"+params.toString(),{signal:controller.signal,headers:{Accept:"application/json"}});
    if(!response.ok)throw new Error("Address lookup failed");
    const data=await response.json();
-   const results=(data.features||[]).filter(feature=>(feature.properties?.countrycode||"").toLowerCase()==="ru").map(feature=>{
+   const results=(data.features||[]).filter(feature=>{
+    const code=(feature.properties?.countrycode||"").toLowerCase();
+    return !code||code==="ru";
+   }).map(feature=>{
     const p=feature.properties||{};
-    const street=p.street||p.name||"";
-    const city=p.city||p.locality||p.county||"Тимашевск";
-    const primary=[street,p.housenumber].filter(Boolean).join(", ");
-    const secondary=[city,p.district,p.state].filter((v,i,a)=>v&&a.indexOf(v)===i).join(", ");
-    return {...feature,displayAddress:[primary,city==="Тимашевск"?"":city].filter(Boolean).join(", "),primary:primary||p.name||"Адрес",secondary};
+    const street=p.street||p.name||p.locality||p.city||"";
+    const house=p.housenumber||"";
+    const city=p.city||p.town||p.village||p.locality||p.county||"Тимашевск";
+    const primary=[street,house].filter(Boolean).join(", ");
+    const secondary=[city,p.district,p.state,p.country].filter((v,i,a)=>v&&a.indexOf(v)===i).join(", ");
+    const displayAddress=[primary,city==="Тимашевск"?"":city].filter(Boolean).join(", ");
+    return {...feature,displayAddress:displayAddress||primary||street,primary:primary||street||"Адрес",secondary};
    }).filter(item=>item.displayAddress);
    setAddressSuggestions(results);
   }catch(error){if(error.name!=="AbortError")setAddressSuggestions([])}
