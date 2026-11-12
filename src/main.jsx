@@ -40,7 +40,7 @@ function ShopBrandMark({shop}){
  return <div className={`shop-card-banner shop-card-banner-${id}`}>
   {banner&&<img className="shop-card-banner-photo" src={banner} alt={name+" — фото блюд"} loading="lazy"/>}
   <span className="shop-card-banner-brand">
-   {logo&&<img src={logo} alt={name+" — логотип"} loading="lazy" onError={e=>{e.currentTarget.style.display="none"}}/>}
+   {logo&&<><img src={logo} alt={name+" — логотип"} loading="lazy" onError={e=>{e.currentTarget.style.display="none";const f=e.currentTarget.nextElementSibling;if(f)f.style.display="block"}}/><b className={`shop-card-banner-wordmark shop-card-banner-wordmark-${id}`} style={{display:"none"}}>{id===7?"ROSTIC'S":id===9?"5":id===10?"М": "М.КОСМЕТИК"}</b></>}
   </span>
  </div>;
 }
