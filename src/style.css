@@ -1559,6 +1559,26 @@ h1,h2,h3,.section-head h2,.page-title h1,.store-hero h1{
 .shop-card .shop-visual .shop-card-banner-10 .shop-card-banner-brand{background:#fff}
 .shop-card .shop-visual .shop-card-banner-14 .shop-card-banner-brand{background:#fff}
 .shop-card .shop-visual>small{z-index:3}
+
+/* Verified real store photography for the four chain cards. */
+.shop-card .shop-visual .shop-card-banner-7{
+ background-image:url("https://icdn.lenta.ru/images/2023/04/25/10/20230425105728514/owl_pic_620_8f3ce8f42213048990b66c582e181332.jpg");
+ background-size:cover;background-position:center 48%;
+}
+.shop-card .shop-visual .shop-card-banner-9{
+ background-image:url("https://img.artlebedev.ru/everything/5ka/future-stores-interiors/5ka-ds-grid-02.jpg");
+ background-size:cover;background-position:center;
+}
+.shop-card .shop-visual .shop-card-banner-10{
+ background-image:url("https://www.magnit.com/upload/iblock/b42/y6bck7t2tfnrpuso9dk74ceyjqxqjshy/DSCF5744.JPG");
+ background-size:cover;background-position:center;
+}
+.shop-card .shop-visual .shop-card-banner-14{
+ background-image:url("https://new-retail.ru/upload/resize_cache/iblock/e9f/972_648_2/xo4kq9u5hkyxz123o13cxifyflswni2nw.png.pagespeed.ic.sEqTF_lmEC.webp");
+ background-size:cover;background-position:center;
+}
+.shop-card .shop-visual .shop-card-banner-brand:empty{display:none!important}
+
 .shop-card-7 .shop-card-copy .shop-title-row,
 .shop-card-9 .shop-card-copy .shop-title-row,
 .shop-card-10 .shop-card-copy .shop-title-row,
