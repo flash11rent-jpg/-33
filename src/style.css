@@ -1516,3 +1516,11 @@ h1,h2,h3,.section-head h2,.page-title h1,.store-hero h1{
 
 .category-tile>span{overflow:hidden}
 .category-tile>span img{width:100%;height:100%;display:block;object-fit:cover;border-radius:inherit}
+
+
+/* Shop-card background editor */
+.admin-color-field{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 14px;border:1px solid #e5ebe5;border-radius:13px;background:#fff;font-size:13px;font-weight:750;color:#294638}
+.admin-color-field>span{display:flex;align-items:center;gap:8px;margin-left:auto}
+.admin-color-field input[type=color]{width:42px;height:36px;padding:3px;border:1px solid #dce5dc;border-radius:9px;background:#fff;cursor:pointer}
+.admin-color-field code{font-size:12px;color:#64766b}
+.shop-card .shop-card-copy{background:inherit}
