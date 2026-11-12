@@ -59,20 +59,25 @@ function ShopMiniIcon({shop}){
   <span className="shop-mini-brand-fallback">{id===13?"ШК":id===11?"П":"✦"}</span>
  </span>;
 }
-async function prepareCatalogImage(file) {
+async function prepareCatalogImage(file,aspectRatio=1) {
  if(!file) return null;
  if(!["image/jpeg","image/png","image/webp"].includes(file.type)) throw new Error("Подойдут фотографии JPG, PNG или WebP.");
  const bitmap=await createImageBitmap(file);
- let scale=Math.min(1,1200/Math.max(bitmap.width,bitmap.height));
+ const sourceRatio=bitmap.width/bitmap.height;
+ let sx=0,sy=0,sw=bitmap.width,sh=bitmap.height;
+ if(sourceRatio>aspectRatio){sw=bitmap.height*aspectRatio;sx=(bitmap.width-sw)/2}
+ else if(sourceRatio<aspectRatio){sh=bitmap.width/aspectRatio;sy=(bitmap.height-sh)/2}
+ let scale=Math.min(1,1200/Math.max(sw,sh));
  let blob=null;
- for(let attempt=0;attempt<4;attempt++){
+ for(let attempt=0;attempt<5;attempt++){
   const canvas=document.createElement("canvas");
-  canvas.width=Math.max(1,Math.round(bitmap.width*scale));
-  canvas.height=Math.max(1,Math.round(bitmap.height*scale));
+  canvas.width=Math.max(1,Math.round(sw*scale));
+  canvas.height=Math.max(1,Math.round(sh*scale));
   const ctx=canvas.getContext("2d");
-  if(!ctx) throw new Error("Не удалось обработать фотографию.");
-  ctx.drawImage(bitmap,0,0,canvas.width,canvas.height);
-  blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/webp",0.82-attempt*0.07));
+  if(!ctx){bitmap.close?.();throw new Error("Не удалось обработать фотографию.")}
+  ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality="high";
+  ctx.drawImage(bitmap,sx,sy,sw,sh,0,0,canvas.width,canvas.height);
+  blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/webp",0.84-attempt*0.06));
   if(blob&&blob.size<=560*1024) break;
   scale*=0.78;
  }
@@ -86,21 +91,22 @@ async function prepareCatalogImage(file) {
  });
 }
 
-function PhotoPicker({value,onChange,title="Фотография",wide=false,hint=""}) {
+function PhotoPicker({value,onChange,title="Фотография",wide=false,hint="",aspectRatio=1}) {
  const [busy,setBusy]=useState(false);
  const [error,setError]=useState("");
  async function choose(file){
   if(!file)return;
   setBusy(true);setError("");
-  try{onChange(await prepareCatalogImage(file))}
+  try{onChange(await prepareCatalogImage(file,aspectRatio))}
   catch(e){setError(e.message||"Не удалось загрузить фото")}
   finally{setBusy(false)}
  }
+ const cropLabel=aspectRatio>1?"16:9":aspectRatio<1?"вертикальный":"1:1";
  return <div className={"admin-photo-picker"+(wide?" wide":"")}>
-  <div className="admin-photo-preview">{value?<img src={value} alt={title}/>:<span>📷</span>}</div>
+  <div className="admin-photo-preview" style={{aspectRatio:String(aspectRatio)}}>{value?<img src={value} alt={title+" — итоговая обрезка"}/>:<span>📷</span>}</div>
   <div className="admin-photo-actions">
    <b>{title}</b>
-   <small>{hint||"JPG, PNG или WebP. Фото автоматически уменьшится и сохранится в WebP."}</small>
+   <small>{hint||"JPG, PNG или WebP. Фото автоматически обрежется по центру под формат "+cropLabel+", уменьшится и сохранится в WebP."}</small>
    <label className="admin-upload-button">{busy?"Обрабатываем…":value?"Заменить фото":"Загрузить фото"}<input type="file" accept="image/jpeg,image/png,image/webp" disabled={busy} onChange={e=>{choose(e.target.files?.[0]);e.target.value=""}}/></label>
    {value&&<button type="button" className="admin-clear-photo" onClick={()=>{setError("");onChange(null)}}>Убрать фото</button>}
    {error&&<small className="admin-photo-error">{error}</small>}
@@ -383,8 +389,8 @@ return <div className="app-shell">
  <div className="admin-section-heading"><div><span className="eyebrow dark">УПРАВЛЕНИЕ ВИТРИНОЙ</span><h2>Магазины</h2><p>Создавайте карточки магазинов и меняйте всё, что увидит покупатель.</p></div><span className="admin-count">{adminShops.length} шт.</span></div>
  <div className="admin-editor-card">
   <div className="admin-editor-title"><span className="admin-step">1</span><div><b>{editingShopId?"Изменить карточку магазина":"Создать магазин"}</b><small>Название, описание, фотография и контакты</small></div></div>
-  <PhotoPicker title="Фото карточки магазина" hint="Лучше горизонтальное фото 16:9: фасад, витрина или узнаваемый вид магазина." wide value={shopForm.imageUrl} onChange={v=>setShopForm({...shopForm,imageUrl:v})}/>
-  <PhotoPicker title="Маленький логотип в квадратике" hint="Квадратная картинка 1:1 — логотип рядом с названием магазина." value={shopForm.logoUrl} onChange={v=>setShopForm({...shopForm,logoUrl:v})}/>
+  <PhotoPicker title="Фото карточки магазина" hint="Автообрезка по центру 16:9 — в превью показан итоговый кадр карточки." aspectRatio={16/9} wide value={shopForm.imageUrl} onChange={v=>setShopForm({...shopForm,imageUrl:v})}/>
+  <PhotoPicker title="Маленький логотип в квадратике" hint="Автообрезка по центру 1:1 — так логотип будет выглядеть в карточке." aspectRatio={1} value={shopForm.logoUrl} onChange={v=>setShopForm({...shopForm,logoUrl:v})}/>
   <label className="admin-color-field">Фон карточки магазина <span><input type="color" value={shopForm.cardBackground||"#ffffff"} onChange={e=>setShopForm({...shopForm,cardBackground:e.target.value})}/><code>{shopForm.cardBackground||"#ffffff"}</code></span><button type="button" className="admin-secondary-button" onClick={()=>setShopForm({...shopForm,cardBackground:"#ffffff"})}>Сбросить фон</button></label>
   <div className="admin-form-grid">
    <label>Название магазина *<input value={shopForm.name} onChange={e=>setShopForm({...shopForm,name:e.target.value})} placeholder="Например, Магнит"/></label>
@@ -410,7 +416,7 @@ return <div className="app-shell">
  <div className="admin-howto"><b>Как добавить товар?</b><ol><li>Выберите магазин.</li><li>Напишите понятное название и цену.</li><li>Загрузите настоящее фото товара.</li><li>Нажмите «Опубликовать товар».</li></ol></div>
  <div className="admin-editor-card">
   <div className="admin-editor-title"><span className="admin-step">1</span><div><b>{editingProductId?"Редактировать товар":"Новый товар"}</b><small>Обязательные поля отмечены звёздочкой *</small></div></div>
-  <PhotoPicker title="Фото товара" hint="Лучше квадратное фото 1:1: один товар крупно, без коллажей и мелкого текста." wide value={productForm.imageUrl} onChange={v=>setProductForm({...productForm,imageUrl:v})}/>
+  <PhotoPicker title="Фото товара" hint="Автообрезка по центру 1:1 — превью показывает точный кадр для каталога." aspectRatio={1} wide value={productForm.imageUrl} onChange={v=>setProductForm({...productForm,imageUrl:v})}/>
   <div className="admin-form-grid">
    <label>В какой магазин добавить? *<select value={productForm.shopId} onChange={e=>setProductForm({...productForm,shopId:e.target.value})}><option value="">Выберите магазин</option>{adminShops.filter(s=>s.is_active).map(s=><option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
    <label>Название товара *<input value={productForm.name} onChange={e=>setProductForm({...productForm,name:e.target.value})} placeholder="Например, Молоко 3,2%"/></label>
@@ -440,13 +446,13 @@ return <div className="app-shell">
    <label>Эмодзи, если нет фотографии<input value={categoryForm.emoji} onChange={e=>setCategoryForm({...categoryForm,emoji:e.target.value})} placeholder="🛍️"/></label>
    <label>Порядок на витрине<input type="number" min="0" value={categoryForm.sortOrder} onChange={e=>setCategoryForm({...categoryForm,sortOrder:e.target.value})}/></label>
   </div>
-  <PhotoPicker title="Фото категории (необязательно)" hint="Лучше квадратное фото 1:1, чтобы оно аккуратно смотрелось на плитке главной страницы." wide value={categoryForm.imageUrl} onChange={v=>setCategoryForm({...categoryForm,imageUrl:v})}/>
+  <PhotoPicker title="Фото категории (необязательно)" hint="Автообрезка по центру 1:1 — превью показывает вид плитки на главной." aspectRatio={1} wide value={categoryForm.imageUrl} onChange={v=>setCategoryForm({...categoryForm,imageUrl:v})}/>
   <button className="primary-button" disabled={categorySaving||categoryForm.name.trim().length<2} onClick={createCategory}>{categorySaving?"Создаём…":"Добавить категорию"}</button>
  </div>
  {["shop","product"].map(kind=><div className="admin-category-group" key={kind}>
   <div className="admin-list-heading"><b>{kind==="shop"?"Категории магазинов":"Категории товаров"}</b><small>{adminCategories.filter(x=>x.category_type===kind).length} категорий</small></div>
   {adminCategories.filter(x=>x.category_type===kind).map(item=><article className="admin-category-card" key={item.id}>
-   <PhotoPicker title="Фото категории" hint="Квадратное фото 1:1 смотрится лучше всего." value={item.image_url||null} onChange={v=>setAdminCategories(old=>old.map(x=>x.id===item.id?{...x,image_url:v}:x))}/>
+   <PhotoPicker title="Фото категории" hint="Автообрезка по центру 1:1 — превью показывает итоговый вид." aspectRatio={1} value={item.image_url||null} onChange={v=>setAdminCategories(old=>old.map(x=>x.id===item.id?{...x,image_url:v}:x))}/>
    <div className="admin-form-grid"><label>Название<input value={item.name} onChange={e=>setAdminCategories(old=>old.map(x=>x.id===item.id?{...x,name:e.target.value}:x))}/></label><label>Эмодзи<input value={item.emoji||""} onChange={e=>setAdminCategories(old=>old.map(x=>x.id===item.id?{...x,emoji:e.target.value}:x))}/></label><label>Порядок<input type="number" value={item.sort_order} onChange={e=>setAdminCategories(old=>old.map(x=>x.id===item.id?{...x,sort_order:Number(e.target.value)}:x))}/></label></div>
    <label className="admin-checkbox"><input type="checkbox" checked={item.is_active} onChange={e=>setAdminCategories(old=>old.map(x=>x.id===item.id?{...x,is_active:e.target.checked}:x))}/> Показывать категорию</label>
    <button className="primary-button" onClick={()=>saveCategory(item)}>Сохранить категорию</button>
