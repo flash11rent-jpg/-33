@@ -36,7 +36,6 @@ function ShopBrandMark({shop}){
 }
 function ShopMiniIcon({shop}){
  const id=Number(shop.id);
- if(id<7||id>15)return null;
  const logos={
   7:"https://logo-teka.com/wp-content/uploads/2025/07/rostics-logo.svg",
   8:"https://cdn.foodsoul.ru/zones/ru/chains/6407/images/main/40b41d64c305e11a726fc2dd93cb9876.png?v1692435179",
@@ -47,7 +46,8 @@ function ShopMiniIcon({shop}){
   14:"https://logo-teka.com/wp-content/uploads/2025/06/magnit-cosmetic-logo.svg",
   15:"https://shift.dodobrands.io/images/graphic-design/logo-all-languages/RU.png"
  };
- const src=logos[id];
+ const src=shop.logo_url||logos[id];
+ if(!src&&id<7)return null;
  return <span className={"shop-mini-brand shop-mini-brand-"+id}>
   {src&&<img src={src} alt="" loading="lazy" onError={e=>{e.currentTarget.style.display="none";const f=e.currentTarget.nextElementSibling;if(f)f.style.display="grid"}}/>}
   <span className="shop-mini-brand-fallback">{id===13?"ШК":id===11?"П":"✦"}</span>
@@ -154,7 +154,7 @@ const [adminIndividualRequests,setAdminIndividualRequests]=useState([]);
 const [shopData,setShopData]=useState(shops),[productData,setProductData]=useState([]),[catalogLoading,setCatalogLoading]=useState(true),[productSectionFilter,setProductSectionFilter]=useState("Все");
 const [operatorTab,setOperatorTab]=useState("orders"),[adminShops,setAdminShops]=useState([]),[adminProducts,setAdminProducts]=useState([]),[adminCategories,setAdminCategories]=useState([]);
 const [shopCategories,setShopCategories]=useState(shopCategoryFallback);
-const [editingShopId,setEditingShopId]=useState(null),[shopForm,setShopForm]=useState({name:"",category:"Продукты",description:"",imageUrl:null,website:"",phone:"",address:"",mapsUrl:"",isActive:true});
+const [editingShopId,setEditingShopId]=useState(null),[shopForm,setShopForm]=useState({name:"",category:"Продукты",description:"",imageUrl:null,logoUrl:null,cardBackground:"#ffffff",website:"",phone:"",address:"",mapsUrl:"",isActive:true});
 const [editingProductId,setEditingProductId]=useState(null),[productForm,setProductForm]=useState({shopId:"",name:"",priceRub:"",unit:"шт.",category:"Другое",description:"",imageUrl:null,sourceUrl:"",isActive:true});
 const [categoryForm,setCategoryForm]=useState({name:"",categoryType:"product",emoji:"🛍️",imageUrl:null,sortOrder:100});
 const [newShopName,setNewShopName]=useState(""),[newShopCategory,setNewShopCategory]=useState("Продукты");
@@ -169,7 +169,7 @@ useEffect(()=>{
   .then(response=>{if(!response.ok)throw new Error("Каталог временно недоступен");return response.json()})
   .then(data=>{
    if(cancelled)return;
-   const nextShops=(data.shops||[]).map(s=>({...s,icon:shops.find(x=>x.id===s.id)?.icon||({5:"🥐",6:"🛠️",7:"🍗",8:"🥙",9:"🛒",10:"🛍️",11:"🔩",12:"🍣",13:"🦀",14:"💄",15:"🍕"}[s.id]||"🏬"),time:shops.find(x=>x.id===s.id)?.time||"30–60 мин",description:s.description||shops.find(x=>x.id===s.id)?.description||"Товары с доставкой по Тимашевску",imageUrl:s.image_url||(s.id===12?"https://storage.yandexcloud.net/yobiweb-storage-prod/42e3e1d5-084d-4f04-baf2-ff7f695f0ae0/e9bf70c9-f9b4-4a03-9cdc-7e03bb03dcec/web/logo_y.svg":s.id===6?"https://stroy.cataloged.ru/pics/pp/pics/logo/master_210730_20260508.webp":null),website:s.website,phone:s.phone,address:s.address,mapsUrl:s.maps_url}));
+   const nextShops=(data.shops||[]).map(s=>({...s,logo_url:s.logo_url,card_background:s.card_background,icon:shops.find(x=>x.id===s.id)?.icon||({5:"🥐",6:"🛠️",7:"🍗",8:"🥙",9:"🛒",10:"🛍️",11:"🔩",12:"🍣",13:"🦀",14:"💄",15:"🍕"}[s.id]||"🏬"),time:shops.find(x=>x.id===s.id)?.time||"30–60 мин",description:s.description||shops.find(x=>x.id===s.id)?.description||"Товары с доставкой по Тимашевску",imageUrl:s.image_url||(s.id===12?"https://storage.yandexcloud.net/yobiweb-storage-prod/42e3e1d5-084d-4f04-baf2-ff7f695f0ae0/e9bf70c9-f9b4-4a03-9cdc-7e03bb03dcec/web/logo_y.svg":s.id===6?"https://stroy.cataloged.ru/pics/pp/pics/logo/master_210730_20260508.webp":null),website:s.website,phone:s.phone,address:s.address,mapsUrl:s.maps_url}));
    const nextProducts=(data.products||[]).map(p=>({...p,shop:p.shop_id,price:p.price_rub,icon:productIcons[p.id]||productIconFor(p),imageUrl:p.image_url,category:p.category,description:p.description,sourceUrl:p.source_url}));
    // Do not replace the usable starter catalogue with empty arrays if a new database is not seeded yet.
    if(nextShops.length){setShopData(nextShops);setProductData(nextProducts);setActiveShop(current=>current?nextShops.find(s=>s.id===current.id)||current:current);if(Array.isArray(data.categories))setShopCategories(data.categories.filter(x=>x.category_type==="shop"))}
@@ -241,13 +241,13 @@ async function loadAdminCatalog(session=adminSession){
   setAdminShops(data.shops||[]);setAdminProducts(data.products||[]);setAdminCategories(data.categories||[]);setShopCategories((data.categories||[]).filter(x=>x.category_type==="shop"));
  }catch(error){setAdminError(error.message||"Ошибка загрузки каталога")}
 }
-function resetShopForm(){setEditingShopId(null);setShopForm({name:"",category:shopCategories[0]?.name||"Продукты",description:"",imageUrl:null,website:"",phone:"",address:"",mapsUrl:"",isActive:true});}
-function editShop(shop){setEditingShopId(shop.id);setShopForm({name:shop.name||"",category:shop.category||"Продукты",description:shop.description||"",imageUrl:shop.image_url||null,website:shop.website||"",phone:shop.phone||"",address:shop.address||"",mapsUrl:shop.maps_url||"",isActive:Boolean(shop.is_active)});window.scrollTo({top:0,behavior:"smooth"});}
+function resetShopForm(){setEditingShopId(null);setShopForm({name:"",category:shopCategories[0]?.name||"Продукты",description:"",imageUrl:null,logoUrl:null,cardBackground:"#ffffff",website:"",phone:"",address:"",mapsUrl:"",isActive:true});}
+function editShop(shop){setEditingShopId(shop.id);setShopForm({name:shop.name||"",category:shop.category||"Продукты",description:shop.description||"",imageUrl:shop.image_url||null,logoUrl:shop.logo_url||null,cardBackground:shop.card_background||"#ffffff",website:shop.website||"",phone:shop.phone||"",address:shop.address||"",mapsUrl:shop.maps_url||"",isActive:Boolean(shop.is_active)});window.scrollTo({top:0,behavior:"smooth"});}
 async function saveShopForm(){
  if(shopForm.name.trim().length<2){setAdminError("Напишите название магазина.");return}
  setShopSaving(true);
  try{
-  const payload={name:shopForm.name.trim(),category:shopForm.category,description:shopForm.description,imageUrl:shopForm.imageUrl||null,website:shopForm.website,phone:shopForm.phone,address:shopForm.address,mapsUrl:shopForm.mapsUrl,...(editingShopId?{isActive:shopForm.isActive}:{})};
+  const payload={name:shopForm.name.trim(),category:shopForm.category,description:shopForm.description,imageUrl:shopForm.imageUrl||null,logoUrl:shopForm.logoUrl||null,cardBackground:shopForm.cardBackground||"#ffffff",website:shopForm.website,phone:shopForm.phone,address:shopForm.address,mapsUrl:shopForm.mapsUrl,...(editingShopId?{isActive:shopForm.isActive}:{})};
   const response=await fetch(API_URL+(editingShopId?"/api/admin/shops/"+editingShopId:"/api/admin/shops"),{method:editingShopId?"PATCH":"POST",headers:{"Content-Type":"application/json",...(adminSession?{Authorization:"Bearer "+adminSession}:{})},body:JSON.stringify(payload)});
   const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||"Не удалось сохранить магазин");
   resetShopForm();await loadAdminCatalog();setAdminError("");setNotice(editingShopId?"Изменения магазина сохранены":"Магазин создан");
@@ -358,7 +358,7 @@ return <div className="app-shell">
 <section className="delivery-promo"><div className="promo-icon">🚗</div><div><b>Доставим до двери</b><span>Минимальный заказ — 700 ₽ · Работаем с 09:00 до 21:00</span></div><ArrowRight size={17}/></section>
 <button className="individual-order-promo" onClick={()=>setPage("individual-order")}><span className="individual-order-icon">✦</span><span><b>Не нашли нужный магазин?</b><small>Закажите из любого магазина Тимашевска — просто напишите список покупок</small><strong>Оформить индивидуальный заказ <ArrowRight size={15}/></strong></span></button>
 <div className="section-head shops-heading" id="shops"><div><span className="eyebrow dark">ВЫБИРАЙТЕ МЕСТО</span><h2>Магазины рядом</h2></div><span className="muted">{visibleShops.length} {shopCountLabel(visibleShops.length)}</span></div>
-<div className="shop-grid">{visibleShops.map((s,i)=><button className={`shop-card shop-card-v2 shop-tone-${i%3} shop-card-${Number(s.id)} ${Number(s.id)===12?"shop-card-yobidoyobi":""} ${Number(s.id)===11?"shop-card-povorot":""}`} key={s.id} onClick={()=>{const q=query.trim().toLocaleLowerCase("ru-RU");const productMatch=Boolean(q&&productData.some(p=>p.shop===s.id&&p.name.toLocaleLowerCase("ru-RU").includes(q)));setActiveShop(s);setProductSectionFilter("Все");setPage("shop");if(!productMatch)setQuery("")}}><div className="shop-visual"><ShopBrandMark shop={s}/><span className="shop-card-photo-fallback" style={{display:(s.imageUrl||[7,9,10,14,15].includes(Number(s.id)))?"none":"grid"}}>{s.icon||"🏬"}</span><small>{s.time}</small></div><div className="shop-card-copy"><span className="shop-category">{s.category}</span><div className="shop-title-row"><ShopMiniIcon shop={s}/><b>{s.name}</b></div><small>{s.description}</small><span className="shop-foot">Открыть магазин <ArrowRight size={15}/></span></div></button>)}</div>
+<div className="shop-grid">{visibleShops.map((s,i)=><button style={{backgroundColor:s.card_background||undefined}} className={`shop-card shop-card-v2 shop-tone-${i%3} shop-card-${Number(s.id)} ${Number(s.id)===12?"shop-card-yobidoyobi":""} ${Number(s.id)===11?"shop-card-povorot":""}`} key={s.id} onClick={()=>{const q=query.trim().toLocaleLowerCase("ru-RU");const productMatch=Boolean(q&&productData.some(p=>p.shop===s.id&&p.name.toLocaleLowerCase("ru-RU").includes(q)));setActiveShop(s);setProductSectionFilter("Все");setPage("shop");if(!productMatch)setQuery("")}}><div className="shop-visual"><ShopBrandMark shop={s}/><span className="shop-card-photo-fallback" style={{display:(s.imageUrl||[7,9,10,14,15].includes(Number(s.id)))?"none":"grid"}}>{s.icon||"🏬"}</span><small>{s.time}</small></div><div className="shop-card-copy"><span className="shop-category">{s.category}</span><div className="shop-title-row"><ShopMiniIcon shop={s}/><b>{s.name}</b></div><small>{s.description}</small><span className="shop-foot">Открыть магазин <ArrowRight size={15}/></span></div></button>)}</div>
 <p className="demo-note">Каталог загружается из базы сервиса. Актуальные цены и наличие оператор подтвердит перед сборкой заказа.</p>
 </div>}{page==="shop"&&activeShop&&<div className={`storefront ${(Number(activeShop.id)===5||activeShop.name==="Хлебный дворик")?"bakery-storefront":Number(activeShop.id)===6||activeShop.name==="Мастер"?"construction-storefront":Number(activeShop.id)===12||activeShop.name==="Ёбидоёби"?"yobidoyobi-storefront":Number(activeShop.id)===11||activeShop.name==="Поворот"?"povorot-storefront":Number(activeShop.id)===1?"grocery-storefront":Number(activeShop.id)===2?"flower-storefront":Number(activeShop.id)===4?"homegoods-storefront":Number(activeShop.id)===9?"pyaterochka-storefront":Number(activeShop.id)===10?"magnit-storefront":Number(activeShop.id)===7?"rostics-storefront":Number(activeShop.id)===8?"perlins-storefront":Number(activeShop.id)===13?"crab-storefront":Number(activeShop.id)===15?"dodo-storefront":""}`}>
 
@@ -378,6 +378,8 @@ return <div className="app-shell">
  <div className="admin-editor-card">
   <div className="admin-editor-title"><span className="admin-step">1</span><div><b>{editingShopId?"Изменить карточку магазина":"Создать магазин"}</b><small>Название, описание, фотография и контакты</small></div></div>
   <PhotoPicker title="Фото карточки магазина" hint="Лучше горизонтальное фото 16:9: фасад, витрина или узнаваемый вид магазина." wide value={shopForm.imageUrl} onChange={v=>setShopForm({...shopForm,imageUrl:v})}/>
+  <PhotoPicker title="Маленький логотип в квадратике" hint="Квадратная картинка 1:1 — логотип рядом с названием магазина." value={shopForm.logoUrl} onChange={v=>setShopForm({...shopForm,logoUrl:v})}/>
+  <label className="admin-color-field">Фон карточки магазина <span><input type="color" value={shopForm.cardBackground||"#ffffff"} onChange={e=>setShopForm({...shopForm,cardBackground:e.target.value})}/><code>{shopForm.cardBackground||"#ffffff"}</code></span><button type="button" className="admin-secondary-button" onClick={()=>setShopForm({...shopForm,cardBackground:"#ffffff"})}>Сбросить фон</button></label>
   <div className="admin-form-grid">
    <label>Название магазина *<input value={shopForm.name} onChange={e=>setShopForm({...shopForm,name:e.target.value})} placeholder="Например, Магнит"/></label>
    <label>Категория *<select value={shopForm.category} onChange={e=>setShopForm({...shopForm,category:e.target.value})}>{[...new Set([...adminCategories.filter(x=>x.category_type==="shop").map(x=>x.name),...shopCategories.map(x=>x.name),shopForm.category].filter(Boolean))].map(x=><option key={x}>{x}</option>)}</select></label>
