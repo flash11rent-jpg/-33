@@ -153,7 +153,7 @@ app.get("/api/catalog", async (_req, res, next) => {
       pool.query("SELECT id, name, category_type, emoji, image_url, sort_order FROM catalog_categories WHERE is_active = TRUE ORDER BY category_type, sort_order, name")
     ]);
     return res.set("Cache-Control", "public, max-age=30, stale-while-revalidate=120").json({
-      shops: shopsResult.rows.map(item => ({...item, image_url: catalogImageUrl("shop", item.id, item.image_url)})),
+      shops: shopsResult.rows.map(item => ({...item, image_url: catalogImageUrl("shop", item.id, item.image_url), logo_url: item.logo_url ? catalogImageUrl("shop-logo", item.id, item.logo_url) : null})),
       products: productsResult.rows.map(item => ({...item, image_url: catalogImageUrl("product", item.id, item.image_url)})),
       categories: categoriesResult.rows.map(item => ({...item, image_url: catalogImageUrl("category", item.id, item.image_url)}))
     });
@@ -310,7 +310,7 @@ app.get("/api/admin/catalog", requireAdmin, async (_req, res, next) => {
       pool.query("SELECT id, name, category_type, emoji, image_url, sort_order, is_active FROM catalog_categories ORDER BY category_type, sort_order, name")
     ]);
     return res.json({
-      shops: shops.rows.map(item => ({...item, image_url: catalogImageUrl("shop", item.id, item.image_url)})),
+      shops: shops.rows.map(item => ({...item, image_url: catalogImageUrl("shop", item.id, item.image_url), logo_url: item.logo_url ? catalogImageUrl("shop-logo", item.id, item.logo_url) : null})),
       products: products.rows.map(item => ({...item, image_url: catalogImageUrl("product", item.id, item.image_url)})),
       categories: categories.rows.map(item => ({...item, image_url: catalogImageUrl("category", item.id, item.image_url)}))
     });
