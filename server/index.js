@@ -352,7 +352,7 @@ app.patch("/api/admin/shops/:id", requireAdmin, async (req, res, next) => {
     if (!parsed.success) return res.status(400).json({ error: "Проверьте данные карточки магазина" });
     const d = parsed.data;
     const result = await pool.query(
-      "UPDATE shops SET name=$1,category=$2,description=$3,image_url=CASE WHEN $4=$10 THEN image_url ELSE $4 END,logo_url=CASE WHEN $5=$11 THEN logo_url ELSE $5 END,card_background=$6,website=$7,phone=$8,address=$9,maps_url=$12,is_active=$13 WHERE id=$14 RETURNING id,name,category,description,image_url,logo_url,card_background,website,phone,address,maps_url,is_active",
+      "UPDATE shops SET name=$1,category=$2,description=$3,image_url=CASE WHEN $4=$12 THEN image_url ELSE $4 END,logo_url=CASE WHEN $5=$11 THEN logo_url ELSE $5 END,card_background=$6,website=$7,phone=$8,address=$9,maps_url=$10,is_active=$13 WHERE id=$14 RETURNING id,name,category,description,image_url,logo_url,card_background,website,phone,address,maps_url,is_active",
       [d.name,d.category,d.description,d.imageUrl??null,d.logoUrl??null,d.cardBackground,d.website||null,d.phone||null,d.address||null,d.mapsUrl||null,publicApiUrl + "/api/media/shop-logo/" + req.params.id,publicApiUrl + "/api/media/shop/" + req.params.id,d.isActive,req.params.id]
     );
     if (!result.rowCount) return res.status(404).json({ error: "Магазин не найден" });
