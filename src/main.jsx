@@ -35,7 +35,7 @@ function ShopBrandMark({shop}){
  const labels={7:"ROSTIC'S",9:"ПЯТЁРОЧКА",10:"МАГНИТ",14:"М.КОСМЕТИК"};
  return <div className={"shop-card-banner shop-card-banner-"+id+" shop-card-banner-"+themes[id]} aria-label={labels[id]}>
   <span className="shop-card-banner-brand">
-   {logo&&<><img src={logo} alt={labels[id]+" — логотип"} loading="eager" onError={e=>{e.currentTarget.style.display="none";e.currentTarget.nextElementSibling.style.display="block"}}/><b className={"shop-card-banner-wordmark shop-card-banner-wordmark-"+id}>{labels[id]}</b></>}
+   {logo&&<><img src={logo} alt={labels[id]+" — логотип"} loading="eager" onError={e=>{e.currentTarget.style.display="none";e.currentTarget.parentElement.classList.add("logo-failed")}}/><b className={"shop-card-banner-wordmark shop-card-banner-wordmark-"+id}>{labels[id]}</b></>}
   </span>
  </div>;
 }
