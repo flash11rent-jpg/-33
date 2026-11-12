@@ -1682,3 +1682,24 @@ h1,h2,h3,.section-head h2,.page-title h1,.store-hero h1{
  width:min(78%,330px)!important;height:78%!important;padding:12px!important;
  border-radius:16px!important;background:#fff!important;
 }
+
+
+/* Chain detail headers use the same official brand marks as the catalog cards. */
+.store-hero .shop-card-banner{position:relative;z-index:2;width:118px;height:104px;flex:0 0 118px;display:grid;place-items:center;overflow:hidden;border-radius:18px;background:#fff;padding:10px;box-sizing:border-box}
+.store-hero .shop-card-banner-brand{display:grid;place-items:center;width:100%;height:100%;padding:8px;background:#fff;border-radius:12px;box-sizing:border-box}
+.store-hero .shop-card-banner-brand img{display:block;width:100%;height:100%;object-fit:contain}
+.store-hero .shop-card-banner-wordmark{display:none}
+.store-hero .shop-card-banner-7{background:linear-gradient(135deg,#b70f1c,#e22b34)}
+.store-hero .shop-card-banner-9{background:linear-gradient(125deg,#08783c 0 55%,#d51e32 55%)}
+.store-hero .shop-card-banner-10{background:linear-gradient(135deg,#a90e25,#d51f32)}
+.store-hero .shop-card-banner-14{background:linear-gradient(135deg,#9d286f,#d64a91)}
+.store-hero .shop-card-banner-15{background:#ff6900}
+.store-hero .shop-card-banner-15 .shop-card-banner-brand{background:transparent;padding:0}
+.mcosmetic-storefront{background:radial-gradient(ellipse at 95% 0%,#fce2ef 0,transparent 35%),linear-gradient(180deg,#fff4fa,#fff 48%,#fff8fb)}
+.mcosmetic-storefront .store-hero{background:linear-gradient(115deg,#8f2867,#d64a91 62%,#ee9bc2);border:1px solid #d64a91;border-radius:23px;box-shadow:0 14px 30px #8f286726;position:relative;overflow:hidden;isolation:isolate;min-height:166px}
+.mcosmetic-storefront .store-hero h1{color:#fff;font-weight:950}
+.mcosmetic-storefront .store-hero small,.mcosmetic-storefront .store-hero p{color:#fff0f7}
+.mcosmetic-storefront .store-category-tabs button.active{background:#c63883;border-color:#c63883}
+.mcosmetic-storefront .product-details strong{color:#c63883}
+.mcosmetic-storefront .add-button{background:linear-gradient(135deg,#d64a91,#9d286f)}
+@media(max-width:520px){.store-hero .shop-card-banner{width:82px;height:82px;flex-basis:82px}}
