@@ -23,22 +23,23 @@ const money=n=>new Intl.NumberFormat("ru-RU").format(n)+" ₽";
 function ShopBrandMark({shop}){
  const id=Number(shop.id), name=shop.name||"Магазин";
  const logos={
-  7:"https://logo-teka.com/wp-content/uploads/2025/07/rostics-logo.svg",
+  7:"https://avatars.mds.yandex.net/get-bunker/120922/b0403cbccf0445403506c8b5129d5fb5db88b7c5/orig",
   9:"https://logo-teka.com/wp-content/uploads/2025/06/pyaterochka-logo.svg",
   10:"https://www.magnit.com/images/logo/logo--red--ru.svg",
-  14:"https://logo-teka.com/wp-content/uploads/2025/06/magnit-cosmetic-logo.svg",
-  15:"https://shift.dodobrands.io/images/graphic-design/logo-all-languages/RU.png"
+  14:"https://logo-teka.com/wp-content/uploads/2025/06/magnit-cosmetic-logo.svg"
  };
- const heroPhotos={
-  7:"https://www.depotwpf.ru/upload/resize_cache/iblock/4e2/1500_949_1/xdxap9clwn8s0r35fxearcrm9rst9qvi.jpg",
-  9:"https://img.artlebedev.ru/everything/5ka/future-stores-interiors/5ka-ds-slider1-01.jpg",
-  10:"https://www.magnit.com/upload/iblock/b42/y6bck7t2tfnrpuso9dk74ceyjqxqjshy/DSCF5744.JPG",
-  14:"https://www.retail.ru/upload/resize-images/combined/1b39743179a7ac3ca0c9a5ce8d7e75d197d8c0d46cr.jpg.jpg"
+ const banners={
+  7:"https://eda.yandex/images/3709189/b8ccc4b8b96de76f32cea0cd7d83650b-1100x825.jpg"
  };
- const src=heroPhotos[id]||shop.imageUrl||logos[id], isHero=!!heroPhotos[id];
- return src
-  ? <img className={"shop-card-photo"+(!isHero&&logos[id]?" shop-card-logo":"")} src={src} alt={name+" — "+(isHero?"фото магазина":logos[id]?"логотип":"фото магазина")} loading="lazy" onError={e=>{e.currentTarget.style.display="none";const fallback=e.currentTarget.nextElementSibling;if(fallback)fallback.style.display="grid"}}/>
-  : null;
+ const logo=shop.logo_url||logos[id];
+ const banner=banners[id];
+ if(!logo&&!banner)return null;
+ return <div className={`shop-card-banner shop-card-banner-${id}`}>
+  {banner&&<img className="shop-card-banner-photo" src={banner} alt={name+" — фото блюд"} loading="lazy"/>}
+  <span className="shop-card-banner-brand">
+   {logo&&<img src={logo} alt={name+" — логотип"} loading="lazy" onError={e=>{e.currentTarget.style.display="none"}}/>}
+  </span>
+ </div>;
 }
 function ShopMiniIcon({shop}){
  const id=Number(shop.id);
@@ -364,7 +365,7 @@ return <div className="app-shell">
 <section className="delivery-promo"><div className="promo-icon">🚗</div><div><b>Доставим до двери</b><span>Минимальный заказ — 700 ₽ · Работаем с 09:00 до 21:00</span></div><ArrowRight size={17}/></section>
 <button className="individual-order-promo" onClick={()=>setPage("individual-order")}><span className="individual-order-icon">✦</span><span><b>Не нашли нужный магазин?</b><small>Закажите из любого магазина Тимашевска — просто напишите список покупок</small><strong>Оформить индивидуальный заказ <ArrowRight size={15}/></strong></span></button>
 <div className="section-head shops-heading" id="shops"><div><span className="eyebrow dark">ВЫБИРАЙТЕ МЕСТО</span><h2>Магазины рядом</h2></div><span className="muted">{visibleShops.length} {shopCountLabel(visibleShops.length)}</span></div>
-<div className="shop-grid">{visibleShops.map((s,i)=><button style={{backgroundColor:s.card_background||undefined}} className={`shop-card shop-card-v2 shop-tone-${i%3} shop-card-${Number(s.id)} ${Number(s.id)===12?"shop-card-yobidoyobi":""} ${Number(s.id)===11?"shop-card-povorot":""}`} key={s.id} onClick={()=>{const q=query.trim().toLocaleLowerCase("ru-RU");const productMatch=Boolean(q&&productData.some(p=>p.shop===s.id&&p.name.toLocaleLowerCase("ru-RU").includes(q)));setActiveShop(s);setProductSectionFilter("Все");setPage("shop");if(!productMatch)setQuery("")}}><div className="shop-visual"><ShopBrandMark shop={s}/><span className="shop-card-photo-fallback" style={{display:(s.imageUrl||[7,9,10,14,15].includes(Number(s.id)))?"none":"grid"}}>{s.icon||"🏬"}</span><small>{s.time}</small></div><div className="shop-card-copy"><span className="shop-category">{s.category}</span><div className="shop-title-row"><ShopMiniIcon shop={s}/><b>{s.name}</b></div><small>{s.description}</small><span className="shop-foot">Открыть магазин <ArrowRight size={15}/></span></div></button>)}</div>
+<div className="shop-grid">{visibleShops.map((s,i)=><button style={{backgroundColor:s.card_background||undefined}} className={`shop-card shop-card-v2 shop-tone-${i%3} shop-card-${Number(s.id)} ${Number(s.id)===12?"shop-card-yobidoyobi":""} ${Number(s.id)===11?"shop-card-povorot":""}`} key={s.id} onClick={()=>{const q=query.trim().toLocaleLowerCase("ru-RU");const productMatch=Boolean(q&&productData.some(p=>p.shop===s.id&&p.name.toLocaleLowerCase("ru-RU").includes(q)));setActiveShop(s);setProductSectionFilter("Все");setPage("shop");if(!productMatch)setQuery("")}}><div className="shop-visual"><ShopBrandMark shop={s}/><span className="shop-card-photo-fallback" style={{display:(s.imageUrl||[7,9,10,14,15].includes(Number(s.id)))?"none":"grid"}}>{s.icon||"🏬"}</span><small>{s.time}</small></div><div className="shop-card-copy"><span className="shop-category">{s.category}</span><div className="shop-title-row">{![7,9,10,14].includes(Number(s.id))&&<ShopMiniIcon shop={s}/>}<b>{s.name}</b></div><small>{s.description}</small><span className="shop-foot">Открыть магазин <ArrowRight size={15}/></span></div></button>)}</div>
 <p className="demo-note">Каталог загружается из базы сервиса. Актуальные цены и наличие оператор подтвердит перед сборкой заказа.</p>
 </div>}{page==="shop"&&activeShop&&<div className={`storefront ${(Number(activeShop.id)===5||activeShop.name==="Хлебный дворик")?"bakery-storefront":Number(activeShop.id)===6||activeShop.name==="Мастер"?"construction-storefront":Number(activeShop.id)===12||activeShop.name==="Ёбидоёби"?"yobidoyobi-storefront":Number(activeShop.id)===11||activeShop.name==="Поворот"?"povorot-storefront":Number(activeShop.id)===1?"grocery-storefront":Number(activeShop.id)===2?"flower-storefront":Number(activeShop.id)===4?"homegoods-storefront":Number(activeShop.id)===9?"pyaterochka-storefront":Number(activeShop.id)===10?"magnit-storefront":Number(activeShop.id)===7?"rostics-storefront":Number(activeShop.id)===8?"perlins-storefront":Number(activeShop.id)===13?"crab-storefront":Number(activeShop.id)===15?"dodo-storefront":""}`}>
 
