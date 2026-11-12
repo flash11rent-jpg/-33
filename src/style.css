@@ -1703,3 +1703,8 @@ h1,h2,h3,.section-head h2,.page-title h1,.store-hero h1{
 .mcosmetic-storefront .product-details strong{color:#c63883}
 .mcosmetic-storefront .add-button{background:linear-gradient(135deg,#d64a91,#9d286f)}
 @media(max-width:520px){.store-hero .shop-card-banner{width:82px;height:82px;flex-basis:82px}}
+
+/* Upload preview uses the exact cropped image that is sent to the catalogue. */
+.admin-photo-preview{height:auto;aspect-ratio:1;min-height:0}
+.admin-photo-picker.wide .admin-photo-preview{height:auto;aspect-ratio:1;min-height:0}
+.admin-photo-preview img{object-fit:fill}
