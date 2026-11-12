@@ -1661,3 +1661,5 @@ h1,h2,h3,.section-head h2,.page-title h1,.store-hero h1{
 @media(max-width:520px){
  .shop-card .shop-visual .shop-card-banner-brand{height:62px!important;width:72%!important;padding:11px 14px!important}
 }
+
+.shop-card .shop-visual .shop-card-banner-brand.logo-failed .shop-card-banner-wordmark{display:block!important}
