@@ -1619,3 +1619,45 @@ h1,h2,h3,.section-head h2,.page-title h1,.store-hero h1{
 .shop-card .shop-visual .shop-card-banner-wordmark-9{font-size:27px;color:#148b45;text-shadow:1px 0 #e52d36}
 .shop-card .shop-visual .shop-card-banner-wordmark-10{font-size:13px;color:#d51f31}
 .shop-card .shop-visual .shop-card-banner-wordmark-14{font-size:12px;color:#bf347c}
+
+
+/* Final chain-card art direction: logo-first, no store photography. */
+.shop-card .shop-visual .shop-card-banner{
+ position:absolute;inset:0;overflow:hidden;display:grid!important;place-items:center;
+ background-image:none!important;filter:none!important;
+}
+.shop-card .shop-visual .shop-card-banner:before{
+ content:"";position:absolute;inset:0;opacity:1;pointer-events:none;
+ background:radial-gradient(ellipse at 80% 12%,#ffffff38 0 2%,transparent 36%),radial-gradient(ellipse at 12% 100%,#ffffff24 0 4%,transparent 44%);
+}
+.shop-card .shop-visual .shop-card-banner:after{
+ content:"";position:absolute;width:190px;height:190px;right:-92px;bottom:-132px;
+ border:1px solid #ffffff55;border-radius:50%;box-shadow:0 0 0 18px #ffffff12,0 0 0 38px #ffffff0d;
+ pointer-events:none;
+}
+.shop-card .shop-visual .shop-card-banner-photo{display:none!important}
+.shop-card .shop-visual .shop-card-banner-brand{
+ position:relative!important;inset:auto!important;left:auto!important;top:auto!important;transform:none!important;
+ z-index:1;width:min(66%,230px)!important;height:72px!important;min-width:0!important;max-width:230px!important;max-height:none!important;
+ display:grid!important;place-items:center;padding:13px 18px!important;border-radius:18px!important;
+ background:#fff!important;box-shadow:0 10px 28px #10251c24!important;
+}
+.shop-card .shop-visual .shop-card-banner-brand img{
+ display:block;width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;
+}
+.shop-card .shop-visual .shop-card-banner-wordmark{display:none;font-size:clamp(15px,2.8vw,23px);font-weight:950;line-height:1.05;letter-spacing:-.6px;text-align:center;white-space:nowrap}
+.shop-card .shop-visual .shop-card-banner-wordmark-7{color:#c51f2c}
+.shop-card .shop-visual .shop-card-banner-wordmark-9{color:#168c4c}
+.shop-card .shop-visual .shop-card-banner-wordmark-10{color:#d51e32}
+.shop-card .shop-visual .shop-card-banner-wordmark-14{color:#c63883;font-size:18px}
+.shop-card .shop-visual .shop-card-banner-7{background:linear-gradient(135deg,#b70f1c 0%,#e22b34 54%,#8f101b 100%)!important}
+.shop-card .shop-visual .shop-card-banner-9{background:linear-gradient(125deg,#08783c 0%,#1ba85b 55%,#e52b39 55%,#c91c2c 100%)!important}
+.shop-card .shop-visual .shop-card-banner-10{background:linear-gradient(135deg,#a90e25 0%,#d51f32 55%,#f0444b 100%)!important}
+.shop-card .shop-visual .shop-card-banner-14{background:linear-gradient(135deg,#9d286f 0%,#d64a91 54%,#f3a2c5 100%)!important}
+.shop-card .shop-visual .shop-card-banner-7 .shop-card-banner-brand{width:min(70%,240px)!important}
+.shop-card .shop-visual .shop-card-banner-9 .shop-card-banner-brand{width:min(70%,240px)!important}
+.shop-card .shop-visual .shop-card-banner-10 .shop-card-banner-brand{width:min(70%,240px)!important}
+.shop-card .shop-visual .shop-card-banner-14 .shop-card-banner-brand{width:min(70%,240px)!important}
+@media(max-width:520px){
+ .shop-card .shop-visual .shop-card-banner-brand{height:62px!important;width:72%!important;padding:11px 14px!important}
+}
