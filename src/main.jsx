@@ -21,8 +21,6 @@ const statuses=["Новый","Подтверждён","Собирается","Г
 const individualStatuses=["Новая заявка","Проверяется","Согласована","Покупка выполняется","Выполнена","Отменена"];
 const money=n=>new Intl.NumberFormat("ru-RU").format(n)+" ₽";
 function ShopBrandMark({shop}){
- const [imageFailed,setImageFailed]=useState(false);
- useEffect(()=>setImageFailed(false),[shop.imageUrl]);
  const id=Number(shop.id), name=shop.name||"", normalized=name.toLocaleLowerCase("ru-RU");
  const brandId=id===7||normalized.includes("rostic")?7:id===9||normalized.includes("пятёроч")||normalized.includes("пятероч")?9:id===10||normalized==="магнит"?10:id===14||normalized.includes("м.косметик")||normalized.includes("магнит косметик")?14:id===15||normalized.includes("додо")?15:null;
  const logos={
@@ -35,15 +33,13 @@ function ShopBrandMark({shop}){
  const themes={7:"rostics",9:"pyaterochka",10:"magnit",14:"mcosmetic",15:"dodo"};
  const labels={7:"ROSTIC'S",9:"ПЯТЁРОЧКА",10:"МАГНИТ",14:"М.КОСМЕТИК",15:"ДОДО ПИЦЦА"};
  const logo=brandId?(shop.logo_url||logos[brandId]):shop.logo_url;
- // Store banner fallback: never leave a broken image visible; preserve the chain brand artwork.
-// An uploaded store banner takes priority, but a broken URL must never leave an empty card.
- if(shop.imageUrl&&!imageFailed)return <img className="shop-card-photo" src={shop.imageUrl} alt={name+" — баннер магазина"} loading="lazy" onError={()=>setImageFailed(true)}/>;
- if(!brandId)return logo?<span className="shop-card-banner shop-card-banner-custom"><span className="shop-card-banner-brand"><img src={logo} alt={name+" — логотип"}/></span></span>:null;
- return <div className={"shop-card-banner shop-card-banner-"+brandId+" shop-card-banner-"+themes[brandId]} aria-label={labels[brandId]}>
-  <span className="shop-card-banner-brand">
-   {logo&&<><img src={logo} alt={labels[brandId]+" — логотип"} loading="eager" onError={e=>{e.currentTarget.style.display="none";e.currentTarget.parentElement.classList.add("logo-failed")}}/><b className={"shop-card-banner-wordmark shop-card-banner-wordmark-"+brandId}>{labels[brandId]}</b></>}
-  </span>
- </div>;
+ const fallback=brandId
+  ? <div className={"shop-card-banner shop-card-banner-"+brandId+" shop-card-banner-"+themes[brandId]} aria-label={labels[brandId]}><span className="shop-card-banner-brand">{logo&&<><img src={logo} alt={labels[brandId]+" — логотип"} loading="eager" onError={e=>{e.currentTarget.style.display="none";e.currentTarget.parentElement.classList.add("logo-failed")}}/><b className={"shop-card-banner-wordmark shop-card-banner-wordmark-"+brandId}>{labels[brandId]}</b></>}</span></div>
+  : <div className="shop-card-banner shop-card-banner-custom"><span className="shop-card-banner-brand">{logo?<img src={logo} alt={name+" — логотип"} onError={e=>{e.currentTarget.style.display="none"}}/>:<b>{name}</b>}</span></div>;
+ // Keep the branded fallback mounted underneath the upload. If the upload URL is broken,
+ // hide only that image; the fallback is already visible and does not depend on React state.
+ if(shop.imageUrl)return <><div className="shop-card-banner-fallback">{fallback}</div><img className="shop-card-photo" src={shop.imageUrl} alt={name+" — баннер магазина"} loading="lazy" onError={e=>{e.currentTarget.style.display="none"}}/></>;
+ return fallback;
 }
 function ShopMiniIcon({shop}){
  const id=Number(shop.id);
