@@ -1597,3 +1597,25 @@ h1,h2,h3,.section-head h2,.page-title h1,.store-hero h1{
 .shop-card .shop-visual .shop-card-banner-wordmark-9{font-size:42px;color:#148b45;text-shadow:2px 0 #e52d36}
 .shop-card .shop-visual .shop-card-banner-wordmark-10{font-size:44px;color:#d51f31}
 .shop-card .shop-visual .shop-card-banner-wordmark-14{font-size:18px;letter-spacing:-.8px;color:#bf347c}
+
+
+/* Keep each retailer wordmark visible alongside its brand mark */
+.shop-card .shop-visual .shop-card-banner-brand{
+ display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+}
+.shop-card .shop-visual .shop-card-banner-brand img{
+ width:74%;height:48%;max-height:38px;object-fit:contain;flex:0 1 auto;
+}
+.shop-card .shop-visual .shop-card-banner-wordmark{
+ display:block!important;font-size:clamp(10px,1.8vw,16px);line-height:1.05;
+ font-weight:950;letter-spacing:-.45px;color:#183b2b;text-align:center;white-space:nowrap;
+}
+.shop-card .shop-visual .shop-card-banner-7 .shop-card-banner-brand{
+ width:92px;height:30px;min-width:0;max-width:none;max-height:none;
+ padding:4px 7px;left:12px;top:12px;gap:1px;
+}
+.shop-card .shop-visual .shop-card-banner-7 .shop-card-banner-brand img{height:12px;width:68%;max-height:12px}
+.shop-card .shop-visual .shop-card-banner-wordmark-7{font-size:10px;color:#c91e27}
+.shop-card .shop-visual .shop-card-banner-wordmark-9{font-size:27px;color:#148b45;text-shadow:1px 0 #e52d36}
+.shop-card .shop-visual .shop-card-banner-wordmark-10{font-size:13px;color:#d51f31}
+.shop-card .shop-visual .shop-card-banner-wordmark-14{font-size:12px;color:#bf347c}
