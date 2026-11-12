@@ -357,6 +357,13 @@ app.patch("/api/admin/shops/:id", requireAdmin, async (req, res, next) => {
     );
     if (!result.rowCount) return res.status(404).json({ error: "Магазин не найден" });
     const item = result.rows[0];
+    // Never report a successful upload unless both submitted image payloads were persisted.
+    if (typeof d.imageUrl === "string" && d.imageUrl.startsWith("data:image/") && item.image_url !== d.imageUrl) {
+      return res.status(500).json({ error: "Не удалось сохранить большую фотографию магазина. Попробуйте ещё раз." });
+    }
+    if (typeof d.logoUrl === "string" && d.logoUrl.startsWith("data:image/") && item.logo_url !== d.logoUrl) {
+      return res.status(500).json({ error: "Не удалось сохранить логотип магазина. Попробуйте ещё раз." });
+    }
     return res.json({ shop: {...item, image_url: catalogImageUrl("shop",item.id,item.image_url), logo_url: item.logo_url ? catalogImageUrl("shop-logo",item.id,item.logo_url) : null} });
   } catch (error) { return next(error); }
 });
