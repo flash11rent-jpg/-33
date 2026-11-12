@@ -35,7 +35,8 @@ function ShopBrandMark({shop}){
  const themes={7:"rostics",9:"pyaterochka",10:"magnit",14:"mcosmetic",15:"dodo"};
  const labels={7:"ROSTIC'S",9:"ПЯТЁРОЧКА",10:"МАГНИТ",14:"М.КОСМЕТИК",15:"ДОДО ПИЦЦА"};
  const logo=brandId?(shop.logo_url||logos[brandId]):shop.logo_url;
- // An uploaded store banner takes priority, but a broken URL must never leave an empty card.
+ // Store banner fallback: never leave a broken image visible; preserve the chain brand artwork.
+// An uploaded store banner takes priority, but a broken URL must never leave an empty card.
  if(shop.imageUrl&&!imageFailed)return <img className="shop-card-photo" src={shop.imageUrl} alt={name+" — баннер магазина"} loading="lazy" onError={()=>setImageFailed(true)}/>;
  if(!brandId)return logo?<span className="shop-card-banner shop-card-banner-custom"><span className="shop-card-banner-brand"><img src={logo} alt={name+" — логотип"}/></span></span>:null;
  return <div className={"shop-card-banner shop-card-banner-"+brandId+" shop-card-banner-"+themes[brandId]} aria-label={labels[brandId]}>
