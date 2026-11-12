@@ -129,9 +129,10 @@ app.get("/api/media/:kind/:id", async (req, res, next) => {
   try {
     const kind = req.params.kind;
     const id = Number(req.params.id);
-    if (!Number.isSafeInteger(id) || id < 1 || !["shop", "product", "category"].includes(kind)) return res.status(404).end();
-    const table = kind === "shop" ? "shops" : kind === "product" ? "products" : "catalog_categories";
-    const result = await pool.query("SELECT image_url FROM " + table + " WHERE id = $1", [id]);
+    if (!Number.isSafeInteger(id) || id < 1 || !["shop", "shop-logo", "product", "category"].includes(kind)) return res.status(404).end();
+    const table = kind === "shop" || kind === "shop-logo" ? "shops" : kind === "product" ? "products" : "catalog_categories";
+    const column = kind === "shop-logo" ? "logo_url" : "image_url";
+    const result = await pool.query("SELECT " + column + " AS image_url FROM " + table + " WHERE id = $1", [id]);
     const value = result.rows[0]?.image_url;
     if (typeof value !== "string" || !value.startsWith("data:image/")) return res.status(404).end();
     const match = value.match(/^data:image\/(png|jpeg|webp);base64,([A-Za-z0-9+/=]+)$/);
@@ -147,7 +148,7 @@ app.get("/api/media/:kind/:id", async (req, res, next) => {
 app.get("/api/catalog", async (_req, res, next) => {
   try {
     const [shopsResult, productsResult, categoriesResult] = await Promise.all([
-      pool.query("SELECT id, name, category, description, image_url, website, phone, address, maps_url FROM shops WHERE is_active = TRUE ORDER BY id"),
+      pool.query("SELECT id, name, category, description, image_url, logo_url, card_background, website, phone, address, maps_url FROM shops WHERE is_active = TRUE ORDER BY id"),
       pool.query("SELECT id, shop_id, name, price_rub, unit, category, description, image_url, source_url FROM products WHERE is_active = TRUE ORDER BY shop_id, id"),
       pool.query("SELECT id, name, category_type, emoji, image_url, sort_order FROM catalog_categories WHERE is_active = TRUE ORDER BY category_type, sort_order, name")
     ]);
@@ -304,7 +305,7 @@ app.patch("/api/admin/individual-requests/:id/status", requireAdmin, async (req,
 app.get("/api/admin/catalog", requireAdmin, async (_req, res, next) => {
   try {
     const [shops, products, categories] = await Promise.all([
-      pool.query("SELECT id, name, category, description, image_url, website, phone, address, maps_url, is_active, created_at FROM shops ORDER BY id"),
+      pool.query("SELECT id, name, category, description, image_url, logo_url, card_background, website, phone, address, maps_url, is_active, created_at FROM shops ORDER BY id"),
       pool.query("SELECT id, shop_id, name, price_rub, unit, category, description, image_url, source_url, is_active, updated_at FROM products ORDER BY shop_id, id"),
       pool.query("SELECT id, name, category_type, emoji, image_url, sort_order, is_active FROM catalog_categories ORDER BY category_type, sort_order, name")
     ]);
@@ -321,18 +322,19 @@ app.post("/api/admin/shops", requireAdmin, async (req, res, next) => {
     const imageValue = z.string().max(900000).nullable().optional().refine(v => v == null || /^data:image\/(png|jpeg|webp);base64,/.test(v) || /^https?:\/\//.test(v));
     const parsed = z.object({
       name: z.string().trim().min(2).max(100), category: z.string().trim().min(2).max(60),
-      description: z.string().trim().max(500).optional().default(""), imageUrl: imageValue,
+      description: z.string().trim().max(500).optional().default(""), imageUrl: imageValue, logoUrl: imageValue,
+      cardBackground: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional().default("#ffffff"),
       website: z.string().trim().max(300).optional().default(""), phone: z.string().trim().max(50).optional().default(""),
       address: z.string().trim().max(300).optional().default(""), mapsUrl: z.string().trim().max(500).optional().default("")
     }).strict().safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: "Проверьте название, категорию и поля карточки магазина" });
     const d = parsed.data;
     const result = await pool.query(
-      "INSERT INTO shops (id,name,category,description,image_url,website,phone,address,maps_url) VALUES ((SELECT COALESCE(MAX(id),0)+1 FROM shops),$1,$2,$3,$4,$5,$6,$7,$8) RETURNING id,name,category,description,image_url,website,phone,address,maps_url,is_active",
-      [d.name,d.category,d.description,d.imageUrl||null,d.website||null,d.phone||null,d.address||null,d.mapsUrl||null]
+      "INSERT INTO shops (id,name,category,description,image_url,logo_url,card_background,website,phone,address,maps_url) VALUES ((SELECT COALESCE(MAX(id),0)+1 FROM shops),$1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id,name,category,description,image_url,logo_url,card_background,website,phone,address,maps_url,is_active",
+      [d.name,d.category,d.description,d.imageUrl||null,d.logoUrl||null,d.cardBackground,d.website||null,d.phone||null,d.address||null,d.mapsUrl||null]
     );
     const item = result.rows[0];
-    return res.status(201).json({ shop: {...item, image_url: catalogImageUrl("shop",item.id,item.image_url)} });
+    return res.status(201).json({ shop: {...item, image_url: catalogImageUrl("shop",item.id,item.image_url), logo_url: item.logo_url ? catalogImageUrl("shop-logo",item.id,item.logo_url) : null} });
   } catch (error) { return next(error); }
 });
 
@@ -341,7 +343,8 @@ app.patch("/api/admin/shops/:id", requireAdmin, async (req, res, next) => {
     const imageValue = z.string().max(900000).nullable().optional().refine(v => v == null || /^data:image\/(png|jpeg|webp);base64,/.test(v) || /^https?:\/\//.test(v));
     const parsed = z.object({
       name: z.string().trim().min(2).max(100), category: z.string().trim().min(2).max(60),
-      description: z.string().trim().max(500).optional().default(""), imageUrl: imageValue,
+      description: z.string().trim().max(500).optional().default(""), imageUrl: imageValue, logoUrl: imageValue,
+      cardBackground: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional().default("#ffffff"),
       website: z.string().trim().max(300).optional().default(""), phone: z.string().trim().max(50).optional().default(""),
       address: z.string().trim().max(300).optional().default(""), mapsUrl: z.string().trim().max(500).optional().default(""),
       isActive: z.boolean()
@@ -349,12 +352,12 @@ app.patch("/api/admin/shops/:id", requireAdmin, async (req, res, next) => {
     if (!parsed.success) return res.status(400).json({ error: "Проверьте данные карточки магазина" });
     const d = parsed.data;
     const result = await pool.query(
-      "UPDATE shops SET name=$1,category=$2,description=$3,image_url=CASE WHEN $4=$10 THEN image_url ELSE $4 END,website=$5,phone=$6,address=$7,maps_url=$8,is_active=$9 WHERE id=$11 RETURNING id,name,category,description,image_url,website,phone,address,maps_url,is_active",
-      [d.name,d.category,d.description,d.imageUrl??null,d.website||null,d.phone||null,d.address||null,d.mapsUrl||null,d.isActive,publicApiUrl + "/api/media/shop/" + req.params.id,req.params.id]
+      "UPDATE shops SET name=$1,category=$2,description=$3,image_url=CASE WHEN $4=$10 THEN image_url ELSE $4 END,logo_url=CASE WHEN $5=$11 THEN logo_url ELSE $5 END,card_background=$6,website=$7,phone=$8,address=$9,maps_url=$12,is_active=$13 WHERE id=$14 RETURNING id,name,category,description,image_url,logo_url,card_background,website,phone,address,maps_url,is_active",
+      [d.name,d.category,d.description,d.imageUrl??null,d.logoUrl??null,d.cardBackground,d.website||null,d.phone||null,d.address||null,d.mapsUrl||null,publicApiUrl + "/api/media/shop-logo/" + req.params.id,publicApiUrl + "/api/media/shop/" + req.params.id,d.isActive,req.params.id]
     );
     if (!result.rowCount) return res.status(404).json({ error: "Магазин не найден" });
     const item = result.rows[0];
-    return res.json({ shop: {...item, image_url: catalogImageUrl("shop",item.id,item.image_url)} });
+    return res.json({ shop: {...item, image_url: catalogImageUrl("shop",item.id,item.image_url), logo_url: item.logo_url ? catalogImageUrl("shop-logo",item.id,item.logo_url) : null} });
   } catch (error) { return next(error); }
 });
 
