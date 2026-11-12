@@ -278,6 +278,7 @@ async function saveShopForm(){
   const payload={name:shopForm.name.trim(),category:shopForm.category,description:shopForm.description,imageUrl:shopForm.imageUrl||null,logoUrl:shopForm.logoUrl||null,cardBackground:shopForm.cardBackground||"#ffffff",website:shopForm.website,phone:shopForm.phone,address:shopForm.address,mapsUrl:shopForm.mapsUrl,...(editingShopId?{isActive:shopForm.isActive}:{})};
   const response=await fetch(API_URL+(editingShopId?"/api/admin/shops/"+editingShopId:"/api/admin/shops"),{method:editingShopId?"PATCH":"POST",headers:{"Content-Type":"application/json",...(adminSession?{Authorization:"Bearer "+adminSession}:{})},body:JSON.stringify(payload)});
   const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||"Не удалось сохранить магазин");
+  if(data.shop){const saved={...data.shop,imageUrl:data.shop.image_url||null,logo_url:data.shop.logo_url||null};setShopData(current=>current.some(item=>item.id===saved.id)?current.map(item=>item.id===saved.id?{...item,...saved}:item):[...current,saved]);setActiveShop(current=>current?.id===saved.id?{...current,...saved}:current)}
   resetShopForm();await loadAdminCatalog();setAdminError("");setNotice(editingShopId?"Изменения магазина сохранены":"Магазин создан");
  }catch(error){setAdminError(error.message||"Ошибка сохранения магазина")}
  finally{setShopSaving(false)}
