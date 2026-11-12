@@ -23,24 +23,19 @@ const money=n=>new Intl.NumberFormat("ru-RU").format(n)+" ₽";
 function ShopBrandMark({shop}){
  const id=Number(shop.id), name=shop.name||"Магазин";
  const logos={
-  7:"https://avatars.mds.yandex.net/get-bunker/120922/b0403cbccf0445403506c8b5129d5fb5db88b7c5/orig",
+  7:"https://logo-teka.com/wp-content/uploads/2025/07/rostics-logo.svg",
   9:"https://logo-teka.com/wp-content/uploads/2025/06/pyaterochka-logo.svg",
   10:"https://www.magnit.com/images/logo/logo--red--ru.svg",
   14:"https://logo-teka.com/wp-content/uploads/2025/06/magnit-cosmetic-logo.svg"
  };
- const banners={
-  7:"https://icdn.lenta.ru/images/2023/04/25/10/20230425105728514/owl_pic_620_8f3ce8f42213048990b66c582e181332.jpg",
-  9:"https://img.artlebedev.ru/everything/5ka/future-stores-interiors/5ka-ds-grid-02.jpg",
-  10:"https://www.magnit.com/upload/iblock/b42/y6bck7t2tfnrpuso9dk74ceyjqxqjshy/DSCF5744.JPG",
-  14:"https://new-retail.ru/upload/resize_cache/iblock/e9f/972_648_2/xo4kq9u5hkyxz123o13cxifyflswni2nw.png.pagespeed.ic.sEqTF_lmEC.webp"
- };
+ const themes={7:"rostics",9:"pyaterochka",10:"magnit",14:"mcosmetic"};
  const logo=shop.logo_url||logos[id];
- const banner=banners[id];
- if(!logo&&!banner)return shop.imageUrl?<img className="shop-card-photo" src={shop.imageUrl} alt={name+" — фото магазина"} loading="lazy"/>:null;
- return <div className={`shop-card-banner shop-card-banner-${id}`}>
-  {banner&&<img className="shop-card-banner-photo" src={banner} alt={name+" — фото блюд"} loading="lazy"/>}
+ if(!themes[id]&&!logo&&!shop.imageUrl)return null;
+ if(!themes[id])return shop.imageUrl?<img className="shop-card-photo" src={shop.imageUrl} alt={name+" — изображение магазина"} loading="lazy"/>:null;
+ const labels={7:"ROSTIC'S",9:"ПЯТЁРОЧКА",10:"МАГНИТ",14:"М.КОСМЕТИК"};
+ return <div className={"shop-card-banner shop-card-banner-"+id+" shop-card-banner-"+themes[id]} aria-label={labels[id]}>
   <span className="shop-card-banner-brand">
-   {logo&&<><img src={logo} alt={name+" — логотип"} loading="lazy" onError={e=>{e.currentTarget.style.display="none"}}/><b className={`shop-card-banner-wordmark shop-card-banner-wordmark-${id}`}>{id===7?"ROSTIC'S":id===9?"5":id===10?"МАГНИТ":"М.КОСМЕТИК"}</b></>}
+   {logo&&<><img src={logo} alt={labels[id]+" — логотип"} loading="eager" onError={e=>{e.currentTarget.style.display="none";e.currentTarget.nextElementSibling.style.display="block"}}/><b className={"shop-card-banner-wordmark shop-card-banner-wordmark-"+id}>{labels[id]}</b></>}
   </span>
  </div>;
 }
