@@ -21,6 +21,8 @@ const statuses=["Новый","Подтверждён","Собирается","Г
 const individualStatuses=["Новая заявка","Проверяется","Согласована","Покупка выполняется","Выполнена","Отменена"];
 const money=n=>new Intl.NumberFormat("ru-RU").format(n)+" ₽";
 function ShopBrandMark({shop}){
+ const [imageFailed,setImageFailed]=useState(false);
+ useEffect(()=>setImageFailed(false),[shop.imageUrl]);
  const id=Number(shop.id), name=shop.name||"", normalized=name.toLocaleLowerCase("ru-RU");
  const brandId=id===7||normalized.includes("rostic")?7:id===9||normalized.includes("пятёроч")||normalized.includes("пятероч")?9:id===10||normalized==="магнит"?10:id===14||normalized.includes("м.косметик")||normalized.includes("магнит косметик")?14:id===15||normalized.includes("додо")?15:null;
  const logos={
@@ -33,8 +35,8 @@ function ShopBrandMark({shop}){
  const themes={7:"rostics",9:"pyaterochka",10:"magnit",14:"mcosmetic",15:"dodo"};
  const labels={7:"ROSTIC'S",9:"ПЯТЁРОЧКА",10:"МАГНИТ",14:"М.КОСМЕТИК",15:"ДОДО ПИЦЦА"};
  const logo=brandId?(shop.logo_url||logos[brandId]):shop.logo_url;
- // An uploaded store banner always takes priority over a chain-branded default.
- if(shop.imageUrl)return <img className="shop-card-photo" src={shop.imageUrl} alt={name+" — баннер магазина"} loading="lazy"/>;
+ // An uploaded store banner takes priority, but a broken URL must never leave an empty card.
+ if(shop.imageUrl&&!imageFailed)return <img className="shop-card-photo" src={shop.imageUrl} alt={name+" — баннер магазина"} loading="lazy" onError={()=>setImageFailed(true)}/>;
  if(!brandId)return logo?<span className="shop-card-banner shop-card-banner-custom"><span className="shop-card-banner-brand"><img src={logo} alt={name+" — логотип"}/></span></span>:null;
  return <div className={"shop-card-banner shop-card-banner-"+brandId+" shop-card-banner-"+themes[brandId]} aria-label={labels[brandId]}>
   <span className="shop-card-banner-brand">
