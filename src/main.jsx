@@ -388,7 +388,7 @@ async function logoutOperator(){
  setAdminSession("");setAdminAuthenticated(false);setAdminOrders([]);setPage("profile");
 }
 return <div className={"app-shell"+(page==="home"?" premium-home-shell":"")}>
-<header className={"topbar"+(page==="home"?" premium-home-topbar":"")}><button className="brand" onClick={()=>{setPage("home");setActiveShop(null)}}><img className="brand-mark" src={brandLogo||"/timtim-logo.svg"} alt="Тим-Тим — доставка из магазинов" /></button><button className="icon-button cart-top" onClick={()=>setPage("cart")} aria-label="Корзина"><ShoppingBag size={21}/>{count>0&&<i>{count}</i>}</button></header>
+<header className={"topbar"+(page==="home"?" premium-home-topbar":"")}><button className="brand" onClick={()=>{setPage("home");setActiveShop(null)}}><img className="brand-mark" src={brandLogo||"/timtim-logo.svg"} alt="Тим-Тим — доставка из магазинов" /></button>{page==="home"&&<nav className="premium-top-nav"><button onClick={()=>document.getElementById("shops")?.scrollIntoView({behavior:"smooth"})}>Магазины</button><button onClick={()=>document.getElementById("premium-categories")?.scrollIntoView({behavior:"smooth"})}>Категории</button><button onClick={()=>document.querySelector(".premium-about")?.scrollIntoView({behavior:"smooth"})}>О сервисе</button></nav>}<button className="icon-button cart-top" onClick={()=>setPage("cart")} aria-label="Корзина"><ShoppingBag size={21}/>{count>0&&<i>{count}</i>}</button></header>
 <main className={page==="home"?"premium-home-main":""}>
 {page==="home"&&<div className="home-page premium-home">
 <section className="premium-hero">
