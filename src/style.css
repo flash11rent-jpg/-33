@@ -1587,3 +1587,13 @@ h1,h2,h3,.section-head h2,.page-title h1,.store-hero h1{
  .shop-card .shop-visual .shop-card-banner-brand{width:48%;height:58%;min-width:88px;padding:7px 10px}
  .shop-card .shop-visual .shop-card-banner-7 .shop-card-banner-brand{width:54px;height:42px}
 }
+
+
+.shop-card .shop-visual .shop-card-banner-wordmark{
+ display:block;font-weight:950;font-size:clamp(18px,3vw,30px);line-height:1;
+ letter-spacing:-1px;color:#163e2d;text-align:center;white-space:nowrap;
+}
+.shop-card .shop-visual .shop-card-banner-wordmark-7{font-size:12px;letter-spacing:-.4px;color:#c91e27}
+.shop-card .shop-visual .shop-card-banner-wordmark-9{font-size:42px;color:#148b45;text-shadow:2px 0 #e52d36}
+.shop-card .shop-visual .shop-card-banner-wordmark-10{font-size:44px;color:#d51f31}
+.shop-card .shop-visual .shop-card-banner-wordmark-14{font-size:18px;letter-spacing:-.8px;color:#bf347c}
