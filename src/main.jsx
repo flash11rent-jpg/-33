@@ -21,21 +21,22 @@ const statuses=["Новый","Подтверждён","Собирается","Г
 const individualStatuses=["Новая заявка","Проверяется","Согласована","Покупка выполняется","Выполнена","Отменена"];
 const money=n=>new Intl.NumberFormat("ru-RU").format(n)+" ₽";
 function ShopBrandMark({shop}){
- const id=Number(shop.id), name=shop.name||"Магазин";
+ const id=Number(shop.id), name=shop.name||"", normalized=name.toLocaleLowerCase("ru-RU");
+ const brandId=id===7||normalized.includes("rostic")?7:id===9||normalized.includes("пятёроч")||normalized.includes("пятероч")?9:id===10||normalized==="магнит"?10:id===14||normalized.includes("м.косметик")||normalized.includes("магнит косметик")?14:id===15||normalized.includes("додо")?15:null;
  const logos={
   7:"https://logo-teka.com/wp-content/uploads/2025/07/rostics-logo.svg",
   9:"https://logo-teka.com/wp-content/uploads/2025/06/pyaterochka-logo.svg",
   10:"https://www.magnit.com/images/logo/logo--red--ru.svg",
-  14:"https://logo-teka.com/wp-content/uploads/2025/06/magnit-cosmetic-logo.svg"
+  14:"https://logo-teka.com/wp-content/uploads/2025/06/magnit-cosmetic-logo.svg",
+  15:"https://shift.dodobrands.io/images/graphic-design/logo-all-languages/RU.png"
  };
- const themes={7:"rostics",9:"pyaterochka",10:"magnit",14:"mcosmetic"};
- const logo=shop.logo_url||logos[id];
- if(!themes[id]&&!logo&&!shop.imageUrl)return null;
- if(!themes[id])return shop.imageUrl?<img className="shop-card-photo" src={shop.imageUrl} alt={name+" — изображение магазина"} loading="lazy"/>:null;
- const labels={7:"ROSTIC'S",9:"ПЯТЁРОЧКА",10:"МАГНИТ",14:"М.КОСМЕТИК"};
- return <div className={"shop-card-banner shop-card-banner-"+id+" shop-card-banner-"+themes[id]} aria-label={labels[id]}>
+ const themes={7:"rostics",9:"pyaterochka",10:"magnit",14:"mcosmetic",15:"dodo"};
+ const labels={7:"ROSTIC'S",9:"ПЯТЁРОЧКА",10:"МАГНИТ",14:"М.КОСМЕТИК",15:"ДОДО ПИЦЦА"};
+ const logo=brandId?(shop.logo_url||logos[brandId]):shop.logo_url;
+ if(!brandId)return logo?<span className="shop-card-banner shop-card-banner-custom"><span className="shop-card-banner-brand"><img src={logo} alt={name+" — логотип"}/></span></span>:shop.imageUrl?<img className="shop-card-photo" src={shop.imageUrl} alt={name+" — изображение магазина"} loading="lazy"/>:null;
+ return <div className={"shop-card-banner shop-card-banner-"+brandId+" shop-card-banner-"+themes[brandId]} aria-label={labels[brandId]}>
   <span className="shop-card-banner-brand">
-   {logo&&<><img src={logo} alt={labels[id]+" — логотип"} loading="eager" onError={e=>{e.currentTarget.style.display="none";e.currentTarget.parentElement.classList.add("logo-failed")}}/><b className={"shop-card-banner-wordmark shop-card-banner-wordmark-"+id}>{labels[id]}</b></>}
+   {logo&&<><img src={logo} alt={labels[brandId]+" — логотип"} loading="eager" onError={e=>{e.currentTarget.style.display="none";e.currentTarget.parentElement.classList.add("logo-failed")}}/><b className={"shop-card-banner-wordmark shop-card-banner-wordmark-"+brandId}>{labels[brandId]}</b></>}
   </span>
  </div>;
 }
