@@ -29,9 +29,15 @@ function ShopBrandMark({shop}){
   14:"https://logo-teka.com/wp-content/uploads/2025/06/magnit-cosmetic-logo.svg",
   15:"https://shift.dodobrands.io/images/graphic-design/logo-all-languages/RU.png"
  };
- const src=shop.imageUrl||logos[id];
+ const heroPhotos={
+  7:"https://www.depotwpf.ru/upload/resize_cache/iblock/4e2/1500_949_1/xdxap9clwn8s0r35fxearcrm9rst9qvi.jpg",
+  9:"https://img.artlebedev.ru/everything/5ka/future-stores-interiors/5ka-ds-slider1-01.jpg",
+  10:"https://www.magnit.com/upload/iblock/b42/y6bck7t2tfnrpuso9dk74ceyjqxqjshy/DSCF5744.JPG",
+  14:"https://www.retail.ru/upload/resize-images/combined/1b39743179a7ac3ca0c9a5ce8d7e75d197d8c0d46cr.jpg.jpg"
+ };
+ const src=heroPhotos[id]||shop.imageUrl||logos[id], isHero=!!heroPhotos[id];
  return src
-  ? <img className={"shop-card-photo"+(logos[id]?" shop-card-logo":"")} src={src} alt={name+" — "+(logos[id]?"логотип":"фото магазина")} loading="lazy" onError={e=>{e.currentTarget.style.display="none";const fallback=e.currentTarget.nextElementSibling;if(fallback)fallback.style.display="grid"}}/>
+  ? <img className={"shop-card-photo"+(!isHero&&logos[id]?" shop-card-logo":"")} src={src} alt={name+" — "+(isHero?"фото магазина":logos[id]?"логотип":"фото магазина")} loading="lazy" onError={e=>{e.currentTarget.style.display="none";const fallback=e.currentTarget.nextElementSibling;if(fallback)fallback.style.display="grid"}}/>
   : null;
 }
 function ShopMiniIcon({shop}){
