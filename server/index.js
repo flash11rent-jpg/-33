@@ -48,7 +48,7 @@ app.use((req, res, next) => {
   }
   return res.status(403).json({ error: "Origin is not allowed" });
 });
-app.use(express.json({ limit: "1.3mb" }));
+app.use(express.json({ limit: "2.5mb" }));
 
 const orderLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 12, standardHeaders: "draft-8", legacyHeaders: false });
 const statusLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 60, standardHeaders: "draft-8", legacyHeaders: false });
