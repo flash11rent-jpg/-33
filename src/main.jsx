@@ -36,7 +36,7 @@ function ShopBrandMark({shop}){
  };
  const logo=shop.logo_url||logos[id];
  const banner=banners[id];
- if(!logo&&!banner)return null;
+ if(!logo&&!banner)return shop.imageUrl?<img className="shop-card-photo" src={shop.imageUrl} alt={name+" — фото магазина"} loading="lazy"/>:null;
  return <div className={`shop-card-banner shop-card-banner-${id}`}>
   {banner&&<img className="shop-card-banner-photo" src={banner} alt={name+" — фото блюд"} loading="lazy"/>}
   <span className="shop-card-banner-brand">
