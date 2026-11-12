@@ -59,56 +59,70 @@ function ShopMiniIcon({shop}){
   <span className="shop-mini-brand-fallback">{id===13?"ШК":id===11?"П":"✦"}</span>
  </span>;
 }
-async function prepareCatalogImage(file,aspectRatio=1) {
- if(!file) return null;
- if(!["image/jpeg","image/png","image/webp"].includes(file.type)) throw new Error("Подойдут фотографии JPG, PNG или WebP.");
- const bitmap=await createImageBitmap(file);
- const sourceRatio=bitmap.width/bitmap.height;
- let sx=0,sy=0,sw=bitmap.width,sh=bitmap.height;
- if(sourceRatio>aspectRatio){sw=bitmap.height*aspectRatio;sx=(bitmap.width-sw)/2}
- else if(sourceRatio<aspectRatio){sh=bitmap.width/aspectRatio;sy=(bitmap.height-sh)/2}
- let scale=Math.min(1,1200/Math.max(sw,sh));
- let blob=null;
+async function prepareCatalogImage(source,aspectRatio=1,focalX=.5,focalY=.5,zoom=1) {
+ if(!source) return null;
+ const response=await fetch(source);
+ const blobSource=await response.blob();
+ const bitmap=await createImageBitmap(blobSource);
+ const baseW=Math.min(bitmap.width,bitmap.height*aspectRatio);
+ const baseH=baseW/aspectRatio;
+ const cropW=baseW/zoom,cropH=baseH/zoom;
+ const sx=Math.max(0,Math.min(bitmap.width-cropW,(bitmap.width-cropW)*focalX));
+ const sy=Math.max(0,Math.min(bitmap.height-cropH,(bitmap.height-cropH)*focalY));
+ let scale=Math.min(1,1200/Math.max(cropW,cropH)),blob=null;
  for(let attempt=0;attempt<5;attempt++){
   const canvas=document.createElement("canvas");
-  canvas.width=Math.max(1,Math.round(sw*scale));
-  canvas.height=Math.max(1,Math.round(sh*scale));
+  canvas.width=Math.max(1,Math.round(cropW*scale));canvas.height=Math.max(1,Math.round(cropH*scale));
   const ctx=canvas.getContext("2d");
   if(!ctx){bitmap.close?.();throw new Error("Не удалось обработать фотографию.")}
   ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality="high";
-  ctx.drawImage(bitmap,sx,sy,sw,sh,0,0,canvas.width,canvas.height);
+  ctx.drawImage(bitmap,sx,sy,cropW,cropH,0,0,canvas.width,canvas.height);
   blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/webp",0.84-attempt*0.06));
-  if(blob&&blob.size<=560*1024) break;
-  scale*=0.78;
+  if(blob&&blob.size<=560*1024)break;
+  scale*=.78;
  }
  bitmap.close?.();
- if(!blob||blob.size>560*1024) throw new Error("Фото слишком большое. Попробуйте другое изображение.");
- return await new Promise((resolve,reject)=>{
-  const reader=new FileReader();
-  reader.onload=()=>resolve(reader.result);
-  reader.onerror=()=>reject(new Error("Не удалось прочитать фотографию."));
-  reader.readAsDataURL(blob);
- });
+ if(!blob||blob.size>560*1024)throw new Error("Фото слишком большое. Попробуйте другое изображение.");
+ return await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error("Не удалось прочитать фотографию."));reader.readAsDataURL(blob)});
 }
 
 function PhotoPicker({value,onChange,title="Фотография",wide=false,hint="",aspectRatio=1}) {
- const [busy,setBusy]=useState(false);
- const [error,setError]=useState("");
- async function choose(file){
+ const [busy,setBusy]=useState(false),[error,setError]=useState(""),[source,setSource]=useState(""),[focal,setFocal]=useState({x:.5,y:.5}),[zoom,setZoom]=useState(1),[drag,setDrag]=useState(null),[frameSize,setFrameSize]=useState({w:1,h:1});
+ const cropLabel=aspectRatio>1?"16:9":aspectRatio<1?"вертикальный":"1:1";
+ function choose(file){
   if(!file)return;
+  if(!["image/jpeg","image/png","image/webp"].includes(file.type)){setError("Подойдут фотографии JPG, PNG или WebP.");return}
+  setError("");setFocal({x:.5,y:.5});setZoom(1);
+  const reader=new FileReader();reader.onload=()=>setSource(String(reader.result||""));reader.onerror=()=>setError("Не удалось прочитать фотографию.");reader.readAsDataURL(file);
+ }
+ async function applyCrop(){
+  if(!source)return;
   setBusy(true);setError("");
-  try{onChange(await prepareCatalogImage(file,aspectRatio))}
-  catch(e){setError(e.message||"Не удалось загрузить фото")}
+  try{const result=await prepareCatalogImage(source,aspectRatio,focal.x,focal.y,zoom);onChange(result);setSource("")}
+  catch(e){setError(e.message||"Не удалось обработать фотографию")}
   finally{setBusy(false)}
  }
- const cropLabel=aspectRatio>1?"16:9":aspectRatio<1?"вертикальный":"1:1";
+ function pointerDown(e){
+  if(!source)return;
+  const rect=e.currentTarget.getBoundingClientRect();setFrameSize({w:rect.width,h:rect.height});
+  e.currentTarget.setPointerCapture?.(e.pointerId);
+  setDrag({x:e.clientX,y:e.clientY,fx:focal.x,fy:focal.y,w:rect.width,h:rect.height});
+ }
+ function pointerMove(e){
+  if(!drag)return;
+  const travel=Math.max(.12,1-1/zoom);
+  setFocal({x:Math.max(0,Math.min(1,drag.fx-(e.clientX-drag.x)/drag.w/travel)),y:Math.max(0,Math.min(1,drag.fy-(e.clientY-drag.y)/drag.h/travel))});
+ }
  return <div className={"admin-photo-picker"+(wide?" wide":"")}>
-  <div className="admin-photo-preview" style={{aspectRatio:String(aspectRatio)}}>{value?<img src={value} alt={title+" — итоговая обрезка"}/>:<span>📷</span>}</div>
+  <div className="admin-photo-preview" style={{aspectRatio:String(aspectRatio)}} onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={()=>setDrag(null)} onPointerCancel={()=>setDrag(null)}>
+   {source?<img className="admin-crop-source" src={source} alt="Настройка кадрирования" draggable="false" style={{objectPosition:(focal.x*100)+"% "+(focal.y*100)+"%",transform:"scale("+zoom+")"}}/>:value?<img src={value} alt={title+" — итоговая обрезка"}/>:<span>📷</span>}
+   {source&&<span className="admin-crop-hint">Перетаскивай фото, чтобы выбрать кадр</span>}
+  </div>
   <div className="admin-photo-actions">
    <b>{title}</b>
-   <small>{hint||"JPG, PNG или WebP. Фото автоматически обрежется по центру под формат "+cropLabel+", уменьшится и сохранится в WebP."}</small>
-   <label className="admin-upload-button">{busy?"Обрабатываем…":value?"Заменить фото":"Загрузить фото"}<input type="file" accept="image/jpeg,image/png,image/webp" disabled={busy} onChange={e=>{choose(e.target.files?.[0]);e.target.value=""}}/></label>
-   {value&&<button type="button" className="admin-clear-photo" onClick={()=>{setError("");onChange(null)}}>Убрать фото</button>}
+   <small>{source?"Передвинь изображение в рамке и настрой масштаб.":hint||"Формат "+cropLabel+". Фото автоматически уменьшится и сохранится в WebP."}</small>
+   {source?<><label className="admin-crop-zoom">Масштаб <input type="range" min="1" max="3" step=".05" value={zoom} onChange={e=>setZoom(Number(e.target.value))}/><span>{zoom.toFixed(1)}×</span></label><div className="admin-crop-buttons"><button type="button" className="admin-upload-button" disabled={busy} onClick={applyCrop}>{busy?"Обрабатываем…":"Применить кадр"}</button><button type="button" className="admin-clear-photo" onClick={()=>{setSource("");setZoom(1);setFocal({x:.5,y:.5})}}>Отмена</button></div></>:<label className="admin-upload-button">{value?"Заменить фото":"Загрузить фото"}<input type="file" accept="image/jpeg,image/png,image/webp" onChange={e=>{choose(e.target.files?.[0]);e.target.value=""}}/></label>}
+   {!source&&value&&<button type="button" className="admin-clear-photo" onClick={()=>{setError("");onChange(null)}}>Убрать фото</button>}
    {error&&<small className="admin-photo-error">{error}</small>}
   </div>
  </div>;
