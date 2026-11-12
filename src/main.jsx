@@ -29,7 +29,10 @@ function ShopBrandMark({shop}){
   14:"https://logo-teka.com/wp-content/uploads/2025/06/magnit-cosmetic-logo.svg"
  };
  const banners={
-  7:"https://eda.yandex/images/3709189/b8ccc4b8b96de76f32cea0cd7d83650b-1100x825.jpg"
+  7:"https://icdn.lenta.ru/images/2023/04/25/10/20230425105728514/owl_pic_620_8f3ce8f42213048990b66c582e181332.jpg",
+  9:"https://img.artlebedev.ru/everything/5ka/future-stores-interiors/5ka-ds-grid-02.jpg",
+  10:"https://www.magnit.com/upload/iblock/b42/y6bck7t2tfnrpuso9dk74ceyjqxqjshy/DSCF5744.JPG",
+  14:"https://new-retail.ru/upload/resize_cache/iblock/e9f/972_648_2/xo4kq9u5hkyxz123o13cxifyflswni2nw.png.pagespeed.ic.sEqTF_lmEC.webp"
  };
  const logo=shop.logo_url||logos[id];
  const banner=banners[id];
