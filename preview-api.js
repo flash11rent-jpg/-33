@@ -124,6 +124,35 @@ load();
     } catch { return json(res, 502, { error: "Каталог временно недоступен" }); }
   }
 
+  // Forward shop-catalog administration to the production catalogue API.
+  if (path === "/api/admin/login" || path === "/api/admin/logout" || path === "/api/admin/catalog" || path === "/api/admin/shops" || path.startsWith("/api/admin/shops/")) {
+    try {
+      const headers = { Accept: "application/json" };
+      if (req.headers["x-admin-key"]) headers["X-Admin-Key"] = req.headers["x-admin-key"];
+      if (req.headers.authorization) headers.Authorization = req.headers.authorization;
+      let body;
+      if (req.method === "POST" || req.method === "PATCH") {
+        body = JSON.stringify(await readBody(req));
+        headers["Content-Type"] = "application/json";
+      }
+      const upstream = await fetch(UPSTREAM + path + url.search, {
+        method: req.method,
+        headers,
+        body,
+        signal: AbortSignal.timeout(15000)
+      });
+      const responseBody = await upstream.text();
+      res.writeHead(upstream.status, {
+        "Content-Type": upstream.headers.get("content-type") || "application/json; charset=utf-8",
+        "Cache-Control": "no-store"
+      });
+      return res.end(responseBody);
+    } catch (error) {
+      console.error("catalog admin proxy:", error.message);
+      return json(res, 502, { error: "Не удалось связаться с каталогом магазинов" });
+    }
+  }
+
   if (path.startsWith("/api/") && !pool) return json(res, 503, { error: "Хранение заказов ещё не подключено" });
 
   if (req.method === "POST" && path === "/api/orders") {
