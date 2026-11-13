@@ -60,6 +60,54 @@ const server = http.createServer(async (req, res) => {
   const url = new URL(req.url || "/", "http://localhost");
   const path = url.pathname;
 
+  if (req.method === "GET" && path === "/track") {
+    const id = url.searchParams.get("id") || "";
+    const token = url.searchParams.get("token") || "";
+    if (!/^[0-9a-f-]{36}$/i.test(id) || token.length < 32 || token.length > 200) {
+      res.writeHead(400, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" });
+      return res.end("<!doctype html><meta charset=utf-8><title>Тим-Тим — заказ</title><p>Некорректная ссылка на заказ.</p>");
+    }
+    const html = `<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer"><meta name="robots" content="noindex,nofollow">
+<title>Мой заказ — Тим-Тим</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f5f4ef;color:#183d32;font:16px/1.5 Manrope,Arial,sans-serif}
+main{max-width:680px;margin:0 auto;padding:28px 18px 56px}.brand{font-weight:800;letter-spacing:.04em;color:#183d32}
+.card{margin-top:22px;background:#fff;border:1px solid #e6e8e1;border-radius:22px;padding:24px;box-shadow:0 12px 36px #183d3210}
+h1{font-size:28px;margin:8px 0 4px}.muted{color:#718078}.status{display:inline-flex;padding:8px 14px;border-radius:999px;background:#e7f1e9;color:#245c3e;font-weight:700;margin:14px 0}
+.line{display:flex;justify-content:space-between;gap:16px;padding:11px 0;border-bottom:1px solid #edf0eb}.line:last-child{border:0}
+.items{padding:0;list-style:none}.items li{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #edf0eb}
+.total{font-size:20px;font-weight:800}.error{color:#a33}.refresh{border:0;border-radius:12px;background:#1d513e;color:white;padding:12px 18px;font:inherit;font-weight:700;cursor:pointer;margin-top:18px}
+@media(max-width:480px){.card{padding:18px}h1{font-size:24px}.line{display:block}.line strong{display:block}}
+</style></head><body><main><div class="brand">ТИМ-ТИМ</div><section class="card" id="card"><div class="muted">Информация о доставке</div><h1>Ваш заказ</h1><p class="muted">Загружаем информацию…</p></section></main>
+<script>
+const orderId=${JSON.stringify(id)}, token=${JSON.stringify(token)};
+const card=document.getElementById("card");
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const rub=n=>new Intl.NumberFormat("ru-RU").format(Number(n)||0)+" ₽";
+async function load(){
+ try{
+  const r=await fetch("/api/orders/"+encodeURIComponent(orderId)+"?token="+encodeURIComponent(token),{cache:"no-store"});
+  const data=await r.json(); if(!r.ok||!data.order) throw new Error(data.error||"Заказ не найден");
+  const o=data.order, items=Array.isArray(o.items)?o.items:[];
+  const status=o.status||"Принят";
+  card.innerHTML='<div class="muted">Информация о доставке</div><h1>Заказ №'+esc(o.order_number)+'</h1><div class="status">'+esc(status)+'</div>'+
+   '<div class="line"><span class="muted">Магазин</span><strong>'+esc(o.shop_name)+'</strong></div>'+
+   '<h3>Состав заказа</h3><ul class="items">'+items.map(x=>'<li><span>'+esc(x.name)+' × '+esc(x.qty)+'</span><strong>'+rub(x.lineTotal??(x.price*x.qty))+'</strong></li>').join("")+'</ul>'+
+   '<div class="line"><span class="muted">Товары</span><strong>'+rub(o.items_total_rub)+'</strong></div>'+
+   '<div class="line"><span class="muted">Доставка</span><strong>'+(o.delivery_fee_rub==null?"Уточняется":rub(o.delivery_fee_rub))+'</strong></div>'+
+   '<div class="line total"><span>Итого</span><strong>'+rub(o.total_rub)+'</strong></div>'+
+   '<p class="muted">Статус обновляется по мере обработки заказа. Сохраните эту ссылку, чтобы вернуться к заказу.</p>'+
+   '<button class="refresh" type="button" onclick="load()">Обновить статус</button>';
+ }catch(e){card.innerHTML='<h1>Не удалось открыть заказ</h1><p class="error">'+esc(e.message)+'</p><p class="muted">Проверьте, что открыта полная ссылка из сообщения после оформления заказа.</p>'}
+}
+load();
+</script></body></html>`;
+    res.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", "Referrer-Policy": "no-referrer", "X-Content-Type-Options": "nosniff" });
+    return res.end(html);
+  }
+
   if (req.method === "GET" && path === "/health") return json(res, 200, { ok: true, service: "tim-tim-preview-api" });
   if (req.method === "GET" && path === "/ready") {
     if (!pool) return json(res, 503, { ok: false, database: "not_configured" });
@@ -113,7 +161,7 @@ const server = http.createServer(async (req, res) => {
          RETURNING id, order_number, status, total_rub, created_at`,
         [sha256(token), b.shopId, shop.name, JSON.stringify(snapshot), total, b.phone.trim(), b.address.trim(), (b.comment || "").trim()]
       );
-      return json(res, 201, { order: inserted.rows[0], trackingToken: token });
+      const trackingUrl = "https://" + req.headers.host + "/track?id=" + encodeURIComponent(inserted.rows[0].id) + "&token=" + encodeURIComponent(token);\n      return json(res, 201, { order: inserted.rows[0], trackingToken: token, trackingUrl });
     } catch (e) { console.error("create order:", e.message); return json(res, 500, { error: "Не удалось оформить заказ" }); }
   }
 
