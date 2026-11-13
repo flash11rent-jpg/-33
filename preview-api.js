@@ -124,8 +124,18 @@ load();
     } catch { return json(res, 502, { error: "Каталог временно недоступен" }); }
   }
 
+  if (req.method === "POST" && path === "/api/admin/login") {
+    try {
+      const b = await readBody(req);
+      const password = process.env.ADMIN_PASSWORD || "";
+      if (!password || !ADMIN_KEY) return json(res, 503, { error: "Вход оператора ещё не настроен на сервере" });
+      if (!safeEqual(b.password, password)) return json(res, 401, { error: "Неверный пароль оператора" });
+      return json(res, 200, { sessionToken: ADMIN_KEY });
+    } catch { return json(res, 400, { error: "Некорректный запрос входа" }); }
+  }
+
   // Forward shop-catalog administration to the production catalogue API.
-  if (path === "/api/admin/login" || path === "/api/admin/logout" || path === "/api/admin/catalog" || path === "/api/admin/shops" || path.startsWith("/api/admin/shops/")) {
+  if (path === "/api/admin/logout" || path === "/api/admin/catalog" || path === "/api/admin/shops" || path.startsWith("/api/admin/shops/")) {
     try {
       const headers = { Accept: "application/json" };
       if (req.headers["x-admin-key"]) headers["X-Admin-Key"] = req.headers["x-admin-key"];
