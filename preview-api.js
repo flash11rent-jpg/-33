@@ -161,7 +161,8 @@ load();
          RETURNING id, order_number, status, total_rub, created_at`,
         [sha256(token), b.shopId, shop.name, JSON.stringify(snapshot), total, b.phone.trim(), b.address.trim(), (b.comment || "").trim()]
       );
-      const trackingUrl = "https://" + req.headers.host + "/track?id=" + encodeURIComponent(inserted.rows[0].id) + "&token=" + encodeURIComponent(token);\n      return json(res, 201, { order: inserted.rows[0], trackingToken: token, trackingUrl });
+      const trackingUrl = "https://" + req.headers.host + "/track?id=" + encodeURIComponent(inserted.rows[0].id) + "&token=" + encodeURIComponent(token);
+      return json(res, 201, { order: inserted.rows[0], trackingToken: token, trackingUrl });
     } catch (e) { console.error("create order:", e.message); return json(res, 500, { error: "Не удалось оформить заказ" }); }
   }
 
