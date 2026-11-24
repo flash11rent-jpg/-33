@@ -52,7 +52,7 @@ const server = http.createServer(async (req, res) => {
   if (origin && ALLOWED_ORIGINS.includes(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
     res.setHeader("Vary", "Origin");
-    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, OPTIONS");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, PUT, DELETE, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type, X-Order-Token, X-Admin-Key");
   }
   if (req.method === "OPTIONS") { res.writeHead(204); return res.end(); }
@@ -147,7 +147,7 @@ load();
       if (req.headers["x-admin-key"]) headers["X-Admin-Key"] = req.headers["x-admin-key"];
       if (req.headers.authorization) headers.Authorization = req.headers.authorization;
       let body;
-      if (req.method === "POST" || req.method === "PATCH") {
+      if (["POST", "PATCH", "PUT", "DELETE"].includes(req.method)) {
         body = JSON.stringify(await readBody(req));
         headers["Content-Type"] = "application/json";
       }
