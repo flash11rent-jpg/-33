@@ -135,7 +135,13 @@ load();
   }
 
   // Forward shop-catalog administration to the production catalogue API.
-  if (path === "/api/admin/logout" || path === "/api/admin/catalog" || path === "/api/admin/shops" || path.startsWith("/api/admin/shops/")) {
+  if (
+    path === "/api/admin/logout" ||
+    path === "/api/admin/catalog" ||
+    path === "/api/admin/shops" || path.startsWith("/api/admin/shops/") ||
+    path === "/api/admin/products" || path.startsWith("/api/admin/products/") ||
+    path === "/api/admin/categories" || path.startsWith("/api/admin/categories/")
+  ) {
     try {
       const headers = { Accept: "application/json" };
       if (req.headers["x-admin-key"]) headers["X-Admin-Key"] = req.headers["x-admin-key"];
